@@ -1,0 +1,86 @@
+{
+  "courseId": "theater-performance",
+  "courseSlug": "theater-performance",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Theater and Performance",
+  "description": "Develop acting skills, stage presence, and theatrical techniques through exercises and performances.",
+  "backgroundImage": "/lovable-uploads/theater-performance-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Arts",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Theater",
+      "description": "Explore the history and elements of theater",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Theater Basics",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 2,
+      "title": "Voice and Diction",
+      "description": "Develop vocal skills for the stage",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Acting Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Movement and Body Language",
+      "description": "Learn physical expression and stage movement",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Acting Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Character Development",
+      "description": "Create and embody theatrical characters",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Performance",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Scene Study",
+      "description": "Analyze and perform theatrical scenes",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Performance",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 6,
+      "title": "Improvisation",
+      "description": "Practice spontaneous performance techniques",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 4: Advanced Techniques",
+      "unitColor": "bg-green-100 text-green-700"
+    }
+  ]
+}

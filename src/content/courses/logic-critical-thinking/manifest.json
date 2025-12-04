@@ -1,0 +1,186 @@
+{
+  "courseId": "logic-critical-thinking",
+  "courseSlug": "logic-critical-thinking",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Logic and Critical Thinking",
+  "description": "Develop essential reasoning skills, identify logical fallacies, and learn to construct and evaluate arguments effectively.",
+  "backgroundImage": "",
+  "estimatedHours": 7,
+  "difficultyLevel": "intermediate",
+  "category": "Humanities",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Critical Thinking",
+      "description": "What is critical thinking and why does it matter?",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Art of Thinking Clearly",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Critical thinking is the ability to analyze information objectively and make reasoned judgments. It's one of the most valuable skills you can develop for academic success and life."
+        },
+        {
+          "type": "list",
+          "items": [
+            "What is critical thinking?",
+            "Identifying assumptions and biases",
+            "Evaluating evidence",
+            "Recognizing logical fallacies",
+            "Building strong arguments",
+            "Decision-making and problem-solving"
+          ]
+        }
+      ],
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Arguments and Reasoning",
+      "description": "Understanding premises, conclusions, and valid reasoning",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Structure of Arguments",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "An argument consists of premises (reasons) that support a conclusion. Understanding this structure is essential for both constructing and evaluating arguments."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "A good argument has true premises that actually support the conclusion. Both structure and content matter!"
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Deductive Reasoning",
+      "description": "Arguments that guarantee their conclusions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Logical Certainty",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Deductive arguments, when valid and sound, provide absolute certainty. If the premises are true, the conclusion must be true."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Types of Reasoning",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Inductive Reasoning",
+      "description": "Arguments based on probability and patterns",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Reasoning from Evidence",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Inductive reasoning draws probable conclusions from observations and patterns. It's the foundation of scientific thinking and everyday decision-making."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Types of Reasoning",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Logical Fallacies",
+      "description": "Common errors in reasoning and how to spot them",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Recognizing Bad Arguments",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Logical fallacies are errors in reasoning that undermine arguments. Learning to identify them helps you think more clearly and avoid being misled."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Ad hominem: Attacking the person, not the argument",
+            "Straw man: Misrepresenting an opponent's position",
+            "False dilemma: Presenting only two options when more exist",
+            "Appeal to authority: Trusting claims based on who said them",
+            "Slippery slope: Assuming one thing will inevitably lead to another",
+            "Hasty generalization: Drawing conclusions from insufficient evidence"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Analysis Skills",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Evaluating Evidence and Sources",
+      "description": "Assessing credibility and reliability of information",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Information Literacy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "In the age of information overload, knowing how to evaluate sources and evidence is crucial. Not all information is created equal."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Analysis Skills",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "Critical Thinking in Practice",
+      "description": "Applying critical thinking to real-world situations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Using Your Skills",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Critical thinking isn't just an academic exercise—it's a practical tool for making better decisions, solving problems, and understanding the world."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Congratulations! You now have the tools to think more clearly, argue more effectively, and make better decisions."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Applications",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

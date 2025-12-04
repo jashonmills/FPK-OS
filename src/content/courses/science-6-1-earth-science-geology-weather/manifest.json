@@ -1,0 +1,225 @@
+{
+  "courseId": "science-6-1-earth-science-geology-weather",
+  "courseSlug": "science-6-1-earth-science-geology-weather",
+  "contentVersion": "v2",
+  "title": "Science 6.1: Earth Science - Geology & Weather",
+  "description": "Explore the dynamic forces that shape our planet, from the rocks beneath our feet to the weather patterns in the sky.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Three Types of Rocks",
+      "description": "Identify the three main types of rocks and understand the rock cycle as a continuous process.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the three main types of rocks: igneous, sedimentary, and metamorphic.",
+            "Describe how each type of rock is formed.",
+            "Understand the concept of the rock cycle as a continuous process."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Earth's Building Blocks",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The ground beneath us is made of rock, but not all rocks are the same. Geologists classify rocks into three main groups based on how they are formed. The rock cycle is the process by which rocks of one kind change into rocks of another kind. It's a slow, continuous cycle of heating, cooling, pressure, weathering, and erosion that has been shaping our planet for billions of years."
+        },
+        {
+          "type": "heading",
+          "content": "The Three Rock Types",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Igneous:** Formed from the cooling and solidification of molten rock (magma or lava). Examples include granite and basalt.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Sedimentary:** Formed from the compaction and cementation of small particles called sediments (like sand, mud, and organic material). Examples include sandstone and limestone.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Metamorphic:** Formed when existing rocks are changed by intense heat and pressure deep within the Earth. Examples include marble (from limestone) and slate (from shale).",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Rock Cycle and Plate Tectonics",
+      "unitColor": "bg-amber-500"
+    },
+    {
+      "id": 2,
+      "title": "Plate Tectonics and Earth's Layers",
+      "description": "Explore the theory of plate tectonics and the three types of plate boundaries.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the main layers of the Earth: crust, mantle, and core.",
+            "Define the theory of plate tectonics.",
+            "Describe the three types of plate boundaries: convergent, divergent, and transform."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A Dynamic Planet",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Earth's surface is not a single solid piece. It is broken into large, rigid plates that are constantly moving, floating on the semi-molten mantle beneath. The theory of plate tectonics explains how these plates move and interact, causing major geological events like earthquakes, volcanic eruptions, and the formation of mountain ranges. This movement is the primary driving force behind the rock cycle."
+        },
+        {
+          "type": "heading",
+          "content": "Plate Boundaries",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Convergent Boundary:** Where two plates collide. This can form mountains (if both are continental plates) or cause one plate to slide under the other (subduction), leading to volcanoes.",
+          "style": "warning"
+        },
+        {
+          "type": "callout",
+          "content": "**Divergent Boundary:** Where two plates move apart. Magma rises from the mantle to create new crust, often forming mid-ocean ridges.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Transform Boundary:** Where two plates slide past each other horizontally. This movement is not smooth and can build up stress that is released as an earthquake.",
+          "style": "error"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Rock Cycle and Plate Tectonics",
+      "unitColor": "bg-amber-500"
+    },
+    {
+      "id": 3,
+      "title": "The Water Cycle",
+      "description": "Understand the continuous movement of water through evaporation, condensation, precipitation, and collection.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the main processes of the water cycle: evaporation, condensation, precipitation, and collection.",
+            "Understand that the water cycle is driven by energy from the sun.",
+            "Explain how the water cycle moves water around the planet."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Earth's Water in Motion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The water cycle describes the continuous movement of water on, above, and below the surface of the Earth. The total amount of water on Earth remains fairly constant over time, but it is constantly changing states (solid, liquid, gas) and moving from one place to another. This cycle is essential for all life on Earth and is a major driver of weather patterns."
+        },
+        {
+          "type": "heading",
+          "content": "The Four Main Stages",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Evaporation:** The sun's energy heats water in oceans, lakes, and rivers, causing it to turn into water vapor (a gas) and rise into the atmosphere.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Condensation:** As the water vapor rises, it cools and changes back into tiny liquid water droplets, forming clouds.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Precipitation:** When the water droplets in clouds become too heavy, they fall back to Earth as rain, snow, sleet, or hail.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Collection:** The fallen precipitation is collected in bodies of water like oceans and rivers, or soaks into the ground, starting the cycle all over again.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Weather and Climate",
+      "unitColor": "bg-blue-500"
+    },
+    {
+      "id": 4,
+      "title": "Weather Patterns and Fronts",
+      "description": "Learn how air masses and fronts create weather patterns and drive daily weather changes.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define weather as the state of the atmosphere at a specific time and place.",
+            "Understand that weather is caused by the uneven heating of the Earth by the sun.",
+            "Describe how air masses and fronts lead to changes in weather."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Cause of Weather",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Weather is the day-to-day condition of the atmosphere. It's driven by the sun, which heats the Earth unevenly. This uneven heating creates large bodies of air with uniform temperature and humidity, called air masses. When these different air masses meet, they don't mix easily. The boundary between them is called a front, and this is where most interesting weather, like storms and precipitation, occurs."
+        },
+        {
+          "type": "heading",
+          "content": "Types of Fronts",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Cold Front:** A fast-moving cold air mass pushes under a warm air mass. This often brings sudden, heavy rain and thunderstorms, followed by cooler, clearer weather.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Warm Front:** A warm air mass slides up and over a slower cold air mass. This typically brings gentle, steady rain or snow, followed by warmer, more humid weather.",
+          "style": "warning"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Weather and Climate",
+      "unitColor": "bg-blue-500"
+    }
+  ]
+}

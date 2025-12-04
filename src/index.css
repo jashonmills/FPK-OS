@@ -1,0 +1,759 @@
+
+/* Import accessible fonts - must come first */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FPK University Design System */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 33 50% 96%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 280 65% 25%;  /* Darker purple for better contrast */
+    --primary-variant: 280 65% 20%;  /* Even darker for gradient steps */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 280 50% 30%;  /* Darker accent for better contrast */
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: 222.2 84% 4.9%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 280 65% 35%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 280 65% 35%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 38 95% 48%;
+    --sidebar-primary-foreground: 280 65% 35%;
+    --sidebar-accent: 280 70% 40%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 280 70% 30%;
+    --sidebar-ring: 38 95% 48%;
+
+    /* FPK University Custom Variables */
+    --fpk-primary: 280 65% 25%;  /* Darker for better contrast */
+    --fpk-secondary: 38 95% 48%;
+    --fpk-card: 33 50% 96%;
+    --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+
+    /* Enhanced UI Polish Variables */
+    --learning-success: 120 60% 50%;
+    --learning-warning: 45 100% 60%;
+    --learning-error: 0 72% 51%;
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
+    --shadow-subtle: 0 2px 8px -2px hsl(var(--foreground) / 0.1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Mobile-first accessibility variables */
+    --mobile-base-font-size: 14px;
+    --desktop-base-font-size: 16px;
+    --mobile-line-height: 1.6;
+    --desktop-line-height: 1.5;
+    --touch-target-min: 44px;
+
+    /* FPK Homepage Colors */
+    --fpk-orange: 18 100% 54%;
+    
+    /* Organization Theme Colors */
+    --org-bg-orange: 25 85% 53%;
+    --org-tile-bg: var(--org-bg-orange);
+    --org-tile-border: var(--org-bg-orange);
+    --org-tile-text: 0 0% 20%;
+
+    /* Enhanced Branding Variables */
+    --brand-accent: var(--accent);
+    --brand-accent-600: var(--accent);
+    --brand-accent-700: var(--accent);
+    --brand-contrast: var(--accent-foreground);
+    --brand-surface: rgba(255,255,255,0.60);
+    --brand-ring: var(--ring);
+    --brand-radius: var(--radius);
+  }
+
+  .dark {
+    /* True Dark Mode - Manus UI Aesthetic */
+    --background: 0 0% 9%;           /* Deep charcoal #181818 */
+    --foreground: 0 0% 96%;          /* Off-white #F5F5F5 */
+
+    --card: 0 0% 12%;                /* Slightly lighter #1F1F1F */
+    --card-foreground: 0 0% 96%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 199 89% 61%;          /* Vibrant blue #38BDF8 */
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 16%;           /* Lighter dark grey #2A2A2A */
+    --secondary-foreground: 0 0% 96%;
+
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 63%;    /* Light grey #A0A0A0 */
+
+    --accent: 199 89% 61%;           /* Accent blue #38BDF8 */
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 96%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 96%;
+
+    --warning: 48 96% 53%;
+    --warning-foreground: 0 0% 9%;
+
+    --border: 0 0% 16%;              /* Subtle borders #2A2A2A */
+    --input: 0 0% 16%;
+    --ring: 199 89% 61%;
+
+    /* Coach Portal specific dark mode */
+    --sidebar-background: 0 0% 12%;
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 199 89% 61%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 199 89% 61%;
+
+    /* Enhanced shadows for dark mode */
+    --shadow-elegant: 0 10px 30px -10px rgba(56, 189, 248, 0.3);
+    --shadow-subtle: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    scroll-behavior: smooth;
+  }
+
+  /* Organization layout specific overflow control */
+  .org-main-container {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Only constrain direct container children, not all descendants */
+  .org-main-container > * {
+    max-width: 100% !important;
+  }
+
+  html {
+    font-size: var(--mobile-base-font-size);
+    overflow-x: hidden;
+    height: 100%;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: var(--desktop-base-font-size);
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+    transition: all 0.2s ease;
+    line-height: var(--mobile-line-height);
+    min-height: 100%;
+  }
+
+  @media (min-width: 768px) {
+    body {
+      line-height: var(--desktop-line-height);
+    }
+  }
+
+  /* Accessibility font size and line height system */
+  html.accessibility-active {
+    font-size: var(--accessibility-font-size) !important;
+  }
+
+  html.accessibility-active * {
+    line-height: var(--accessibility-line-height) !important;
+  }
+
+  /* HIGH CONTRAST MODE - Selective approach */
+  html.high-contrast {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 10%;
+  }
+
+  html.high-contrast .fpk-card,
+  html.high-contrast .bg-card {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+  }
+
+  html.high-contrast button {
+    background-color: black !important;
+    color: white !important;
+    border: 2px solid black !important;
+  }
+
+  html.high-contrast button:hover {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  html.high-contrast input,
+  html.high-contrast textarea,
+  html.high-contrast select {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+  }
+
+  html.high-contrast svg {
+    color: currentColor !important;
+    fill: currentColor !important;
+  }
+
+  /* COMFORT MODES - Targeted approach */
+  html.low-stimulus .fpk-card,
+  html.low-stimulus .bg-card {
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+  }
+
+  html.low-stimulus {
+    --card: 248 250 252;
+    --card-foreground: 51 65 85;
+  }
+
+  html.focus-mode .fpk-card,
+  html.focus-mode .bg-card {
+    background-color: #eff6ff !important;
+    color: #1e3a8a !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  html.focus-mode {
+    --card: 239 246 255;
+    --card-foreground: 30 58 138;
+  }
+}
+
+@layer utilities {
+  /* FPK University Brand Utilities */
+  .fpk-gradient {
+    background: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+  }
+  
+  .fpk-card {
+    background-color: #FBF6F0;
+  }
+  
+  /* Organization theme utilities */
+  .org-tile {
+    background-color: hsl(0 0% 100% / 0.65);
+    border: 1px solid hsl(0 0% 100% / 0.2);
+    overflow: visible;
+    position: relative;
+  }
+  
+  .org-background {
+    background-color: hsl(25 85% 53% / 0.65);
+  }
+  
+  .fpk-text-gradient {
+    background: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Mobile-First Responsive Layout Utilities */
+  .mobile-container {
+    @apply w-full px-3 sm:px-4 md:px-6 lg:px-8;
+  }
+
+  .mobile-page-container {
+    @apply mobile-container py-4 sm:py-6 md:py-8;
+  }
+
+  .mobile-grid {
+    @apply grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4;
+  }
+
+  .mobile-grid-2 {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4;
+  }
+
+  .mobile-analytics-grid {
+    @apply grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:gap-4;
+  }
+
+  .mobile-nav-grid {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4;
+  }
+
+  /* Mobile Typography Utilities */
+  .mobile-heading-xl {
+    @apply text-xl font-bold leading-tight sm:text-2xl md:text-3xl;
+  }
+
+  .mobile-heading-lg {
+    @apply text-lg font-semibold leading-tight sm:text-xl md:text-2xl;
+  }
+
+  .mobile-heading-md {
+    @apply text-base font-semibold leading-tight sm:text-lg md:text-xl;
+  }
+
+  .mobile-text-base {
+    @apply text-sm leading-relaxed sm:text-base;
+  }
+
+  .mobile-text-sm {
+    @apply text-xs leading-relaxed sm:text-sm;
+  }
+
+  .mobile-text-xs {
+    @apply text-xs leading-normal;
+  }
+
+  /* Mobile Card Utilities */
+  .mobile-card {
+    @apply border-0 shadow-sm rounded-lg;
+  }
+
+  .mobile-card-padding {
+    @apply p-3 sm:p-4 md:p-6;
+  }
+
+  .mobile-card-compact {
+    @apply p-2 sm:p-3 md:p-4;
+  }
+
+  .mobile-card-interactive {
+    @apply mobile-card mobile-hover-lift cursor-pointer mobile-transition;
+  }
+
+  /* Touch-Friendly Interactive Elements */
+  .mobile-button {
+    @apply min-h-[44px] px-4 py-2 text-sm font-medium rounded-lg transition-colors;
+  }
+
+  .mobile-input {
+    @apply w-full min-h-[44px] px-3 py-2 text-base rounded-lg border transition-colors;
+  }
+
+  .mobile-touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Mobile Spacing Utilities */
+  .mobile-section-spacing {
+    @apply space-y-4 sm:space-y-6 md:space-y-8;
+  }
+
+  .mobile-stack {
+    @apply space-y-3 sm:space-y-4 md:space-y-6;
+  }
+
+  /* Mobile Navigation Utilities */
+  .mobile-tab-list {
+    @apply flex overflow-x-auto scrollbar-hide gap-1 p-1 bg-muted rounded-lg relative z-10;
+  }
+
+  .mobile-tab-trigger {
+    @apply flex-shrink-0 px-3 py-2 text-sm font-medium rounded-md transition-colors mobile-touch-target whitespace-nowrap z-10 relative;
+  }
+
+  /* Mobile Dropdown Fixes */
+  .mobile-dropdown-content {
+    @apply z-[100] bg-background border shadow-lg;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .mobile-dropdown-portal {
+    @apply z-[9999];
+  }
+
+  /* Prevent viewport jumping when dropdowns open */
+  body:has([data-radix-popper-content-wrapper]) {
+    overflow: hidden;
+  }
+  
+  @media (max-width: 768px) {
+    body:has([data-radix-popper-content-wrapper]) {
+      position: relative;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    [data-radix-popper-content-wrapper] {
+      z-index: 100 !important;
+    }
+    
+    [data-radix-dropdown-content] {
+      z-index: 100 !important;
+      background: hsl(var(--background)) !important;
+      border: 1px solid hsl(var(--border)) !important;
+      box-shadow: 0 10px 38px -10px hsla(206, 22%, 7%, .35), 0 10px 20px -15px hsla(206, 22%, 7%, .2) !important;
+    }
+  }
+
+  /* Mobile Content Utilities */
+  .mobile-scroll-container {
+    @apply overflow-y-auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-safe-text {
+    @apply break-words hyphens-auto;
+    overflow-wrap: anywhere;
+  }
+
+  /* Hide scrollbars while keeping functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile-optimized animations */
+  .mobile-transition {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .mobile-hover-lift {
+    @apply mobile-transition hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* Mobile-specific responsive breakpoint utilities */
+  @media (max-width: 640px) {
+    .mobile-full-width {
+      @apply w-full;
+    }
+    
+    .mobile-center {
+      @apply mx-auto text-center;
+    }
+    
+    .mobile-hidden {
+      @apply hidden;
+    }
+    
+    .mobile-visible {
+      @apply block;
+    }
+  }
+
+  /* Enhanced Responsive Layout Utilities (keeping existing) */
+  .responsive-container {
+    @apply mobile-container;
+  }
+
+  .responsive-grid {
+    @apply mobile-grid;
+  }
+
+  .responsive-text {
+    @apply mobile-text-base;
+  }
+
+  .responsive-heading {
+    @apply mobile-heading-lg;
+  }
+
+  .responsive-card-padding {
+    @apply mobile-card-padding;
+  }
+
+  .responsive-spacing {
+    @apply mobile-section-spacing;
+  }
+
+  /* Quick Study Challenges Layout (optimized for mobile) */
+  .challenge-container {
+    @apply grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr];
+  }
+
+  /* Phase 3 QA Polish Utilities */
+  .ui-polish-container {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .ui-polish-spacing {
+    @apply space-y-4 sm:space-y-6 md:space-y-8;
+  }
+
+  .ui-polish-card {
+    @apply bg-card rounded-lg border shadow-[var(--shadow-subtle)] transition-[var(--transition-smooth)];
+  }
+
+  .ui-polish-button {
+    @apply min-h-[44px] transition-[var(--transition-smooth)] hover:shadow-[var(--shadow-elegant)];
+  }
+
+  .ui-polish-text {
+    @apply text-foreground/90 leading-relaxed;
+  }
+
+  /* Mobile-First Button Group Utilities */
+  .mobile-button-group-vertical {
+    @apply flex flex-col gap-2 w-full;
+  }
+
+  .mobile-button-group-horizontal {
+    @apply flex flex-col gap-2 sm:flex-row sm:gap-3;
+  }
+
+  .mobile-button-group-equal {
+    @apply mobile-button-group-horizontal [&>*]:flex-1;
+  }
+
+  /* ========================================
+     BACKGROUND IMAGE OVERLAY - UX ENHANCEMENT
+     ======================================== */
+
+  /**
+   * Global overlay for course background images.
+   * Purpose: Reduce visual noise and cognitive load for neurodiverse users.
+   * 
+   * Effects:
+   * - Subtle vignette (darker edges, lighter center)
+   * - 5px blur to soften fine details
+   * - Dark cool tone (rgba(25, 25, 35)) for natural appearance
+   */
+  .background-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none; /* Ensures clicks pass through to content */
+    
+    /* Part 1: Radial vignette gradient */
+    background: radial-gradient(
+      circle, 
+      rgba(25, 25, 35, 0.1) 0%,     /* Very subtle at center */
+      rgba(25, 25, 35, 0.35) 90%    /* Darker at edges */
+    );
+    
+    /* Part 2: Blur effect to reduce detail */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px); /* Safari support */
+  }
+
+  /* Mobile-safe overflow handling */
+  .mobile-overflow-safe {
+    @apply max-w-full overflow-hidden;
+  }
+
+  .mobile-text-overflow-safe {
+    @apply mobile-safe-text break-words hyphens-auto;
+    word-wrap: anywhere;
+    overflow-wrap: anywhere;
+  }
+
+  /* Enhanced mobile button utilities */
+  .mobile-icon-button {
+    @apply mobile-touch-target flex items-center justify-center gap-2 rounded-lg transition-colors;
+  }
+
+  .mobile-action-button {
+    @apply mobile-button text-center justify-center;
+  }
+
+  /* Mobile form utilities */  
+  .mobile-form-group {
+    @apply mobile-stack;
+  }
+
+  .mobile-form-row {
+    @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3;
+  }
+
+  .mobile-form-actions {
+    @apply mobile-button-group-equal pt-4 border-t border-border;
+  }
+  .no-debug [data-dev-only] {
+    @apply hidden;
+  }
+
+  /* Video Modal Utilities - Top-positioned modal */
+  :root {
+    --help-modal-top: 120px;
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      --help-modal-top: 100px;
+    }
+  }
+
+  /* Override default dialog positioning */
+  .helpModal-top {
+    position: fixed !important;
+    top: var(--help-modal-top) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    max-height: calc(100vh - var(--help-modal-top) - 32px) !important;
+    overflow-y: auto;
+  }
+
+  .helpModal {
+    max-width: min(1100px, 90vw);
+    width: 100%;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    position: relative;
+    padding: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .helpModal {
+      padding: 16px;
+    }
+  }
+
+  .video-modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0;
+  }
+
+  .closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    line-height: 1;
+    font-size: 20px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  /* Responsive video like Library */
+  .videoWrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #000;
+  }
+
+  .videoWrap iframe,
+  .videoWrap video {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0;
+    display: block;
+  }
+
+  /* Remove accidental inner spacing that causes offset */
+  .helpModal .videoWrap > * {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide scrollbar but keep scrolling functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Course Page Text Contrast Utilities */
+  /* Dual-layer text shadows for maximum readability over any background */
+  .course-hero-title {
+    @apply text-white font-bold drop-shadow-lg;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5), 
+                 0px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .course-hero-subtitle {
+    @apply text-white font-medium;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .course-hero-text {
+    @apply text-white;
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Enhanced glassmorphism tiles with better opacity for readability */
+  .course-glass-tile {
+    @apply backdrop-blur-sm rounded-lg border;
+    background-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .course-glass-tile-strong {
+    @apply backdrop-blur-md rounded-lg border;
+    background-color: rgba(255, 255, 255, 0.45);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .course-accordion-trigger {
+    @apply backdrop-blur-sm rounded-lg border font-semibold;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.25);
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .course-accordion-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .course-accordion-content {
+    @apply backdrop-blur-sm rounded-lg border;
+    background-color: rgba(255, 255, 255, 0.38);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}

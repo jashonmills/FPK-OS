@@ -1,0 +1,98 @@
+{
+  "courseId": "us-history-colonial-modern",
+  "courseSlug": "us-history-colonial-modern",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "U.S. History: Colonial to Modern",
+  "description": "Journey through American history from colonial times to the present, exploring key events and movements.",
+  "backgroundImage": "/lovable-uploads/us-history-colonial-modern-bg.jpg",
+  "estimatedHours": 4,
+  "difficultyLevel": "intermediate",
+  "category": "Social Studies",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Colonial America",
+      "description": "Explore early American colonies and indigenous peoples",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Early America",
+      "unitColor": "bg-amber-100 text-amber-700"
+    },
+    {
+      "id": 2,
+      "title": "The American Revolution",
+      "description": "Learn about the fight for independence",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Early America",
+      "unitColor": "bg-amber-100 text-amber-700"
+    },
+    {
+      "id": 3,
+      "title": "Building a Nation",
+      "description": "Study the Constitution and early republic",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Nation Building",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Westward Expansion",
+      "description": "Explore territorial growth and its consequences",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Nation Building",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Civil War and Reconstruction",
+      "description": "Understand the conflict and its aftermath",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Division and Reunion",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 6,
+      "title": "Industrialization and Immigration",
+      "description": "Learn about America's transformation into an industrial power",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Modern America",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 7,
+      "title": "20th Century America",
+      "description": "Study world wars, civil rights, and contemporary history",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Modern America",
+      "unitColor": "bg-gray-100 text-gray-700"
+    }
+  ]
+}

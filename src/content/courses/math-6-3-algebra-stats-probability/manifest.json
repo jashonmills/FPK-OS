@@ -1,0 +1,365 @@
+{
+  "courseId": "math-6-3-algebra-stats-probability",
+  "courseSlug": "math-6-3-algebra-stats-probability",
+  "contentVersion": "v2",
+  "title": "Math 6.3: Introduction to Algebra, Statistics & Probability",
+  "description": "This course introduces three critical areas of mathematics: using variables to solve problems, understanding data, and analyzing chance.",
+  "backgroundImage": "/course-images/math-6-3-algebra-stats-probability-bg.jpg",
+  "estimatedHours": 9,
+  "difficultyLevel": "beginner",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Writing and Evaluating Expressions",
+      "description": "Understand the use of variables and learn to write and evaluate algebraic expressions.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Introduction to Algebra",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Understand the use of variables to represent unknown numbers.",
+            "Write algebraic expressions from verbal descriptions.",
+            "Evaluate expressions by substituting given values for variables."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Language of Algebra",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Algebra is a powerful tool that uses letters, called variables, to represent numbers. This allows us to write general rules and solve problems where a value is unknown. An 'expression' is a mathematical phrase that can contain numbers, variables, and operators (like +, -, *, /). For example, 'x + 5' is an expression that means 'a number plus five'."
+        },
+        {
+          "type": "heading",
+          "content": "Evaluating Expressions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To 'evaluate' an expression means to find its numerical value. We do this by substituting a given number for the variable. If we need to evaluate the expression 2y - 3 when y = 4, we replace 'y' with '4':"
+        },
+        {
+          "type": "code",
+          "content": "2(4) - 3 = 8 - 3 = 5",
+          "language": "plaintext"
+        },
+        {
+          "type": "quiz",
+          "question": "Evaluate the expression 3a + 1 when a = 5.",
+          "options": ["15", "16", "9"],
+          "correctAnswer": "16",
+          "explanation": "Remember to substitute the value for the variable and then follow the order of operations."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Solving One-Step Equations",
+      "description": "Learn to solve equations using inverse operations to isolate the variable.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Introduction to Algebra",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define an equation as a statement that two expressions are equal.",
+            "Understand the goal of solving an equation is to isolate the variable.",
+            "Use inverse operations to solve one-step equations involving addition, subtraction, multiplication, and division."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Keeping the Balance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An equation is like a balanced scale. Whatever you do to one side, you must do to the other to keep it balanced. Our goal is to find the value of the variable that makes the equation true. To do this, we 'isolate' the variable by using inverse operations to undo what's being done to it."
+        },
+        {
+          "type": "heading",
+          "content": "Inverse Operations",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Addition's inverse is Subtraction: To solve x + 7 = 10, we subtract 7 from both sides: x = 3.",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Multiplication's inverse is Division: To solve 4y = 20, we divide both sides by 4: y = 5.",
+          "style": "teaching"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the solution to the equation n - 5 = 12?",
+          "options": ["7", "17", "-7"],
+          "correctAnswer": "17",
+          "explanation": "Remember to use the inverse operation. To undo subtraction, you need to add."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Statistical Questions and Data Distribution",
+      "description": "Recognize statistical questions and learn to describe data distributions.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Introduction to Statistics",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Recognize a statistical question as one that anticipates variability in the data.",
+            "Understand the concept of a data distribution.",
+            "Describe a distribution by its center, spread, and overall shape."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "What is a Statistical Question?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A statistical question is one that you don't expect to get a single answer for. 'How tall am I?' is not a statistical question. But 'How tall are the students in my class?' IS a statistical question, because you anticipate a variety of answers. Statistics is the science of collecting, analyzing, and interpreting this variability."
+        },
+        {
+          "type": "heading",
+          "content": "Describing Data",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Center: Where is the middle of the data? We can measure this with the mean (average) or median (middle value).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Spread: How spread out are the data points? The range (max - min) is a simple measure of spread.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Shape: Does the data have a peak? Is it symmetric? Are there clusters or gaps?",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a statistical question?",
+          "options": ["What is the principal's name?", "How many minutes do 6th graders spend on homework each night?", "What year was the school built?"],
+          "correctAnswer": "How many minutes do 6th graders spend on homework each night?",
+          "explanation": "Remember, a statistical question is one where you expect a variety of answers, not just one."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Measures of Center and Variability",
+      "description": "Calculate mean, median, mode, and range to summarize data sets.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Introduction to Statistics",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Calculate the mean, median, and mode of a data set.",
+            "Calculate the range of a data set.",
+            "Understand how outliers can affect measures of center."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Summarizing Data with Numbers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "We can use specific numbers to summarize a whole set of data. Measures of center (mean, median, mode) tell us about the 'typical' value. Measures of variability (like the range) tell us how spread out the data is. Choosing the right measure depends on the shape of the data."
+        },
+        {
+          "type": "heading",
+          "content": "Example Calculation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "For the data set [2, 3, 4, 7, 7, 13]:"
+        },
+        {
+          "type": "callout",
+          "content": "Mean: (2+3+4+7+7+13) / 6 = 36 / 6 = 6.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Median: The middle two numbers are 4 and 7. The median is their average: (4+7)/2 = 5.5.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Mode: The number 7 appears most often.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Range: 13 (max) - 2 (min) = 11.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the median of the data set [5, 2, 8, 1, 9]?",
+          "options": ["8", "5", "2"],
+          "correctAnswer": "5",
+          "explanation": "Remember to first order the data set from least to greatest before finding the middle value."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Understanding Probability",
+      "description": "Define probability and learn to calculate theoretical probability of simple events.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Introduction to Probability",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define probability as a number between 0 and 1 that describes the likelihood of an event.",
+            "Understand that a probability of 0 means an event is impossible, and 1 means it is certain.",
+            "Calculate the theoretical probability of a simple event."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Science of Chance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Probability is the branch of mathematics that deals with chance. It helps us quantify how likely an event is to occur. We express probability as a fraction, decimal, or percentage. An event that is impossible has a probability of 0 (e.g., a standard die landing on 7). An event that is certain has a probability of 1 (e.g., the sun rising in the east)."
+        },
+        {
+          "type": "heading",
+          "content": "Calculating Theoretical Probability",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "For events where all outcomes are equally likely, we can calculate the theoretical probability with a simple formula:"
+        },
+        {
+          "type": "code",
+          "content": "P(event) = (Number of favorable outcomes) / (Total number of possible outcomes)",
+          "language": "plaintext"
+        },
+        {
+          "type": "callout",
+          "content": "Example: The probability of rolling a 4 on a standard six-sided die is 1/6, because there is one favorable outcome (rolling a 4) and six total possible outcomes (1, 2, 3, 4, 5, 6).",
+          "style": "teaching"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the probability of flipping a coin and getting heads?",
+          "options": ["0", "1/2", "1"],
+          "correctAnswer": "1/2",
+          "explanation": "Remember the formula: favorable outcomes divided by total outcomes."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Experimental Probability",
+      "description": "Differentiate between theoretical and experimental probability and understand the Law of Large Numbers.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Introduction to Probability",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Differentiate between theoretical and experimental probability.",
+            "Calculate experimental probability from data collected in an experiment.",
+            "Understand the Law of Large Numbers."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Probability in the Real World",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Theoretical probability is what we expect to happen based on math. Experimental probability is what actually happens when we conduct an experiment. For example, the theoretical probability of flipping heads is 1/2. But if you flip a coin 10 times, you might get heads 6 times. Your experimental probability would be 6/10."
+        },
+        {
+          "type": "heading",
+          "content": "The Law of Large Numbers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A very important concept in probability is the Law of Large Numbers. It states that as you repeat an experiment a very large number of times, the experimental probability will get closer and closer to the theoretical probability. If you flip a coin 10 times, you might get 6 heads. But if you flip it 10,000 times, you can be very sure that the number of heads will be very close to 5,000."
+        },
+        {
+          "type": "quiz",
+          "question": "If you roll a die 20 times and get a '5' four times, what is the experimental probability of rolling a 5?",
+          "options": ["1/6", "4/20", "5/20"],
+          "correctAnswer": "4/20",
+          "explanation": "Remember, experimental probability is what actually happened: the number of times the event occurred divided by the total number of trials."
+        }
+      ]
+    }
+  ]
+}

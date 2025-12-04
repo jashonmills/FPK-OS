@@ -1,0 +1,1616 @@
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import JSZip from 'npm:jszip@3.10.1';
+import { XMLParser } from 'npm:fast-xml-parser@4.2.5';
+import { parse as parseHtml } from 'npm:node-html-parser@6.1.12';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface ScormManifest {
+  identifier: string;
+  version: string;
+  title: string;
+  description?: string;
+  organizations: any[];
+  resources: any[];
+  sequencingCollection?: any[];
+  metadata?: any;
+}
+
+interface ImportStep {
+  step: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  message?: string;
+  timestamp: string;
+}
+
+// Helper function to find manifest file with flexible search
+function findManifestFile(zipContent: JSZip): JSZip.JSZipObject | null {
+  const possibleNames = [
+    'imsmanifest.xml',
+    'IMSmanifest.xml', 
+    'imsManifest.xml',
+    'IMSMANIFEST.XML',
+    'manifest.xml'
+  ];
+
+  // First, try exact matches at root level
+  for (const name of possibleNames) {
+    const file = zipContent.file(name);
+    if (file) return file;
+  }
+
+  // If not found at root, search through all files (case-insensitive)
+  const allFiles = Object.keys(zipContent.files);
+  for (const filePath of allFiles) {
+    const fileName = filePath.toLowerCase();
+    if (fileName.endsWith('imsmanifest.xml') || fileName.endsWith('manifest.xml')) {
+      const file = zipContent.file(filePath);
+      if (file && !zipContent.files[filePath].dir) { // Make sure it's not a directory
+        console.log(`🔍 Found manifest at: ${filePath}`);
+        return file;
+      }
+    }
+  }
+
+  return null;
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    console.log('🚀 Starting SCORM import process');
+    
+    const formData = await req.formData();
+    const scormFile = formData.get('scorm_package') as File;
+    const orgId = formData.get('org_id') as string;
+    const backgroundImageOverride = formData.get('background_image_url') as string;
+
+    if (!scormFile || !orgId) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: scorm_package or org_id' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      );
+    }
+
+    // Get user ID from JWT
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    // Create import record
+    const { data: importRecord, error: importError } = await supabase
+      .from('scorm_imports')
+      .insert({
+        org_id: orgId,
+        user_id: user.id,
+        file_url: '',
+        file_name: scormFile.name,
+        file_size: scormFile.size,
+        status: 'uploading',
+        steps_log: [{
+          step: 'uploading',
+          status: 'processing',
+          message: 'Starting file upload',
+          timestamp: new Date().toISOString()
+        }],
+        progress_percentage: 5
+      })
+      .select()
+      .single();
+
+    if (importError) {
+      console.error('❌ Failed to create import record:', importError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to create import record' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+
+    const importId = importRecord.id;
+
+    // Update function to track progress
+    const updateProgress = async (status: string, step: string, message: string, progress: number, additionalData?: any) => {
+      const updatedSteps = [...(importRecord.steps_log || [])];
+      const existingStepIndex = updatedSteps.findIndex(s => s.step === step);
+      
+      if (existingStepIndex >= 0) {
+        updatedSteps[existingStepIndex] = {
+          step,
+          status: status as any,
+          message,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        updatedSteps.push({
+          step,
+          status: status as any,
+          message,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      await supabase
+        .from('scorm_imports')
+        .update({ 
+          status, 
+          steps_log: updatedSteps, 
+          progress_percentage: progress,
+          ...additionalData 
+        })
+        .eq('id', importId);
+    };
+
+    try {
+      // Step 1: Upload file
+      await updateProgress('uploading', 'uploading', 'Uploading SCORM package', 10);
+      
+      const timestamp = Date.now();
+      const fileName = `scorm_import_${importId}_${timestamp}.zip`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('org-assets')
+        .upload(`${orgId}/imports/${fileName}`, scormFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('org-assets')
+        .getPublicUrl(uploadData.path);
+
+      // Step 2: Validate package
+      await updateProgress('validating', 'validating', 'Validating SCORM package', 25);
+      
+      const arrayBuffer = await scormFile.arrayBuffer();
+      const zip = new JSZip();
+      const zipContent = await zip.loadAsync(arrayBuffer);
+
+      // Look for imsmanifest.xml (case-insensitive and in any directory)
+      const manifestFile = findManifestFile(zipContent);
+      if (!manifestFile) {
+        console.log('📁 Available files in package:', Object.keys(zipContent.files));
+        throw new Error('Invalid SCORM package: imsmanifest.xml not found. Available files: ' + Object.keys(zipContent.files).slice(0, 10).join(', '));
+      }
+      
+      console.log('✅ Found manifest file:', manifestFile.name);
+
+      // Step 3: Extract structure
+      await updateProgress('extracting', 'extracting', 'Extracting SCORM structure', 40);
+      
+      const manifestContent = await manifestFile.async('text');
+      const xmlParser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: '@_'
+      });
+      const manifestData = xmlParser.parse(manifestContent);
+
+      // Parse manifest into our format
+      const manifest = parseManifest(manifestData);
+
+      // Step 4: Extract content files
+      await updateProgress('parsing_content', 'parsing_content', 'Parsing content files', 50);
+      
+      const contentFiles = await extractContentFiles(zipContent, manifest);
+
+      // Step 5: Process assets
+      await updateProgress('processing_assets', 'processing_assets', 'Processing media assets', 65);
+      
+      const processedAssets = await processAssets(zipContent, manifest, supabase, orgId);
+
+      // Step 6: Map to Framework 2
+      await updateProgress('mapping', 'mapping', 'Mapping to Course Framework 2', 75);
+      
+      const mappedStructure = mapToFramework2(manifest, contentFiles, processedAssets, backgroundImageOverride);
+      
+      // Final step: Mark as ready
+      await updateProgress('ready', 'ready', 'Import completed successfully', 100, {
+        file_url: publicUrl,
+        manifest_data: manifest,
+        mapped_structure: mappedStructure,
+        completed_at: new Date().toISOString()
+      });
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          importId: importId,
+          message: 'SCORM package imported successfully' 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+
+    } catch (error) {
+      console.error('❌ Import failed:', error);
+      await updateProgress('failed', 'failed', error.message, 0, {
+        error_message: error.message
+      });
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'Import failed', 
+          details: error.message,
+          importId: importId
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+
+  } catch (error) {
+    console.error('❌ Unexpected error:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    );
+  }
+});
+
+function parseManifest(manifestData: any): ScormManifest {
+  const manifest = manifestData.manifest;
+  const identifier = manifest['@_identifier'] || 'unknown';
+  const version = manifest['@_version'] || '1.2';
+  
+  // Extract title from organizations
+  const organizations = manifest.organizations?.organization || [];
+  const orgArray = Array.isArray(organizations) ? organizations : [organizations];
+  
+  const title = orgArray[0]?.title || manifest.metadata?.schema || 'Imported SCORM Course';
+  
+  const parsedOrganizations = orgArray.map((org: any) => {
+    const items = org.item || [];
+    const itemArray = Array.isArray(items) ? items : [items];
+    
+    return {
+      identifier: org['@_identifier'],
+      title: typeof org.title === 'string' ? org.title : org.title?.['#text'] || 'Module',
+      items: itemArray.map((item: any) => ({
+        identifier: item['@_identifier'],
+        title: typeof item.title === 'string' ? item.title : item.title?.['#text'] || 'Lesson',
+        resource: item['@_identifierref'],
+        children: item.item ? (Array.isArray(item.item) ? item.item : [item.item]).map((child: any) => ({
+          identifier: child['@_identifier'],
+          title: typeof child.title === 'string' ? child.title : child.title?.['#text'] || 'Screen'
+        })) : []
+      }))
+    };
+  });
+
+  const resources = manifest.resources?.resource || [];
+  const resourceArray = Array.isArray(resources) ? resources : [resources];
+  
+  const parsedResources = resourceArray.map((res: any) => ({
+    identifier: res['@_identifier'],
+    type: res['@_type'],
+    href: res['@_href'],
+    scormType: res['@_adlcp:scormType'] || 'sco'
+  }));
+
+  return {
+    identifier,
+    version,
+    title: typeof title === 'string' ? title : title?.['#text'] || 'Imported SCORM Course',
+    description: manifest.metadata?.lom?.general?.description?.string || 'Course imported from SCORM package',
+    organizations: parsedOrganizations,
+    resources: parsedResources
+  };
+}
+
+function mapToFramework2(manifest: ScormManifest, contentFiles: Map<string, string>, processedAssets: Map<string, string>, backgroundImageOverride?: string) {
+  const modules = manifest.organizations.map((org, orgIndex) => ({
+    id: `module_${orgIndex + 1}`,
+    title: cleanTitle(org.title),
+    lessons: org.items.map((item, itemIndex) => ({
+      id: `lesson_${orgIndex + 1}_${itemIndex + 1}`,
+      title: cleanTitle(item.title),
+      description: extractLessonDescription(item, contentFiles),
+      slides: generateLessonSlides(item, orgIndex, itemIndex, manifest.resources, contentFiles, processedAssets)
+    }))
+  }));
+
+  return {
+    title: manifest.title,
+    description: manifest.description || 'Course imported from SCORM package',
+    level: 'intermediate' as const,
+    durationEstimateMins: estimateDuration(modules),
+    backgroundImageUrl: backgroundImageOverride || undefined,
+    framework: 'interactive_micro_learning' as const,
+    modules,
+    source: {
+      type: 'scorm',
+      manifest_identifier: manifest.identifier,
+      version: manifest.version,
+      imported_at: new Date().toISOString()
+    }
+  };
+}
+
+/**
+ * Map Framework 2 screen types to slide kinds for the course builder
+ */
+function mapFramework2ToSlideKind(screenType: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'): 'content' | 'image' | 'video' | 'pdf' | 'embed' | 'quiz' | 'activity' {
+  switch (screenType) {
+    case 'objectives':
+      return 'content';
+    case 'concept':
+      return 'content';
+    case 'example':
+      return 'content';
+    case 'practice':
+      return 'activity';
+    case 'summary':
+      return 'content';
+    case 'resources':
+      return 'content';
+    default:
+      return 'content';
+  }
+}
+
+function estimateDuration(modules: any[]): number {
+  const totalSlides = modules.reduce((acc, module) => 
+    acc + module.lessons.reduce((lessonAcc: number, lesson: any) => 
+      lessonAcc + lesson.slides.length, 0), 0);
+  return Math.max(30, totalSlides * 3); // Minimum 30 minutes, 3 minutes per slide
+}
+
+/**
+ * Clean up titles by removing HTML and common prefixes
+ */
+function cleanTitle(title: string): string {
+  if (!title) return '';
+  
+  return title
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'") // Decode entities
+    .replace(/^(lesson|module|chapter|unit|topic)\s*\d*:?\s*/i, '') // Remove common prefixes
+    .trim();
+}
+
+/**
+ * Extract meaningful lesson description from SCORM item  
+ */
+function extractLessonDescription(item: any, contentFiles?: Map<string, string>): string {
+  // Try to get description from various SCORM fields
+  if (item.description && typeof item.description === 'string') {
+    return cleanTitle(item.description);
+  }
+  
+  // Try to extract description from actual content if available
+  if (contentFiles && item.resource) {
+    for (const [filePath, content] of contentFiles) {
+      // Look for content that matches this item
+      if (filePath.toLowerCase().includes(item.title?.toLowerCase()) || 
+          content.toLowerCase().includes(item.title?.toLowerCase())) {
+        
+        // Try to extract a meaningful description from the HTML content
+        const description = extractDescriptionFromHtml(content, item.title);
+        if (description && description.length > 20) {
+          return description;
+        }
+      }
+    }
+  }
+  
+  // If no description found, create a descriptive one based on the title
+  if (item.title) {
+    const cleanedTitle = cleanTitle(item.title);
+    
+    // Check if the title indicates specific educational content
+    const titleLower = cleanedTitle.toLowerCase();
+    if (titleLower.includes('parent')) {
+      return `Essential guidance and resources for parents regarding ${cleanedTitle.toLowerCase()}`;
+    } else if (titleLower.includes('educator') || titleLower.includes('teacher')) {
+      return `Professional development and instructional strategies for educators on ${cleanedTitle.toLowerCase()}`;
+    } else if (titleLower.includes('iep') || titleLower.includes('individualized')) {
+      return `Comprehensive information about individualized education programs and ${cleanedTitle.toLowerCase()}`;
+    }
+    
+    const contentType = inferSlideType(item.title);
+    switch (contentType) {
+      case 'practice':
+        return `Interactive exercises and practice activities for ${cleanedTitle.toLowerCase()}`;
+      case 'example':
+        return `Real-world examples and demonstrations of ${cleanedTitle.toLowerCase()}`;
+      case 'summary':
+        return `Key takeaways and summary of ${cleanedTitle.toLowerCase()}`;
+      default:
+        return `Educational content covering ${cleanedTitle.toLowerCase()} concepts and applications`;
+    }
+  }
+  
+  return 'Interactive educational content';
+}
+
+/**
+ * Extract a meaningful description from HTML content
+ */
+function extractDescriptionFromHtml(htmlContent: string, title: string): string {
+  try {
+    const root = parseHtml(htmlContent);
+    
+    // Look for meta description
+    const metaDesc = root.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      const content = metaDesc.getAttribute('content');
+      if (content && content.length > 20) {
+        return content.trim();
+      }
+    }
+    
+    // Look for the first substantial paragraph
+    const paragraphs = root.querySelectorAll('p, .description, .intro, .summary');
+    for (const p of paragraphs) {
+      const text = p.text.trim();
+      if (text && text.length > 30 && text.length < 200) {
+        // Clean up and return the first good paragraph
+        return text.replace(/\s+/g, ' ').trim();
+      }
+    }
+    
+    // Look for any substantial text content
+    const bodyText = root.querySelector('body')?.text.trim();
+    if (bodyText && bodyText.length > 50) {
+      const sentences = bodyText.split('.').filter(s => s.trim().length > 20);
+      if (sentences.length > 0) {
+        return sentences[0].trim() + '.';
+      }
+    }
+    
+    return '';
+  } catch (error) {
+    console.warn('⚠️  Error extracting description from HTML:', error);
+    return '';
+  }
+}
+
+/**
+ * Generate multiple slides for a lesson using smart content chunking
+ */
+function generateLessonSlides(item: any, orgIndex: number, itemIndex: number, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): any[] {
+  const cleanedTitle = cleanTitle(item.title);
+  
+  console.log(`🎯 Generating slides for lesson: ${cleanedTitle}`);
+  console.log(`📋 Item details:`, JSON.stringify({ title: item.title, resource: item.resource, hasChildren: !!(item.children && item.children.length > 0) }));
+  
+  // If item has predefined children, create slides for each
+  if (item.children && item.children.length > 0) {
+    console.log(`👶 Found ${item.children.length} predefined children, creating slides for each`);
+    return item.children.map((child, childIndex) => ({
+      id: `slide_${orgIndex + 1}_${itemIndex + 1}_${childIndex + 1}`,
+      kind: inferSlideType(child.title),
+      title: cleanTitle(child.title),
+      html: generateSlideContent(child.title, item.resource, resources, contentFiles, processedAssets)
+    }));
+  }
+  
+  // Find content for this lesson
+  const actualContent = findContentForItem(item, cleanedTitle, resources, contentFiles);
+  
+  if (actualContent) {
+    console.log(`📚 Found content for chunking: ${cleanedTitle} (${actualContent.length} characters)`);
+    const contentChunks = chunkEducationalContent(actualContent, cleanedTitle, processedAssets);
+    
+    console.log(`📊 Chunking result: ${contentChunks.length} chunks created`);
+    contentChunks.forEach((chunk, idx) => {
+      console.log(`  Screen ${idx + 1}: "${chunk.title}" (${chunk.type.toUpperCase()}) - ${chunk.content.length} chars`);
+    });
+    
+    if (contentChunks.length > 1) {
+      console.log(`✂️  SUCCESS: Created ${contentChunks.length} Framework 2 screens for ${cleanedTitle}`);
+      return contentChunks.map((chunk, chunkIndex) => ({
+        id: `slide_${orgIndex + 1}_${itemIndex + 1}_${chunkIndex + 1}`,
+        kind: mapFramework2ToSlideKind(chunk.type),
+        title: chunk.title,
+        html: chunk.content
+      }));
+    } else {
+      console.log(`⚠️  FALLBACK: Only got 1 chunk, falling back to single slide for ${cleanedTitle}`);
+    }
+  } else {
+    console.log(`❌ No content found for chunking: ${cleanedTitle}`);
+  }
+  
+  // Fallback: single slide with basic content
+  console.log(`📄 Creating single fallback slide for: ${cleanedTitle}`);
+  return [{
+    id: `slide_${orgIndex + 1}_${itemIndex + 1}_1`,
+    kind: 'content' as const,
+    title: cleanedTitle,
+    html: generateSlideContent(cleanedTitle, item.resource, resources, contentFiles, processedAssets)
+  }];
+}
+
+/**
+ * Find content for a lesson item using multiple strategies
+ */
+function findContentForItem(item: any, cleanedTitle: string, resources: any[], contentFiles: Map<string, string>): string | null {
+  // Find the associated resource
+  const resource = resources.find(r => r.identifier === item.resource);
+  
+  // Try multiple strategies to find content
+  let actualContent = null;
+  
+  if (resource && resource.href) {
+    // Strategy 1: Direct match
+    actualContent = contentFiles.get(resource.href);
+    
+    // Strategy 2: Try without leading slash
+    if (!actualContent && resource.href.startsWith('/')) {
+      actualContent = contentFiles.get(resource.href.substring(1));
+    }
+    
+    // Strategy 3: Try with leading slash
+    if (!actualContent && !resource.href.startsWith('/')) {
+      actualContent = contentFiles.get('/' + resource.href);
+    }
+  }
+  
+  // Strategy 4: Try to find content by title matching
+  if (!actualContent) {
+    const titleLower = cleanedTitle.toLowerCase();
+    for (const [filePath, content] of contentFiles) {
+      if (filePath.toLowerCase().includes(titleLower) || 
+          content.toLowerCase().includes(titleLower)) {
+        actualContent = content;
+        console.log(`🔍 Found content by title matching in: ${filePath}`);
+        break;
+      }
+    }
+  }
+  
+  return actualContent;
+}
+
+/**
+ * Smart Framework 2 content chunking - breaks HTML into proper educational screens
+ */
+function chunkEducationalContent(htmlContent: string, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  try {
+    console.log(`🧩 Starting Framework 2 content chunking for: ${lessonTitle}`);
+    console.log(`📄 HTML content length: ${htmlContent.length} characters`);
+    
+    const root = parseHtml(htmlContent);
+    
+    // Remove script tags and non-content elements
+    root.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    
+    // Find main content area
+    let mainContent = root.querySelector('main, .content, .lesson-content, #content, .main-content');
+    if (!mainContent) {
+      mainContent = root.querySelector('body') || root;
+    }
+    
+    console.log(`🎯 Using content area: ${mainContent.tagName || 'unknown'}`);
+    
+    // Strategy 1: Framework 2 semantic analysis (primary strategy)
+    console.log(`🔍 Primary Strategy: Framework 2 semantic analysis...`);
+    const frameworkSections = identifyEducationalSections(mainContent, lessonTitle);
+    console.log(`📚 Framework 2 sections found: ${frameworkSections.length}`);
+    
+    if (frameworkSections.length >= 2) {
+      console.log(`✅ SUCCESS: Using Framework 2 sections (${frameworkSections.length} screens)`);
+      frameworkSections.forEach((section, idx) => {
+        console.log(`  Screen ${idx + 1}: ${section.type.toUpperCase()} - "${section.title}" (${section.content.length} chars)`);
+      });
+      return frameworkSections;
+    }
+    
+    // Strategy 2: Pattern-based chunking with Framework 2 mapping
+    console.log(`🔍 Fallback Strategy: Pattern-based Framework 2 chunking...`);
+    const patternChunks = chunkByEducationalPatterns(mainContent, lessonTitle);
+    console.log(`📑 Pattern chunks found: ${patternChunks.length}`);
+    
+    if (patternChunks.length >= 2) {
+      console.log(`✅ Using pattern-based chunks (${patternChunks.length} screens)`);
+      return patternChunks;
+    }
+    
+    // Strategy 3: Force Framework 2 structure creation
+    console.log(`🔍 Last Resort: Creating Framework 2 structure from content...`);
+    const forcedFramework = createFrameworkStructure(mainContent, lessonTitle);
+    console.log(`📝 Forced Framework 2 screens: ${forcedFramework.length}`);
+    
+    if (forcedFramework.length >= 2) {
+      console.log(`✅ Using forced Framework 2 structure (${forcedFramework.length} screens)`);
+      return forcedFramework;
+    }
+    
+    // Final fallback: single concept screen
+    console.log(`⚠️  All Framework 2 strategies failed, creating single concept screen`);
+    return [{
+      title: lessonTitle,
+      content: createConceptScreen(htmlContent, lessonTitle),
+      type: 'concept'
+    }];
+    
+  } catch (error) {
+    console.error('❌ Error in Framework 2 chunking:', error);
+    return [{
+      title: lessonTitle,
+      content: `<h3>${lessonTitle}</h3><p>Educational content for ${lessonTitle.toLowerCase()}.</p>`,
+      type: 'concept'
+    }];
+  }
+}
+
+/**
+ * Chunk content by educational patterns and map to Framework 2 screen types
+ */
+function chunkByEducationalPatterns(element: any, lessonTitle: string): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  const chunks: Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> = [];
+  const allText = element.text || '';
+  
+  console.log(`🔍 Analyzing ${allText.length} characters for educational patterns`);
+  
+  // Split content into logical sections
+  const sections = allText.split(/\n\s*\n/).filter(section => section.trim().length > 50);
+  console.log(`📄 Found ${sections.length} content sections to analyze`);
+  
+  sections.forEach((section, index) => {
+    const sectionLower = section.toLowerCase();
+    let screenType: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources' = 'concept';
+    let screenTitle = `${lessonTitle} - Part ${index + 1}`;
+    
+    // Determine screen type based on content patterns
+    if (sectionLower.includes('objective') || sectionLower.includes('you will learn') || sectionLower.includes('by the end')) {
+      screenType = 'objectives';
+      screenTitle = 'Learning Objectives';
+    } else if (sectionLower.includes('example') || sectionLower.includes('scenario') || sectionLower.includes('case study')) {
+      screenType = 'example';
+      screenTitle = 'Example Scenario';
+    } else if (sectionLower.includes('practice') || sectionLower.includes('exercise') || sectionLower.includes('activity')) {
+      screenType = 'practice';
+      screenTitle = 'Practice Activities';
+    } else if (sectionLower.includes('summary') || sectionLower.includes('conclusion') || sectionLower.includes('takeaway')) {
+      screenType = 'summary';
+      screenTitle = 'Summary';
+    } else if (index === 0) {
+      screenType = 'concept';
+      screenTitle = 'Introduction';
+    }
+    
+    // Create content based on screen type
+    let content = '';
+    switch (screenType) {
+      case 'objectives':
+        content = createObjectivesScreen(section, screenTitle);
+        break;
+      case 'example':
+        content = createExampleScreen(section, screenTitle);
+        break;
+      case 'practice':
+        content = createPracticeScreen(section, screenTitle);
+        break;
+      case 'summary':
+        content = createSummaryScreen(section, screenTitle);
+        break;
+      default:
+        content = createConceptScreen(section, screenTitle);
+    }
+    
+    if (content.trim()) {
+      chunks.push({
+        title: screenTitle,
+        content: content,
+        type: screenType
+      });
+      console.log(`✅ Created ${screenType.toUpperCase()} screen: "${screenTitle}" (${content.length} chars)`);
+    }
+  });
+  
+  return chunks;
+}
+
+/**
+ * Force create Framework 2 structure from any content
+ */
+function createFrameworkStructure(element: any, lessonTitle: string): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  const allText = element.text || '';
+  const sentences = allText.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  
+  console.log(`🏗️  Creating Framework 2 structure from ${sentences.length} sentences`);
+  
+  if (sentences.length < 4) {
+    return [];
+  }
+  
+  const chunks: Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> = [];
+  
+  // Divide content into Framework 2 screens
+  const sentencesPerScreen = Math.ceil(sentences.length / 4);
+  
+  // Create Concept screen (introduction)
+  const conceptSentences = sentences.slice(0, sentencesPerScreen);
+  chunks.push({
+    title: 'Introduction',
+    content: createConceptScreen(conceptSentences.join('. ') + '.', 'Introduction'),
+    type: 'concept'
+  });
+  
+  // Create Example screen
+  const exampleSentences = sentences.slice(sentencesPerScreen, sentencesPerScreen * 2);
+  if (exampleSentences.length > 0) {
+    chunks.push({
+      title: 'Key Concepts',
+      content: createConceptScreen(exampleSentences.join('. ') + '.', 'Key Concepts'),
+      type: 'concept'
+    });
+  }
+  
+  // Create Practice screen
+  const practiceSentences = sentences.slice(sentencesPerScreen * 2, sentencesPerScreen * 3);
+  if (practiceSentences.length > 0) {
+    chunks.push({
+      title: 'Application',
+      content: createConceptScreen(practiceSentences.join('. ') + '.', 'Application'),
+      type: 'concept'
+    });
+  }
+  
+  // Create Summary screen
+  const summarySentences = sentences.slice(sentencesPerScreen * 3);
+  if (summarySentences.length > 0) {
+    chunks.push({
+      title: 'Summary',
+      content: createSummaryScreen(summarySentences.join('. ') + '.', 'Summary'),
+      type: 'summary'
+    });
+  }
+  
+  console.log(`🏗️  Created ${chunks.length} Framework 2 screens from content`);
+  return chunks;
+}
+
+/**
+ * Create Framework 2 screen content formatters
+ */
+function createObjectivesScreen(content: string, title: string): string {
+  const lines = content.split('\n').filter(line => line.trim().length > 5);
+  const objectives = lines.filter(line => 
+    line.includes('•') || line.includes('-') || line.match(/^\d+\./) || line.toLowerCase().includes('objective')
+  );
+  
+  if (objectives.length > 0) {
+    const bulletPoints = objectives.map(obj => {
+      const cleaned = obj.replace(/^[\d\.\-\•\*\s]+/, '').trim();
+      return cleaned ? `<li>${cleaned}</li>` : '';
+    }).filter(item => item);
+    
+    return `<h3>${title}</h3>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+${bulletPoints.join('\n')}
+</ul>`;
+  }
+  
+  return `<h3>${title}</h3>
+<p>This lesson will help you understand and apply key concepts in ${title.toLowerCase()}.</p>`;
+}
+
+function createConceptScreen(content: string, title: string): string {
+  const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 20);
+  const formattedContent = paragraphs.slice(0, 3).map(p => `<p>${p.trim()}</p>`).join('\n');
+  
+  return `<h3>${title}</h3>
+${formattedContent}`;
+}
+
+function createExampleScreen(content: string, title: string): string {
+  const formattedContent = content.split(/\n\s*\n/).filter(p => p.trim().length > 20)
+    .slice(0, 2).map(p => `<p>${p.trim()}</p>`).join('\n');
+  
+  return `<h3>${title}</h3>
+<p><strong>Consider this scenario:</strong></p>
+${formattedContent}`;
+}
+
+function createPracticeScreen(content: string, title: string): string {
+  const lines = content.split('\n').filter(line => line.trim().length > 10);
+  const practiceItems = lines.filter(line => 
+    line.includes('?') || line.toLowerCase().includes('practice') || line.match(/^\d+[\.\)]/)
+  );
+  
+  if (practiceItems.length > 0) {
+    const formattedItems = practiceItems.map(item => {
+      const cleaned = item.replace(/^[\d\.\-\•\*\s]+/, '').trim();
+      return cleaned ? `<li>${cleaned}</li>` : '';
+    }).filter(item => item);
+    
+    return `<h3>${title}</h3>
+<p>Complete the following activities:</p>
+<ol>
+${formattedItems.join('\n')}
+</ol>`;
+  }
+  
+  return `<h3>${title}</h3>
+<p>Apply what you've learned through these practice activities.</p>
+<p>${content.substring(0, 200)}...</p>`;
+}
+
+function createSummaryScreen(content: string, title: string): string {
+  const keyPoints = content.split(/[.!?]+/).filter(s => s.trim().length > 15).slice(0, 4);
+  const bulletPoints = keyPoints.map(point => `<li>${point.trim()}</li>`).join('\n');
+  
+  return `<h3>${title}</h3>
+<p>Key takeaways from this lesson:</p>
+<ul>
+${bulletPoints}
+</ul>`;
+}
+
+/**
+ * Identify Framework 2 educational sections using semantic analysis
+ */
+function identifyEducationalSections(element: any, lessonTitle: string): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  console.log(`🎯 Analyzing educational sections for: ${lessonTitle}`);
+  
+  const sections: Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> = [];
+  
+  // Framework 2 screen type patterns with high-precision matching
+  const frameworkPatterns = [
+    { 
+      patterns: ['key learning objective', 'learning objective', 'objective', 'you will learn', 'by the end', 'goals', 'outcomes'], 
+      type: 'objectives', 
+      titlePrefix: 'Learning Objectives',
+      priority: 1
+    },
+    { 
+      patterns: ['introduction', 'overview', 'welcome', 'preparing for', 'getting started', 'about this'], 
+      type: 'concept', 
+      titlePrefix: 'Introduction',
+      priority: 2
+    },
+    { 
+      patterns: ['example scenario', 'scenario', 'case study', 'real-world example', 'demonstration', 'example'], 
+      type: 'example', 
+      titlePrefix: 'Example Scenario',
+      priority: 3
+    },
+    { 
+      patterns: ['practice prompt', 'practice', 'exercise', 'activity', 'try this', 'questions', 'quiz'], 
+      type: 'practice', 
+      titlePrefix: 'Practice Activities',
+      priority: 4
+    },
+    { 
+      patterns: ['summary', 'key takeaway', 'conclusion', 'review', 'wrap up', 'in summary'], 
+      type: 'summary', 
+      titlePrefix: 'Summary',
+      priority: 5
+    },
+    { 
+      patterns: ['resources', 'further reading', 'additional', 'downloads', 'links'], 
+      type: 'resources', 
+      titlePrefix: 'Resources',
+      priority: 6
+    }
+  ];
+  
+  // Extract all text content and analyze for educational patterns
+  const allText = element.text.toLowerCase();
+  console.log(`📄 Analyzing ${allText.length} characters of content`);
+  
+  // Look for specific educational markers in the content
+  const objectivesMatch = allText.match(/key learning objective[s]?\s*[\d\:\-\.\)\(]*\s*([^]*?)(?=\n\n|$)/i);
+  if (objectivesMatch) {
+    const objectivesContent = extractObjectivesContent(element);
+    if (objectivesContent.trim()) {
+      sections.push({
+        title: 'Learning Objectives',
+        content: objectivesContent,
+        type: 'objectives'
+      });
+      console.log(`✅ Found objectives section: ${objectivesContent.length} chars`);
+    }
+  }
+  
+  // Look for introduction/overview sections
+  const introMatch = allText.match(/(introduction|overview|welcome|preparing for)[^]*?(?=\n\n|example|practice|summary|$)/i);
+  if (introMatch) {
+    const introContent = extractIntroductionContent(element);
+    if (introContent.trim()) {
+      sections.push({
+        title: 'Introduction',
+        content: introContent,
+        type: 'concept'
+      });
+      console.log(`✅ Found introduction section: ${introContent.length} chars`);
+    }
+  }
+  
+  // Look for example scenarios
+  const exampleMatch = allText.match(/(example scenario|scenario|case study)[^]*?(?=\n\n|practice|summary|$)/i);
+  if (exampleMatch) {
+    const exampleContent = extractExampleContent(element);
+    if (exampleContent.trim()) {
+      sections.push({
+        title: 'Example Scenario',
+        content: exampleContent,
+        type: 'example'
+      });
+      console.log(`✅ Found example section: ${exampleContent.length} chars`);
+    }
+  }
+  
+  // Look for practice prompts
+  const practiceMatch = allText.match(/(practice prompt[s]?|practice|exercise)[^]*?(?=\n\n|summary|$)/i);
+  if (practiceMatch) {
+    const practiceContent = extractPracticeContent(element);
+    if (practiceContent.trim()) {
+      sections.push({
+        title: 'Practice Activities',
+        content: practiceContent,
+        type: 'practice'
+      });
+      console.log(`✅ Found practice section: ${practiceContent.length} chars`);
+    }
+  }
+  
+  // Look for summary sections
+  const summaryMatch = allText.match(/(summary|key takeaway[s]?|conclusion)[^]*?$/i);
+  if (summaryMatch) {
+    const summaryContent = extractSummaryContent(element);
+    if (summaryContent.trim()) {
+      sections.push({
+        title: 'Summary',
+        content: summaryContent,
+        type: 'summary'
+      });
+      console.log(`✅ Found summary section: ${summaryContent.length} chars`);
+    }
+  }
+  
+  console.log(`🎯 Educational section analysis complete: ${sections.length} sections found`);
+  return sections;
+}
+
+/**
+ * Extract learning objectives content with bullet points
+ */
+function extractObjectivesContent(element: any): string {
+  const allText = element.text;
+  const objectivesMatch = allText.match(/key learning objective[s]?\s*:?\s*[\d\:\-\.\)\(]*\s*([^]*?)(?=\n\n|\n[A-Z]|$)/i);
+  
+  if (objectivesMatch) {
+    const objectivesText = objectivesMatch[1];
+    const lines = objectivesText.split('\n').filter(line => line.trim().length > 10);
+    
+    if (lines.length > 0) {
+      const bulletPoints = lines.map(line => {
+        const cleaned = line.replace(/^\d+\.\s*/, '').replace(/^[\-\*]\s*/, '').trim();
+        return cleaned ? `<li>${cleaned}</li>` : '';
+      }).filter(item => item);
+      
+      if (bulletPoints.length > 0) {
+        return `<h3>Learning Objectives</h3>
+<p>By the end of this lesson, you will be able to:</p>
+<ul>
+${bulletPoints.join('\n')}
+</ul>`;
+      }
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Extract introduction/concept content
+ */
+function extractIntroductionContent(element: any): string {
+  const allText = element.text;
+  const introMatch = allText.match(/(introduction|overview|welcome|preparing for)[^]*?(?=example scenario|practice prompt|summary|$)/i);
+  
+  if (introMatch) {
+    const introText = introMatch[0];
+    const paragraphs = introText.split('\n\n').filter(p => p.trim().length > 20);
+    
+    if (paragraphs.length > 0) {
+      const content = paragraphs.slice(0, 3).map(p => `<p>${p.trim()}</p>`).join('\n');
+      return `<h3>Introduction</h3>\n${content}`;
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Extract example scenario content
+ */
+function extractExampleContent(element: any): string {
+  const allText = element.text;
+  const exampleMatch = allText.match(/(example scenario|scenario)[^]*?(?=practice prompt|summary|$)/i);
+  
+  if (exampleMatch) {
+    const exampleText = exampleMatch[0];
+    const paragraphs = exampleText.split('\n\n').filter(p => p.trim().length > 20);
+    
+    if (paragraphs.length > 0) {
+      const content = paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n');
+      return `<h3>Example Scenario</h3>\n${content}`;
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Extract practice prompts as individual items
+ */
+function extractPracticeContent(element: any): string {
+  const allText = element.text;
+  const practiceMatch = allText.match(/(practice prompt[s]?)[^]*?(?=summary|$)/i);
+  
+  if (practiceMatch) {
+    const practiceText = practiceMatch[0];
+    const prompts = practiceText.split(/\d+[\.\)]\s*/).filter(p => p.trim().length > 10);
+    
+    if (prompts.length > 0) {
+      const promptItems = prompts.slice(1).map(prompt => { // Skip first item (usually the header)
+        const cleaned = prompt.trim().replace(/\n+/g, ' ');
+        return cleaned ? `<li>${cleaned}</li>` : '';
+      }).filter(item => item);
+      
+      if (promptItems.length > 0) {
+        return `<h3>Practice Activities</h3>
+<p>Complete the following practice exercises:</p>
+<ol>
+${promptItems.join('\n')}
+</ol>`;
+      }
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Extract summary content
+ */
+function extractSummaryContent(element: any): string {
+  const allText = element.text;
+  const summaryMatch = allText.match(/(summary|key takeaway[s]?|conclusion)[^]*?$/i);
+  
+  if (summaryMatch) {
+    const summaryText = summaryMatch[0];
+    const paragraphs = summaryText.split('\n\n').filter(p => p.trim().length > 20);
+    
+    if (paragraphs.length > 0) {
+      const content = paragraphs.map(p => `<p>${p.trim()}</p>`).join('\n');
+      return `<h3>Summary</h3>\n${content}`;
+    }
+  }
+  
+  return '';
+}
+
+/**
+ * Split content by major headings and map to Framework 2 screen types
+ */
+function splitByHeadings(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  const headings = element.querySelectorAll('h2, h3');
+  
+  if (headings.length < 2) return [];
+  
+  const chunks: Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> = [];
+  
+  for (let i = 0; i < headings.length; i++) {
+    const heading = headings[i];
+    const headingText = heading.text.trim();
+    const content = extractContentBetweenElements(heading, headings[i + 1]);
+    
+    if (content.trim() && content.length > 50) {
+      const processedContent = processContentChunk(content, headingText, processedAssets);
+      
+      // Map heading to Framework 2 screen type
+      let screenType: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources' = 'concept';
+      const headingLower = headingText.toLowerCase();
+      
+      if (headingLower.includes('objective') || headingLower.includes('goal')) {
+        screenType = 'objectives';
+      } else if (headingLower.includes('example') || headingLower.includes('scenario')) {
+        screenType = 'example';
+      } else if (headingLower.includes('practice') || headingLower.includes('exercise')) {
+        screenType = 'practice';
+      } else if (headingLower.includes('summary') || headingLower.includes('conclusion')) {
+        screenType = 'summary';
+      } else if (headingLower.includes('resource')) {
+        screenType = 'resources';
+      }
+      
+      chunks.push({
+        title: headingText || `${lessonTitle} - Part ${i + 1}`,
+        content: `<h3>${headingText}</h3>\n${processedContent}`,
+        type: screenType
+      });
+    }
+  }
+  
+  return chunks.length > 1 ? chunks : [];
+}
+
+/**
+ * Chunk content by paragraphs for long content and map to Framework 2 screen types
+ */
+function chunkByParagraphs(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  const allParagraphs = element.querySelectorAll('p, ul, ol, div.text-content, div');
+  
+  console.log(`📝 Found ${allParagraphs.length} paragraph elements for chunking`);
+  
+  if (allParagraphs.length < 3) {
+    console.log(`⚠️  Too few paragraphs (${allParagraphs.length}) for chunking`);
+    return [];
+  }
+  
+  const chunks: Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> = [];
+  const wordsPerChunk = 150; // Reduced target words per slide for better chunking
+  
+  let currentChunk = '';
+  let currentWordCount = 0;
+  let chunkIndex = 1;
+  
+  console.log(`📏 Target words per chunk: ${wordsPerChunk}`);
+  
+  for (const para of allParagraphs) {
+    const text = para.text.trim();
+    if (text.length < 15) continue; // Skip very short paragraphs
+    
+    const wordCount = text.split(/\s+/).length;
+    console.log(`📄 Processing paragraph: "${text.substring(0, 50)}..." (${wordCount} words)`);
+    
+    if (currentWordCount + wordCount > wordsPerChunk && currentChunk) {
+      // Finalize current chunk
+      const chunkTitle = detectFramework2ChunkTitle(currentChunk, lessonTitle, chunkIndex);
+      const chunkType = detectFramework2ChunkType(currentChunk);
+      
+      chunks.push({
+        title: chunkTitle,
+        content: `<h3>${chunkTitle}</h3>\n${currentChunk}`,
+        type: chunkType
+      });
+      
+      console.log(`✂️  Created chunk ${chunkIndex}: "${chunkTitle}" (${chunkType.toUpperCase()}) - ${currentWordCount} words`);
+      
+      currentChunk = '';
+      currentWordCount = 0;
+      chunkIndex++;
+    }
+    
+    // Add paragraph to current chunk
+    if (para.tagName === 'P') {
+      currentChunk += `<p>${text}</p>\n`;
+    } else if (para.tagName === 'UL' || para.tagName === 'OL') {
+      const listItems = para.querySelectorAll('li');
+      if (listItems.length > 0) {
+        currentChunk += `<${para.tagName.toLowerCase()}>\n`;
+        listItems.forEach(li => {
+          if (li.text.trim()) {
+            currentChunk += `  <li>${li.text.trim()}</li>\n`;
+          }
+        });
+        currentChunk += `</${para.tagName.toLowerCase()}>\n`;
+      }
+    } else if (text.length > 20) {
+      currentChunk += `<p>${text}</p>\n`;
+    }
+    
+    currentWordCount += wordCount;
+  }
+  
+  // Add final chunk if there's substantial content
+  if (currentChunk.trim() && currentWordCount > 30) {
+    const chunkTitle = detectFramework2ChunkTitle(currentChunk, lessonTitle, chunkIndex);
+    const chunkType = detectFramework2ChunkType(currentChunk);
+    
+    chunks.push({
+      title: chunkTitle,
+      content: `<h3>${chunkTitle}</h3>\n${currentChunk}`,
+      type: chunkType
+    });
+    console.log(`✂️  Created final chunk ${chunkIndex}: "${chunkTitle}" (${chunkType.toUpperCase()}) - ${currentWordCount} words`);
+  }
+  
+  console.log(`📊 Paragraph chunking result: ${chunks.length} chunks created`);
+  return chunks.length > 1 ? chunks : [];
+}
+
+/**
+ * Force chunk long content regardless of structure and map to Framework 2 screen types
+ */
+function forceChunkLongContent(element: any, lessonTitle: string, processedAssets: Map<string, string>): Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> {
+  console.log(`🔪 Force chunking content for Framework 2: ${lessonTitle}`);
+  
+  // Get all text content and split it aggressively
+  const textContent = element.text || '';
+  const sentences = textContent.split(/[.!?]+/).filter(s => s.trim().length > 20);
+  
+  console.log(`📝 Found ${sentences.length} sentences to work with`);
+  
+  if (sentences.length < 6) {
+    console.log(`⚠️  Not enough sentences for force chunking`);
+    return [];
+  }
+  
+  const chunks: Array<{title: string, content: string, type: 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources'}> = [];
+  const sentencesPerChunk = Math.ceil(sentences.length / 4); // Target 4 Framework 2 screens
+  
+  const screenTypes: Array<'concept' | 'concept' | 'concept' | 'summary'> = ['concept', 'concept', 'concept', 'summary'];
+  const screenTitles = ['Introduction', 'Key Concepts', 'Application', 'Summary'];
+  
+  for (let i = 0; i < sentences.length; i += sentencesPerChunk) {
+    const chunkSentences = sentences.slice(i, i + sentencesPerChunk);
+    const chunkContent = chunkSentences.map(s => `<p>${s.trim()}.</p>`).join('\n');
+    const chunkIndex = Math.floor(i / sentencesPerChunk);
+    
+    if (chunkContent.trim() && chunkIndex < screenTypes.length) {
+      chunks.push({
+        title: screenTitles[chunkIndex],
+        content: `<h3>${screenTitles[chunkIndex]}</h3>\n${chunkContent}`,
+        type: screenTypes[chunkIndex]
+      });
+      console.log(`⚡ Force created Framework 2 ${screenTypes[chunkIndex].toUpperCase()} screen: ${screenTitles[chunkIndex]} (${chunkSentences.length} sentences)`);
+    }
+  }
+  
+  console.log(`💪 Force chunking result: ${chunks.length} Framework 2 screens`);
+  return chunks;
+}
+
+/**
+ * Detect appropriate Framework 2 title for a chunk based on its content
+ */
+function detectFramework2ChunkTitle(content: string, lessonTitle: string, chunkIndex: number): string {
+  const contentLower = content.toLowerCase();
+  
+  if (contentLower.includes('objective') || contentLower.includes('goal') || contentLower.includes('learn') || contentLower.includes('you will')) {
+    return 'Learning Objectives';
+  } else if (contentLower.includes('introduction') || contentLower.includes('welcome') || contentLower.includes('overview') || chunkIndex === 1) {
+    return 'Introduction';
+  } else if (contentLower.includes('example') || contentLower.includes('scenario') || contentLower.includes('case')) {
+    return 'Example Scenario';
+  } else if (contentLower.includes('practice') || contentLower.includes('exercise') || contentLower.includes('activity')) {
+    return 'Practice Activities';
+  } else if (contentLower.includes('summary') || contentLower.includes('conclusion') || contentLower.includes('takeaway')) {
+    return 'Summary';
+  } else if (contentLower.includes('resource') || contentLower.includes('reference')) {
+    return 'Resources';
+  } else {
+    return `${lessonTitle} - Part ${chunkIndex}`;
+  }
+}
+
+/**
+ * Detect appropriate Framework 2 type for a chunk based on its content
+ */
+function detectFramework2ChunkType(content: string): 'objectives' | 'concept' | 'example' | 'practice' | 'summary' | 'resources' {
+  const contentLower = content.toLowerCase();
+  
+  if (contentLower.includes('objective') || contentLower.includes('goal') || contentLower.includes('you will learn')) {
+    return 'objectives';
+  } else if (contentLower.includes('example') || contentLower.includes('scenario') || contentLower.includes('case')) {
+    return 'example';
+  } else if (contentLower.includes('practice') || contentLower.includes('exercise') || contentLower.includes('activity')) {
+    return 'practice';
+  } else if (contentLower.includes('summary') || contentLower.includes('conclusion') || contentLower.includes('takeaway')) {
+    return 'summary';
+  } else if (contentLower.includes('resource') || contentLower.includes('reference')) {
+    return 'resources';
+  } else {
+    return 'concept';
+  }
+}
+
+/**
+ * Extract content between two elements
+ */
+function extractContentBetweenElements(start: any, end?: any): string {
+  let content = '';
+  let current = start.nextElementSibling;
+  
+  while (current && current !== end) {
+    const text = current.text?.trim();
+    if (text && text.length > 10) {
+      if (current.tagName === 'P') {
+        content += `<p>${text}</p>\n`;
+      } else if (current.tagName === 'UL' || current.tagName === 'OL') {
+        const listItems = current.querySelectorAll('li');
+        if (listItems.length > 0) {
+          content += `<${current.tagName.toLowerCase()}>\n`;
+          listItems.forEach(li => {
+            if (li.text.trim()) {
+              content += `  <li>${li.text.trim()}</li>\n`;
+            }
+          });
+          content += `</${current.tagName.toLowerCase()}>\n`;
+        }
+      } else {
+        content += `<p>${text}</p>\n`;
+      }
+    }
+    current = current.nextElementSibling;
+  }
+  
+  return content;
+}
+
+/**
+ * Process a content chunk and clean it up
+ */
+function processContentChunk(content: string, title: string, processedAssets: Map<string, string>): string {
+  // Basic HTML cleaning and processing
+  return content
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/<style[^>]*>.*?<\/style>/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Generate meaningful slide content based on SCORM resource (fallback function)
+ */
+function generateSlideContent(title: string, resourceRef: string, resources: any[], contentFiles: Map<string, string>, processedAssets: Map<string, string>): string {
+  const cleanedTitle = cleanTitle(title);
+  
+  // Find content for this specific slide
+  const actualContent = findContentForItem({resource: resourceRef}, cleanedTitle, resources, contentFiles);
+  
+  if (actualContent) {
+    return parseHtmlContent(actualContent, cleanedTitle, processedAssets);
+  }
+  
+  // Final fallback
+  const contentType = inferSlideType(title);
+  switch (contentType) {
+    case 'practice':
+      return `<h3>${cleanedTitle}</h3>
+<p>Practice exercises and activities for ${cleanedTitle.toLowerCase()}.</p>
+<ul>
+  <li>Review key concepts</li>
+  <li>Complete practice questions</li>
+  <li>Apply what you've learned</li>
+</ul>`;
+    
+    case 'example':
+      return `<h3>${cleanedTitle}</h3>
+<p>Examples and demonstrations of ${cleanedTitle.toLowerCase()}.</p>
+<p>Study the following examples to understand the concepts better:</p>`;
+    
+    case 'summary':
+      return `<h3>${cleanedTitle}</h3>
+<p>Summary and review of ${cleanedTitle.toLowerCase()}.</p>
+<ul>
+  <li>Key takeaways</li>
+  <li>Important concepts to remember</li>
+  <li>Next steps</li>
+</ul>`;
+    
+    default:
+      return `<h3>${cleanedTitle}</h3>
+<p>Explore the fundamentals of ${cleanedTitle.toLowerCase()} in this comprehensive lesson.</p>
+<p>You will learn the essential concepts and practical applications.</p>`;
+  }
+}
+
+/**
+ * Extract content files from the SCORM package
+ */
+async function extractContentFiles(zipContent: JSZip, manifest: ScormManifest): Promise<Map<string, string>> {
+  const contentFiles = new Map<string, string>();
+  
+  console.log('📂 Extracting content files from SCORM package...');
+  
+  // Get all HTML files referenced in resources
+  for (const resource of manifest.resources) {
+    if (resource.href && (resource.href.endsWith('.html') || resource.href.endsWith('.htm'))) {
+      try {
+        const file = zipContent.file(resource.href);
+        if (file) {
+          const content = await file.async('text');
+          contentFiles.set(resource.href, content);
+          console.log(`✅ Extracted content from: ${resource.href}`);
+        }
+      } catch (error) {
+        console.warn(`⚠️  Could not extract ${resource.href}:`, error);
+      }
+    }
+  }
+  
+  // Also look for common SCORM content files
+  const commonPaths = ['index.html', 'content.html', 'lesson.html', 'main.html'];
+  for (const path of commonPaths) {
+    const file = zipContent.file(path);
+    if (file && !contentFiles.has(path)) {
+      try {
+        const content = await file.async('text');
+        contentFiles.set(path, content);
+        console.log(`✅ Found and extracted: ${path}`);
+      } catch (error) {
+        console.warn(`⚠️  Could not extract ${path}:`, error);
+      }
+    }
+  }
+  
+  console.log(`📊 Total content files extracted: ${contentFiles.size}`);
+  return contentFiles;
+}
+
+/**
+ * Process and upload assets from SCORM package
+ */
+async function processAssets(zipContent: JSZip, manifest: ScormManifest, supabase: any, orgId: string): Promise<Map<string, string>> {
+  const processedAssets = new Map<string, string>();
+  
+  console.log('🖼️  Processing SCORM assets...');
+  
+  // Find all asset files (images, videos, etc.)
+  const assetExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.mp4', '.mp3', '.wav', '.pdf'];
+  const assetFiles: string[] = [];
+  
+  zipContent.forEach((relativePath, file) => {
+    if (!file.dir) {
+      const ext = relativePath.toLowerCase().substring(relativePath.lastIndexOf('.'));
+      if (assetExtensions.includes(ext)) {
+        assetFiles.push(relativePath);
+      }
+    }
+  });
+  
+  console.log(`🔍 Found ${assetFiles.length} potential asset files`);
+  
+  // Process and upload assets (limit to reasonable number for performance)
+  const maxAssets = 20;
+  const assetsToProcess = assetFiles.slice(0, maxAssets);
+  
+  for (const assetPath of assetsToProcess) {
+    try {
+      const file = zipContent.file(assetPath);
+      if (file) {
+        const blob = await file.async('blob');
+        const fileName = `scorm_assets/${Date.now()}_${assetPath.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        
+        const { data, error } = await supabase.storage
+          .from('org-assets')
+          .upload(`${orgId}/imports/${fileName}`, blob, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        if (!error && data) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('org-assets')
+            .getPublicUrl(data.path);
+          
+          processedAssets.set(assetPath, publicUrl);
+          console.log(`✅ Uploaded asset: ${assetPath} -> ${publicUrl}`);
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️  Could not process asset ${assetPath}:`, error);
+    }
+  }
+  
+  console.log(`📊 Total assets processed: ${processedAssets.size}`);
+  return processedAssets;
+}
+
+/**
+ * Parse HTML content and extract meaningful educational content
+ */
+function parseHtmlContent(htmlContent: string, title: string, processedAssets: Map<string, string>): string {
+  try {
+    const root = parseHtml(htmlContent);
+    
+    // Remove script tags and non-content elements
+    root.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    
+    // Extract main content areas
+    let mainContent = root.querySelector('main, .content, .lesson-content, #content, .main-content');
+    if (!mainContent) {
+      mainContent = root.querySelector('body') || root;
+    }
+    
+    // Clean up and extract text content
+    let extractedHtml = '';
+    
+    // Process headings
+    const headings = mainContent.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings.length > 0) {
+      extractedHtml += `<h3>${title}</h3>\n`;
+      
+      headings.forEach((heading, index) => {
+        if (index === 0 && heading.text.trim().toLowerCase() === title.toLowerCase()) {
+          return; // Skip if it's the same as our title
+        }
+        const level = Math.max(4, parseInt(heading.tagName[1]) + 1); // Adjust heading level
+        extractedHtml += `<h${level}>${heading.text.trim()}</h${level}>\n`;
+      });
+    } else {
+      extractedHtml += `<h3>${title}</h3>\n`;
+    }
+    
+    // Extract paragraphs and lists
+    const contentElements = mainContent.querySelectorAll('p, ul, ol, div.text-content, .lesson-text');
+    contentElements.forEach(el => {
+      const text = el.text.trim();
+      if (text && text.length > 20) { // Only include substantial content
+        if (el.tagName === 'P') {
+          extractedHtml += `<p>${text}</p>\n`;
+        } else if (el.tagName === 'UL' || el.tagName === 'OL') {
+          const listItems = el.querySelectorAll('li');
+          if (listItems.length > 0) {
+            extractedHtml += `<${el.tagName.toLowerCase()}>\n`;
+            listItems.forEach(li => {
+              if (li.text.trim()) {
+                extractedHtml += `  <li>${li.text.trim()}</li>\n`;
+              }
+            });
+            extractedHtml += `</${el.tagName.toLowerCase()}>\n`;
+          }
+        } else if (text.length > 50) {
+          extractedHtml += `<p>${text}</p>\n`;
+        }
+      }
+    });
+    
+    // Process images and update URLs
+    const images = mainContent.querySelectorAll('img');
+    images.forEach(img => {
+      const src = img.getAttribute('src');
+      if (src && processedAssets.has(src)) {
+        const newSrc = processedAssets.get(src);
+        const alt = img.getAttribute('alt') || 'Educational content image';
+        extractedHtml += `<img src="${newSrc}" alt="${alt}" class="lesson-image" />\n`;
+      }
+    });
+    
+    // If we didn't extract much content, fall back to basic text extraction
+    if (extractedHtml.length < 100) {
+      const bodyText = mainContent.text.trim();
+      if (bodyText.length > 50) {
+        const sentences = bodyText.split('.').filter(s => s.trim().length > 20);
+        extractedHtml = `<h3>${title}</h3>\n`;
+        sentences.slice(0, 5).forEach(sentence => {
+          extractedHtml += `<p>${sentence.trim()}.</p>\n`;
+        });
+      }
+    }
+    
+    return extractedHtml || `<h3>${title}</h3>\n<p>Educational content for ${title.toLowerCase()}.</p>`;
+    
+  } catch (error) {
+    console.warn('⚠️  Error parsing HTML content:', error);
+    return `<h3>${title}</h3>\n<p>Learn about ${title.toLowerCase()} in this comprehensive lesson.</p>`;
+  }
+}

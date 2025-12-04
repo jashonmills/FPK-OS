@@ -1,0 +1,345 @@
+{
+  "courseId": "physics-motion-energy-matter",
+  "courseSlug": "physics-motion-energy-matter",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Physics: Motion, Energy, and Matter",
+  "description": "Explore the fundamental laws that govern the universe. From the motion of planets to the flow of electricity, this interactive course makes physics accessible and exciting.",
+  "backgroundImage": "/lovable-uploads/physics-motion-energy-bg.jpg",
+  "estimatedHours": 12,
+  "difficultyLevel": "intermediate",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Newton's Laws of Motion",
+      "description": "Define Newton's Three Laws of Motion and understand inertia, force, mass, and acceleration",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define Newton's Three Laws of Motion.",
+            "Understand the concepts of inertia, force, mass, and acceleration.",
+            "Apply the formula F=ma to a simple problem."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Classical mechanics, the study of how objects move, is built on the foundation of Isaac Newton's Three Laws. 1st Law (Inertia): An object at rest stays at rest, and an object in motion stays in motion, unless acted on by an external force. 2nd Law: The force acting on an object is equal to the mass of that object times its acceleration (F=ma). 3rd Law: For every action, there is an equal and opposite reaction."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If you push a 10 kg box and it accelerates at 2 m/s², the force you applied is F = (10 kg) * (2 m/s²) = 20 Newtons. When you stand on the floor, your body exerts a downward force (action), and the floor exerts an equal upward force on you (reaction)."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of Newton's Laws is also known as the Law of Inertia?",
+          "options": ["First Law", "Second Law", "Third Law"],
+          "correctAnswer": "First Law",
+          "explanation": "The First Law states that an object at rest stays at rest, and an object in motion stays in motion - this is the principle of inertia."
+        },
+        {
+          "type": "quiz",
+          "question": "What is the formula described by Newton's Second Law?",
+          "options": ["E=mc²", "F=ma", "a²+b²=c²"],
+          "correctAnswer": "F=ma",
+          "explanation": "Newton's Second Law states that Force equals mass times acceleration (F=ma)."
+        }
+      ],
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Classical Mechanics",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 2,
+      "title": "Gravity and Work",
+      "description": "Understand gravity as a fundamental force and learn the physics definition of work",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define gravity as a fundamental force of attraction between two objects with mass.",
+            "Understand the difference between mass and weight.",
+            "Define 'work' in the physics sense."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Gravity is the force that pulls objects toward each other. The more mass an object has, the stronger its gravitational pull. Your mass is the amount of 'stuff' you are made of and is the same everywhere. Your weight is the force of gravity pulling on your mass (Weight = mass × gravitational acceleration). In physics, 'work' is done only when a force causes an object to move a certain distance."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An astronaut has the same mass on Earth and on the Moon, but their weight is much less on the Moon because the Moon's gravity is weaker. If you push against a wall, you are exerting a force, but since the wall doesn't move, you are doing zero 'work' in the physics sense."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following changes when you go to the Moon?",
+          "options": ["Your Mass", "Your Weight", "Both your mass and weight"],
+          "correctAnswer": "Your Weight",
+          "explanation": "Your mass stays the same, but your weight changes because the Moon has weaker gravity than Earth."
+        }
+      ],
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Classical Mechanics",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 3,
+      "title": "Energy - Kinetic and Potential",
+      "description": "Learn about kinetic energy, potential energy, and the Law of Conservation of Energy",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define energy as the capacity to do work.",
+            "Differentiate between kinetic energy (energy of motion) and potential energy (stored energy).",
+            "Understand the Law of Conservation of Energy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Energy comes in many forms. Kinetic energy is the energy an object has due to its motion. Potential energy is stored energy an object has due to its position or state. The Law of Conservation of Energy is a fundamental principle stating that energy cannot be created or destroyed, only converted from one form to another."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A roller coaster car at the top of a hill has maximum potential energy. As it rolls down, that potential energy is converted into kinetic energy. A stretched rubber band has potential energy; when you let it go, that is converted into the kinetic energy of the flying rubber band."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A car driving down the highway has what form of energy?",
+          "options": ["Potential Energy", "Kinetic Energy", "Chemical Energy"],
+          "correctAnswer": "Kinetic Energy",
+          "explanation": "A moving car has kinetic energy - the energy of motion."
+        }
+      ],
+      "estimatedMinutes": 20,
+      "unit": "Unit 2: Energy and Thermodynamics",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Heat and Thermodynamics",
+      "description": "Explore heat transfer, the Laws of Thermodynamics, and methods of thermal energy transfer",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define heat as the transfer of thermal energy.",
+            "Understand the First and Second Laws of Thermodynamics.",
+            "Differentiate between conduction, convection, and radiation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Thermodynamics is the study of heat and energy. The First Law is another statement of the conservation of energy. The Second Law states that heat naturally flows from a hotter object to a colder object, and that the total entropy (disorder) of the universe always increases. Heat can be transferred in three ways: conduction (direct contact), convection (movement of fluids), and radiation (through electromagnetic waves)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Touching a hot stove is conduction. Boiling water (hot water rising, cool water sinking) is convection. The heat you feel from the sun is radiation."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The movement of heat through the movement of a fluid (like air or water) is called...?",
+          "options": ["Conduction", "Convection", "Radiation"],
+          "correctAnswer": "Convection",
+          "explanation": "Convection is heat transfer through the movement of fluids (liquids or gases)."
+        }
+      ],
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Energy and Thermodynamics",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Electricity",
+      "description": "Learn about electric charge, current, circuits, and Ohm's Law",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define electric charge and electric current.",
+            "Understand a simple circuit (voltage, current, resistance).",
+            "Learn Ohm's Law (V=IR)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Electricity is the flow of electric charge, usually carried by electrons. A simple circuit is a closed loop that allows this charge to flow. It requires a voltage source (like a battery) to 'push' the charge, a path for the charge to flow (a wire), and a resistor (like a light bulb) that uses the energy. Ohm's Law describes the relationship between these: Voltage (V) = Current (I) × Resistance (R)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Think of a water pipe. Voltage is like the water pressure, current is like the flow rate of the water, and resistance is like a narrow section of the pipe that restricts the flow."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the formula V=IR (Ohm's Law), what does 'I' stand for?",
+          "options": ["Inductance", "Current", "Intelligence"],
+          "correctAnswer": "Current",
+          "explanation": "In Ohm's Law, 'I' represents electrical current, measured in amperes."
+        }
+      ],
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Electricity and Magnetism",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 6,
+      "title": "Magnetism and Electromagnetism",
+      "description": "Discover how electricity and magnetism are connected through electromagnetism",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that magnets have a north and a south pole.",
+            "Learn that moving electric charges create magnetic fields.",
+            "Define electromagnetism as the unified force of electricity and magnetism."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Magnetism is a force produced by moving electric charges. All magnets have a north and a south pole; opposite poles attract, and like poles repel. A revolutionary discovery in physics was that electricity and magnetism are two sides of the same coin: a moving electric current creates a magnetic field, and a changing magnetic field creates an electric current. This is the principle of electromagnetism, and it's the basis for electric motors and generators."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An electric motor works because an electric current is passed through a coil of wire inside a magnet. The resulting magnetic force causes the coil to spin, creating motion. A generator does the opposite: spinning a coil of wire inside a magnet generates an electric current."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What does a moving electric current create?",
+          "options": ["Only heat", "A magnetic field", "A gravitational field"],
+          "correctAnswer": "A magnetic field",
+          "explanation": "A moving electric current creates a magnetic field - this is the fundamental principle of electromagnetism."
+        }
+      ],
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Electricity and Magnetism",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    }
+  ]
+}

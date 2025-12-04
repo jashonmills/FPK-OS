@@ -1,0 +1,818 @@
+{
+  "courseId": "web-dev-basics",
+  "courseSlug": "web-dev-basics",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Web Development Basics (HTML, CSS, JS)",
+  "description": "A practical, hands-on introduction to building websites. Students will learn the three core languages of the web to create and style their own interactive web pages from scratch.",
+  "backgroundImage": "/course-images/web-dev-basics-bg.jpg",
+  "estimatedHours": 10,
+  "difficultyLevel": "introductory",
+  "category": "Technology",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "What is HTML? Your First Web Page",
+      "description": "Learn the basics of HTML and create your first web page",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 1: HTML - The Structure of the Web",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that HTML stands for HyperText Markup Language.",
+            "Learn that HTML provides the basic structure (the 'skeleton') of a web page.",
+            "Create and view a simple 'Hello, World!' HTML file in a web browser."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "HTML is not a programming language; it's a 'markup' language. It uses 'tags' to describe different pieces of content. For example, the `<p>` tag tells the browser that the text inside it is a paragraph. Every HTML file has a basic structure including `<html>`, `<head>`, and `<body>` tags."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "<!DOCTYPE html>\n<html>\n<head>\n  <title>My First Page</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n</body>\n</html>",
+          "language": "html"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What does HTML stand for?",
+          "options": [
+            "Hyper-Transfer Markup Language",
+            "HyperText Markup Language",
+            "High-Text Machine Language"
+          ],
+          "correctAnswer": "HyperText Markup Language"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You've created your very first web page. You now know that HTML gives a page its structure, like a skeleton gives a body its shape. In the next lesson, we'll learn more tags to add different types of content."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Essential HTML Tags",
+      "description": "Master headings, links, and images in HTML",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 1: HTML - The Structure of the Web",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to use heading tags `<h1>` through `<h6>`.",
+            "Create hyperlinks (links) using the `<a>` tag.",
+            "Embed images using the `<img>` tag."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Tags are the building blocks of HTML. Headings (`<h1>`, `<h2>`, etc.) structure your content by importance. The anchor tag `<a>` creates clickable links with its `href` attribute. The image tag `<img>` is self-closing and uses a `src` attribute to point to the image file."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "<h2>This is a Subheading</h2>\n<p>Click here to visit Google: <a href=\"https://www.google.com\">Google</a>.</p>\n<img src=\"image.jpg\" alt=\"A descriptive caption\">",
+          "language": "html"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which attribute is used in an `<a>` tag to specify the link's destination?",
+          "options": [
+            "src",
+            "href",
+            "link"
+          ],
+          "correctAnswer": "href"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent! You can now add the most common types of content to a web page: headings, links, and images. Your pages are becoming much more interesting. Next, we'll learn how to organize content into lists and sections."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Structuring Content with Lists and Divs",
+      "description": "Organize your HTML with lists and container elements",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 1: HTML - The Structure of the Web",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Create ordered lists (`<ol>`) and unordered lists (`<ul>`).",
+            "Understand the purpose of the `<div>` tag as a generic container.",
+            "Group related elements together for better organization and future styling."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Good structure is key. Lists are perfect for itemized information. An ordered list (`<ol>`) uses numbers, while an unordered list (`<ul>`) uses bullet points. The `<div>` tag is the most important organizational tool. It's a generic container you can use to group sections of your page, like a header, a sidebar, or a footer."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "<div class=\"header\">\n  <h1>My Website</h1>\n</div>\n\n<div class=\"main-content\">\n  <p>Here is a list of my favorite fruits:</p>\n  <ul>\n    <li>Apples</li>\n    <li>Bananas</li>\n  </ul>\n</div>",
+          "language": "html"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which tag would you use to create a bulleted list?",
+          "options": [
+            "<ol>",
+            "<li>",
+            "<ul>"
+          ],
+          "correctAnswer": "<ul>"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Great work on organizing your content! Using lists and divs makes your code cleaner and is essential for applying styles with CSS, which we'll learn about soon. Next, we'll create forms to get input from users."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Building Forms",
+      "description": "Create interactive forms to collect user input",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 1: HTML - The Structure of the Web",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Create a form using the `<form>` tag.",
+            "Add text inputs, email inputs, and text areas.",
+            "Include a submit button to complete the form."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Forms are how websites collect information from users. The `<form>` tag wraps all the inputs. The `<input>` tag is very versatile; changing its `type` attribute allows you to create text boxes, password fields, checkboxes, and more. The `<label>` tag is crucial for accessibility, as it describes the purpose of each input."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "<form>\n  <label for=\"name\">Name:</label><br>\n  <input type=\"text\" id=\"name\" name=\"name\"><br>\n  \n  <label for=\"email\">Email:</label><br>\n  <input type=\"email\" id=\"email\" name=\"email\"><br><br>\n  \n  <input type=\"submit\" value=\"Subscribe\">\n</form>",
+          "language": "html"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which `type` attribute on an `<input>` tag is best for collecting an email address?",
+          "options": [
+            "text",
+            "email",
+            "string"
+          ],
+          "correctAnswer": "email"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've completed the HTML unit! You can now build a well-structured, content-rich web page with text, links, images, and forms. But it probably looks a bit plain. In the next unit, we'll use CSS to make it beautiful."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "What is CSS? How to Add Color and Style",
+      "description": "Introduction to CSS and styling web pages",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: CSS - Styling the Web",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that CSS stands for Cascading Style Sheets.",
+            "Learn the three ways to add CSS: inline, internal, and external.",
+            "Use CSS selectors to target HTML elements and change their color and font size."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "CSS is the 'clothing' for your HTML 'skeleton'. It controls all the presentation, from colors and fonts to layout and animation. A CSS rule consists of a 'selector' (which element to target) and a 'declaration' block (the styles to apply, like `color: blue;`)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "/* This is a CSS comment */\np {\n  color: navy;\n  font-size: 16px;\n}\n\nh1 {\n  color: green;\n}",
+          "language": "css"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What does CSS stand for?",
+          "options": [
+            "Creative Style Sheets",
+            "Computer Style Sheets",
+            "Cascading Style Sheets"
+          ],
+          "correctAnswer": "Cascading Style Sheets"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your web pages no longer have to be black and white! You now know how to use CSS to add style. Using an external stylesheet is the best practice for keeping your code organized. Next, we'll learn the most important concept in CSS layout: the box model."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "The Box Model",
+      "description": "Understand how CSS treats every element as a box",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: CSS - Styling the Web",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that every HTML element is a rectangular box.",
+            "Learn the four parts of the box model: content, padding, border, and margin.",
+            "Use CSS to control the spacing inside and outside of elements."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The box model is fundamental. From the inside out, every element has: 1. The `content` itself. 2. `Padding`, which is the space between the content and the border. 3. The `border` itself. 4. `Margin`, which is the space outside the border, separating it from other elements."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": ".my-box {\n  padding: 20px; /* 20px of space inside the border */\n  border: 1px solid black;\n  margin: 40px; /* 40px of space outside the border */\n}",
+          "language": "css"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which property controls the space OUTSIDE an element's border?",
+          "options": [
+            "padding",
+            "margin",
+            "border"
+          ],
+          "correctAnswer": "margin"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've mastered the box model! Understanding this concept gives you precise control over spacing and layout. You can now create well-spaced, clean designs. Next, we'll learn a modern technique for arranging these boxes: Flexbox."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Layout with Flexbox",
+      "description": "Master modern CSS layout with Flexbox",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: CSS - Styling the Web",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand Flexbox as a one-dimensional layout model.",
+            "Use `display: flex` to create a flex container.",
+            "Use `justify-content` and `align-items` to position items within the container."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Flexbox makes it easy to align items in a row or a column. You apply `display: flex` to a parent container, and its direct children become 'flex items'. You can then use properties on the container to control their alignment, spacing, and order."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": ".container {\n  display: flex;\n  justify-content: space-around; /* Distributes items evenly */\n  align-items: center; /* Vertically centers items */\n}",
+          "language": "css"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which property is used on a flex container to align items along the main axis (horizontally by default)?",
+          "options": [
+            "align-items",
+            "flex-direction",
+            "justify-content"
+          ],
+          "correctAnswer": "justify-content"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Layouts are no longer a mystery! Flexbox is a powerful tool for creating clean, flexible, and robust layouts. You can easily create navigation bars, centered content, and equal-height columns. Next, we'll make sure our layouts look good on all screen sizes."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Making it Responsive",
+      "description": "Create responsive designs that work on all devices",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: CSS - Styling the Web",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the importance of responsive web design.",
+            "Use CSS media queries to apply different styles for different screen sizes.",
+            "Create a simple responsive layout that adapts from mobile to desktop."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Responsive design ensures your website looks great and functions well on all devices, from smartphones to large desktop monitors. Media queries are the key. They allow you to apply different CSS rules based on characteristics like screen width."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "/* Base styles for mobile */\n.container {\n  flex-direction: column;\n}\n\n/* Styles for tablets and larger */\n@media (min-width: 768px) {\n  .container {\n    flex-direction: row;\n  }\n}",
+          "language": "css"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What CSS feature allows you to apply different styles based on screen size?",
+          "options": [
+            "Flexbox",
+            "Media queries",
+            "Grid layout"
+          ],
+          "correctAnswer": "Media queries"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've completed the CSS unit! Your websites now have style, layout, and responsiveness. You're ready to move on to JavaScript, which will add interactivity and dynamic behavior to your pages."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "What is JavaScript? Adding Interactivity",
+      "description": "Introduction to JavaScript and making pages interactive",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 3: JavaScript - Making the Web Interactive",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that JavaScript is a programming language that runs in the browser.",
+            "Learn how to add JavaScript to an HTML page.",
+            "Write your first JavaScript code to change content on a page."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "JavaScript is the 'behavior' layer of the web. While HTML provides structure and CSS provides style, JavaScript allows you to make things happen. It can respond to user actions, update content dynamically, and create rich interactive experiences."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "<button onclick=\"alert('Hello, JavaScript!')\">Click Me</button>\n\n<script>\n  // This is JavaScript!\n  console.log('Welcome to JavaScript');\n</script>",
+          "language": "html"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What does JavaScript add to a web page?",
+          "options": [
+            "Structure",
+            "Style",
+            "Interactivity"
+          ],
+          "correctAnswer": "Interactivity"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've taken your first step into JavaScript! You can now add interactive elements to your pages. In the next lessons, we'll dive deeper into variables, functions, and events."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Variables and Data Types",
+      "description": "Learn how to store and work with data in JavaScript",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 3: JavaScript - Making the Web Interactive",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand what variables are and why they're useful.",
+            "Learn about different data types: strings, numbers, and booleans.",
+            "Declare variables using `let` and `const`."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Variables are containers for storing data. Think of them as labeled boxes where you can put information and retrieve it later. JavaScript has several data types: strings (text), numbers, booleans (true/false), and more."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "// Declaring variables\nlet userName = \"Alice\";  // String\nlet age = 25;            // Number\nconst isStudent = true;  // Boolean\n\nconsole.log(userName);   // Outputs: Alice",
+          "language": "javascript"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which keyword should you use to declare a variable that won't change?",
+          "options": [
+            "var",
+            "let",
+            "const"
+          ],
+          "correctAnswer": "const"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Variables are the foundation of programming! You now know how to store and use different types of data. Next, we'll learn about functions, which allow you to organize and reuse your code."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Functions and Events",
+      "description": "Create reusable code and respond to user actions",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 3: JavaScript - Making the Web Interactive",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn what functions are and how to create them.",
+            "Understand how to respond to user events like clicks.",
+            "Combine functions and events to create interactive features."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Functions are reusable blocks of code that perform specific tasks. Events are actions that happen in the browser, like a user clicking a button or typing in a field. By combining functions and events, you can make your pages truly interactive."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "// Define a function\nfunction greetUser() {\n  alert('Welcome to our website!');\n}\n\n// Add event listener\ndocument.getElementById('myButton').addEventListener('click', greetUser);",
+          "language": "javascript"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What method is used to add an event listener to an element?",
+          "options": [
+            "addListener()",
+            "addEventListener()",
+            "attachEvent()"
+          ],
+          "correctAnswer": "addEventListener()"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now create interactive features that respond to user actions! Functions and events are powerful tools that form the basis of modern web development. Let's put it all together in the final lesson."
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Building Your First Interactive Page",
+      "description": "Combine HTML, CSS, and JavaScript to create a complete project",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 3: JavaScript - Making the Web Interactive",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Combine HTML, CSS, and JavaScript in a single project.",
+            "Create a simple interactive application.",
+            "Understand how the three technologies work together."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Now it's time to bring everything together! You'll create a simple interactive page that uses HTML for structure, CSS for style, and JavaScript for interactivity. This is how professional web developers build websites."
+        },
+        {
+          "type": "heading",
+          "content": "Example Project: Color Changer",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { transition: background-color 0.3s; }\n    button { padding: 10px 20px; margin: 5px; }\n  </style>\n</head>\n<body>\n  <h1>Click a button to change the background!</h1>\n  <button onclick=\"changeColor('lightblue')\">Blue</button>\n  <button onclick=\"changeColor('lightgreen')\">Green</button>\n  \n  <script>\n    function changeColor(color) {\n      document.body.style.backgroundColor = color;\n    }\n  </script>\n</body>\n</html>",
+          "language": "html"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which three technologies work together to create a modern web page?",
+          "options": [
+            "HTML, Python, JavaScript",
+            "HTML, CSS, JavaScript",
+            "CSS, JavaScript, SQL"
+          ],
+          "correctAnswer": "HTML, CSS, JavaScript"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You've completed the Web Development Basics course. You now have a solid foundation in HTML, CSS, and JavaScript - the three core technologies of web development. You're ready to start building your own websites and continue learning more advanced topics!"
+        }
+      ]
+    }
+  ]
+}

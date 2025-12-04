@@ -1,0 +1,207 @@
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LogIn, Loader2, Shield } from 'lucide-react';
+import { useOrgBranding } from '@/hooks/useOrgBranding';
+import { OrgBanner } from '@/components/branding/OrgBanner';
+import { useAuth } from '@/hooks/useAuth';
+import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
+import { AdminPasswordLoginForm } from '@/components/auth/AdminPasswordLoginForm';
+
+export default function OrgPortalLanding() {
+  const { orgSlug } = useParams<{ orgSlug: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isStudentPortalUser, studentOrgSlug } = useStudentPortalContext();
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [orgName, setOrgName] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
+  const { data: branding } = useOrgBranding(orgId);
+
+  // Redirect authenticated student portal users to their dashboard
+  useEffect(() => {
+    if (!loading && user && isStudentPortalUser && orgId) {
+      // Redirect to full organization dashboard
+      navigate(`/org/${orgId}`, { replace: true });
+    }
+  }, [user, isStudentPortalUser, orgId, loading, navigate]);
+
+  useEffect(() => {
+    const loadOrganization = async () => {
+      if (!orgSlug) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data: org, error } = await supabase
+          .from('organizations')
+          .select('id, name, description')
+          .eq('slug', orgSlug)
+          .single();
+
+        if (error || !org) {
+          console.error('Organization not found:', error);
+          navigate('/');
+          return;
+        }
+
+        setOrgId(org.id);
+        setOrgName(org.name);
+      } catch (error) {
+        console.error('Error loading organization:', error);
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrganization();
+  }, [orgSlug, navigate]);
+
+  // Apply organization branding colors
+  useEffect(() => {
+    if (branding?.theme_accent) {
+      document.documentElement.style.setProperty('--org-accent', branding.theme_accent);
+    }
+
+    return () => {
+      document.documentElement.style.removeProperty('--org-accent');
+    };
+  }, [branding]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div className="fixed inset-0 z-0">
+          <OrgBanner className="w-full h-full" overlay={false} />
+        </div>
+        <div className="relative z-10">
+          <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Full-screen background - no overlay */}
+      <div className="fixed inset-0 z-0">
+        <OrgBanner className="w-full h-full" overlay={false} />
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col p-4 pt-8">
+        {/* Orange transparent banner at top */}
+        <div className="w-full max-w-4xl mx-auto mb-8">
+          <div className="bg-orange-500/80 backdrop-blur-md rounded-lg shadow-lg p-6">
+            <div className="flex items-center">
+              {branding?.logo_url && (
+                <img 
+                  src={branding.logo_url} 
+                  alt={`${orgName} logo`}
+                  className="h-16 sm:h-20 md:h-24 object-contain mr-6"
+                />
+              )}
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+                  Welcome to {orgName}
+                </h1>
+                <p className="text-white/90 text-sm sm:text-base drop-shadow-md">Beta Plan Organization</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="w-full max-w-md mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 bg-white/90 backdrop-blur-sm px-6 py-3 rounded-lg inline-block shadow-lg">
+              {orgName}
+            </h1>
+            <p className="text-lg text-gray-700 mt-4 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block shadow-md">
+              Student Portal
+            </p>
+          </div>
+
+        {/* Welcome Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
+          <div className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                Welcome Back!
+              </h2>
+              <p className="text-gray-600">
+                Sign in to access your learning dashboard and track your progress.
+              </p>
+            </div>
+
+            <Button
+              onClick={() => navigate(`/${orgSlug}/login`)}
+              className="w-full h-12 text-lg bg-orange-500 hover:bg-orange-600 text-white"
+              size="lg"
+            >
+              <LogIn className="w-5 h-5 mr-2" />
+              Student Login
+            </Button>
+
+            <Button
+              onClick={() => navigate(`/${orgSlug}/educator-login`)}
+              className="w-full h-12 text-lg bg-blue-500 hover:bg-blue-600 text-white"
+              size="lg"
+            >
+              <LogIn className="w-5 h-5 mr-2" />
+              Educator & Staff Login
+            </Button>
+
+            <Button
+              onClick={() => setShowAdminLoginModal(true)}
+              className="w-full h-12 text-lg bg-purple-600 hover:bg-purple-700 text-white"
+              size="lg"
+              variant="outline"
+            >
+              <Shield className="w-5 h-5 mr-2" />
+              Admin & Owner Login
+            </Button>
+
+            <div className="text-center text-sm text-gray-500">
+              <p>Need help? Contact your organization administrator.</p>
+            </div>
+          </div>
+        </div>
+
+          {/* Footer */}
+          <div className="text-center mt-6 text-sm text-gray-600 bg-white/80 backdrop-blur-sm px-4 py-2 rounded inline-block">
+            <p>Powered by FPK University</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Admin Login Modal */}
+      <Dialog open={showAdminLoginModal} onOpenChange={setShowAdminLoginModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-purple-600" />
+              Administrator Login
+            </DialogTitle>
+          </DialogHeader>
+          {orgId && orgName && (
+            <AdminPasswordLoginForm
+              orgId={orgId}
+              orgName={orgName}
+              onSuccess={() => {
+                setShowAdminLoginModal(false);
+                navigate(`/org/${orgId}`);
+              }}
+              onCancel={() => setShowAdminLoginModal(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

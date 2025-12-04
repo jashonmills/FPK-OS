@@ -1,0 +1,98 @@
+{
+  "courseId": "web-development-fundamentals",
+  "courseSlug": "web-development-fundamentals",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Web Development Fundamentals",
+  "description": "Build modern websites with HTML, CSS, and JavaScript through hands-on projects and best practices.",
+  "backgroundImage": "/lovable-uploads/web-development-fundamentals-bg.jpg",
+  "estimatedHours": 5,
+  "difficultyLevel": "intermediate",
+  "category": "Technology",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Web Development",
+      "description": "Understand how the web works",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Getting Started",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "HTML Fundamentals",
+      "description": "Learn HTML structure and semantic elements",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: HTML",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 3,
+      "title": "CSS Styling",
+      "description": "Master CSS selectors, properties, and layout",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: CSS",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Responsive Design",
+      "description": "Create websites that work on all devices",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: CSS",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 5,
+      "title": "JavaScript Basics",
+      "description": "Learn variables, functions, and control flow",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: JavaScript",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 6,
+      "title": "DOM Manipulation",
+      "description": "Make pages interactive with JavaScript",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: JavaScript",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 7,
+      "title": "Building Your First Website",
+      "description": "Put it all together in a complete project",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 5: Projects",
+      "unitColor": "bg-green-100 text-green-700"
+    }
+  ]
+}

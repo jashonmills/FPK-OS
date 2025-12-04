@@ -1,0 +1,443 @@
+{
+  "courseId": "us-history-founding-to-civil-war",
+  "courseSlug": "us-history-founding-to-civil-war",
+  "contentVersion": "v2",
+  "title": "U.S. History: Founding to Civil War",
+  "description": "Journey through the birth of a nation, from the American Revolution and the creation of the Constitution to westward expansion and the crisis that led to the Civil War.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Road to Revolution",
+      "description": "Explore the causes and key events leading to the American Revolution.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 1: Revolution and a New Nation",
+      "unitColor": "hsl(220, 90%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the causes of the American Revolution, including 'taxation without representation'.",
+            "Identify key events like the Boston Tea Party and the Stamp Act.",
+            "Define the role of the First Continental Congress."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The American Revolution was not a sudden event. It was the result of over a decade of rising tensions between the American colonies and Great Britain. The core issue was the British belief that they could tax the colonies to pay for war debts, while the colonists believed that only their own elected assemblies had that right."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Stamp Act of 1765, which taxed all paper goods, led to widespread protests under the slogan 'No taxation without representation!' The Boston Tea Party in 1773 was a direct act of defiance against the Tea Act, escalating the conflict dramatically."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the central argument of the American colonists against British taxes?",
+          "options": ["The taxes were too high", "They had no elected representatives in the British Parliament", "They wanted to create their own currency"],
+          "correctAnswer": "They had no elected representatives in the British Parliament"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand the philosophical and economic roots of the American Revolution. It was a conflict born from ideas about rights and self-governance. Next, we'll see how these ideas were formally declared to the world."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "The Declaration of Independence",
+      "description": "Analyze the key philosophical ideas and significance of the Declaration.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 1: Revolution and a New Nation",
+      "unitColor": "hsl(220, 90%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the purpose of the Declaration of Independence.",
+            "Analyze its key philosophical ideas, including 'unalienable Rights'.",
+            "Identify Thomas Jefferson as its primary author."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Declaration of Independence, adopted on July 4, 1776, was more than just a declaration of war. It was a philosophical document that laid out the colonists' justification for separation. It argued that all men are created equal with certain unalienable rights (Life, Liberty, and the pursuit of Happiness) and that governments derive their power from the consent of the governed."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The document lists a series of grievances against King George III to prove that the British government had violated the colonists' rights, thus justifying the revolution. It was a legal and moral argument presented to the world."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "According to the Declaration, what are the three unalienable rights?",
+          "options": ["Life, Liberty, and Property", "Life, Liberty, and the pursuit of Happiness", "Freedom, Equality, and Brotherhood"],
+          "correctAnswer": "Life, Liberty, and the pursuit of Happiness"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've explored one of the most important documents in world history. The ideas in the Declaration have inspired countless movements for freedom and self-determination across the globe. Next, we'll look at the war fought to make these ideas a reality."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The American Revolution",
+      "description": "Learn about key battles, turning points, and the role of foreign aid.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 1: Revolution and a New Nation",
+      "unitColor": "hsl(220, 90%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify key battles and turning points of the Revolutionary War, such as Saratoga and Yorktown.",
+            "Understand the crucial role of foreign aid, particularly from France.",
+            "Recognize George Washington's leadership of the Continental Army."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Revolutionary War (1775-1783) was a long and difficult struggle. The Continental Army, led by George Washington, faced the most powerful military in the world. The turning point came with the American victory at the Battle of Saratoga in 1777, which convinced France to formally enter the war as an American ally. This support was decisive."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The final major battle was the Siege of Yorktown in 1781, where American and French forces trapped a large British army, forcing its surrender. This victory effectively ended the war and secured American independence."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which battle is considered the main turning point of the Revolutionary War?",
+          "options": ["Lexington and Concord", "Bunker Hill", "Saratoga"],
+          "correctAnswer": "Saratoga"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned how a group of determined colonists, with crucial foreign help, defeated a global superpower. The challenge now was even greater: how to build a stable, lasting nation from thirteen separate states."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "The Constitution and Bill of Rights",
+      "description": "Understand the creation of the Constitution and the Bill of Rights.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 1: Revolution and a New Nation",
+      "unitColor": "hsl(220, 90%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the weaknesses of the first government, the Articles of Confederation.",
+            "Learn about the compromises made at the Constitutional Convention.",
+            "Define the purpose of the Bill of Rights."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The first U.S. government, under the Articles of Confederation, was too weak. It couldn't tax or raise an army effectively. In 1787, delegates met to create a new government, resulting in the U.S. Constitution. It established a stronger federal government with three branches (Legislative, Executive, Judicial) and a system of checks and balances. To address fears of a powerful central government, the Bill of Rights—the first ten amendments—was added to explicitly protect individual liberties."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The 'Great Compromise' created a two-house legislature: the Senate (equal representation for all states) and the House of Representatives (representation based on population). The First Amendment in the Bill of Rights protects freedom of speech, religion, and the press."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the name for the first ten amendments to the Constitution?",
+          "options": ["The Preamble", "The Bill of Rights", "The Articles of Confederation"],
+          "correctAnswer": "The Bill of Rights"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned about the blueprint for the American government. The Constitution created a framework for a new kind of republic, and the Bill of Rights ensured that individual freedoms were at its core. Next, we'll see how this new nation began to grow."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Westward Expansion and Manifest Destiny",
+      "description": "Explore the concept of Manifest Destiny and its impact on expansion.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 2: Expansion and Division",
+      "unitColor": "hsl(15, 85%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define 'Manifest Destiny' as the belief in America's divine right to expand westward.",
+            "Identify key acquisitions of land, such as the Louisiana Purchase.",
+            "Understand the impact of westward expansion on Native American populations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the 19th century, many Americans believed in 'Manifest Destiny'—the idea that the United States was destined to stretch from the Atlantic to the Pacific. This belief drove massive territorial expansion, including the Louisiana Purchase (1803), the annexation of Texas (1845), and the Mexican-American War (1846-48). This expansion came at a great cost to Native American tribes, who were forcibly removed from their ancestral lands."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Louisiana Purchase, bought from France, nearly doubled the size of the United States overnight. The Indian Removal Act of 1830 led to the forced migration of thousands of Native Americans, known as the 'Trail of Tears'."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the name of the belief that the U.S. was destined to expand across the continent?",
+          "options": ["The Monroe Doctrine", "Manifest Destiny", "The Great Awakening"],
+          "correctAnswer": "Manifest Destiny"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand the driving force behind America's rapid growth in the 19th century. This expansion created vast new opportunities but also led to immense conflict and tragedy. The biggest conflict, however, was brewing within the nation itself."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "The Crisis of Slavery",
+      "description": "Examine how slavery divided the nation and the abolitionist movement.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 2: Expansion and Division",
+      "unitColor": "hsl(15, 85%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand how the issue of slavery created deep divisions between the North and the South.",
+            "Learn about key compromises, such as the Missouri Compromise.",
+            "Identify the growing abolitionist movement."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "As the U.S. expanded, the critical question was whether new territories would allow slavery. The industrial North largely opposed the expansion of slavery, while the agrarian South, whose economy depended on enslaved labor, demanded it. A series of fragile political compromises, like the Missouri Compromise of 1820, tried to maintain a balance of power between 'free' and 'slave' states, but these only delayed the inevitable conflict."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Missouri Compromise admitted Missouri as a slave state but Maine as a free state, maintaining the balance. Meanwhile, the abolitionist movement, with figures like Frederick Douglass and Harriet Beecher Stowe (author of 'Uncle Tom's Cabin'), grew in the North, arguing for the complete end of slavery on moral grounds."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the primary goal of the abolitionist movement?",
+          "options": ["To limit the expansion of slavery", "To achieve a political compromise", "To end slavery completely"],
+          "correctAnswer": "To end slavery completely"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned about the 'irrepressible conflict' at the heart of 19th-century America. The economic, social, and moral divisions over slavery grew deeper with each passing decade, pushing the nation ever closer to a breaking point."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "The Road to Civil War",
+      "description": "Discover the final events that triggered the Civil War.",
+      "contentType": "text",
+      "estimatedMinutes": 77,
+      "unit": "Unit 2: Expansion and Division",
+      "unitColor": "hsl(15, 85%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the key events of the 1850s that led to war, such as the Dred Scott decision and John Brown's raid.",
+            "Understand the concept of 'secession'.",
+            "Recognize the election of Abraham Lincoln in 1860 as the final trigger for war."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The 1850s saw the final breakdown of compromise. The Supreme Court's Dred Scott decision declared that African Americans were not citizens and had no rights. John Brown's raid on Harpers Ferry, an attempt to start a slave rebellion, terrified the South. When Abraham Lincoln was elected President in 1860 on a platform of stopping the expansion of slavery, Southern states saw it as a direct threat to their way of life."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Following Lincoln's election, South Carolina was the first state to 'secede'—to formally withdraw from the United States. Ten other Southern states soon followed, forming the Confederate States of America. The stage was set for war."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The election of which president in 1860 triggered the secession of Southern states?",
+          "options": ["Andrew Jackson", "James Buchanan", "Abraham Lincoln"],
+          "correctAnswer": "Abraham Lincoln"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations on completing the course. You have traced the journey of the United States from a collection of rebellious colonies to a powerful nation on the brink of tearing itself apart. You understand the foundational ideas of the republic and the deep-seated conflicts that led to its greatest crisis: the Civil War."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,385 @@
+{
+  "courseId": "ela-8-1-rhetoric-persuasion-media-literacy",
+  "courseSlug": "ela-8-1-rhetoric-persuasion-media-literacy",
+  "contentVersion": "v2",
+  "title": "ELA 8.1: Rhetoric, Persuasion & Media Literacy",
+  "description": "Learn to analyze how authors and creators influence audiences, and develop the critical skills to become a savvy consumer and creator of media.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Introduction to Rhetoric - Ethos, Pathos, Logos",
+      "description": "Define rhetoric and identify the three rhetorical appeals.",
+      "contentType": "text",
+      "unit": "Unit 1: The Art of Persuasion",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define rhetoric as the art of effective or persuasive speaking or writing.",
+            "Identify and define the three rhetorical appeals: ethos, pathos, and logos.",
+            "Analyze how speakers and writers use these appeals to persuade an audience."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Tools of Persuasion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Rhetoric is all around us, from political speeches and advertisements to everyday conversations. It is the art of using language effectively to persuade, inform, or motivate an audience. The ancient Greek philosopher Aristotle identified three primary modes of persuasion, or 'rhetorical appeals,' that are still fundamental to understanding how we influence one another."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Rhetorical Triangle",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Ethos (Appeal to Authority/Credibility):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "This is about establishing trust and credibility. A speaker uses ethos by demonstrating their expertise, good character, or good will. (e.g., 'As a doctor with 20 years of experience...')."
+        },
+        {
+          "type": "heading",
+          "content": "Pathos (Appeal to Emotion):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "This involves persuading an audience by appealing to their emotions. A speaker uses pathos by telling a moving story, using vivid language, or showing an emotional image. (e.g., an animal shelter ad showing sad puppies)."
+        },
+        {
+          "type": "heading",
+          "content": "Logos (Appeal to Logic/Reason):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "This is about persuading an audience using logic, facts, and evidence. A speaker uses logos by presenting statistics, citing research, or making a clear, well-reasoned argument."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "An advertisement that shows statistics about how a product is 99% effective is primarily using which appeal?",
+          "options": ["Ethos", "Pathos", "Logos"],
+          "correctAnswer": "Logos",
+          "explanation": "Good start. Remember, logos is all about logic, numbers, and facts."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Identifying Bias and Logical Fallacies",
+      "description": "Define bias and identify common logical fallacies in arguments.",
+      "contentType": "text",
+      "unit": "Unit 1: The Art of Persuasion",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define bias as a prejudice in favor of or against one thing, person, or group.",
+            "Identify common logical fallacies (e.g., ad hominem, straw man, slippery slope).",
+            "Analyze arguments to detect bias and fallacious reasoning."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Flaws in Argumentation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Not all arguments are created equal. A logical fallacy is a flaw in reasoning that makes an argument invalid or unsound. They are often used, intentionally or unintentionally, to manipulate an audience. Bias is a tendency to lean in a certain direction, often to the point of being unfair. Being able to spot fallacies and identify bias is a crucial skill for critical thinking."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Common Logical Fallacies",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Ad Hominem:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Attacking the person making the argument instead of the argument itself. (e.g., 'You can't trust his opinion on economics; he failed a math class in high school.')"
+        },
+        {
+          "type": "heading",
+          "content": "Straw Man:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Misrepresenting someone's argument to make it easier to attack. (e.g., 'So you want to ban all cars? That's ridiculous!' when the person only suggested improving public transport.)"
+        },
+        {
+          "type": "heading",
+          "content": "Slippery Slope:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Arguing that a small first step will inevitably lead to a chain of negative events. (e.g., 'If we let students use their phones at lunch, soon they'll be using them in class, and no one will ever learn anything!')"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A politician says, 'My opponent's plan is terrible because he is a bad person.' This is an example of which fallacy?",
+          "options": ["Slippery Slope", "Straw Man", "Ad Hominem"],
+          "correctAnswer": "Ad Hominem",
+          "explanation": "Not quite. Remember, 'ad hominem' is Latin for 'to the person.' It's an attack on the person, not their ideas."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Deconstructing Advertisements",
+      "description": "Identify target audiences and analyze persuasive techniques in advertising.",
+      "contentType": "text",
+      "unit": "Unit 2: Media Literacy in the Digital Age",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the target audience of an advertisement.",
+            "Analyze the persuasive techniques used in advertising (e.g., bandwagon, testimonial, emotional appeal).",
+            "Understand the difference between the explicit message and the implicit message of an ad."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Goal of Advertising",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The primary goal of most advertising is to persuade you to buy a product, use a service, or adopt an idea. To do this, advertisers use a sophisticated combination of rhetorical appeals and psychological techniques. Media literacy involves 'reading' an advertisement to understand not just what it says, but how it is trying to influence you."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Common Advertising Techniques",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Bandwagon:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "This technique suggests that 'everyone is doing it,' appealing to our desire to belong. (e.g., 'The #1 selling phone in the country!')"
+        },
+        {
+          "type": "heading",
+          "content": "Testimonial:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Using a celebrity or expert to endorse a product. This is a form of ethos."
+        },
+        {
+          "type": "heading",
+          "content": "Emotional Appeal (Pathos):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Using images and music to create a strong feeling (happiness, fear, nostalgia) and associating that feeling with the product."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A famous athlete appears in a commercial for a sports drink. This is an example of which technique?",
+          "options": ["Bandwagon", "Testimonial", "Slippery Slope"],
+          "correctAnswer": "Testimonial",
+          "explanation": "Good try. When a famous person endorses a product, it's called a testimonial."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Identifying Misinformation and Disinformation",
+      "description": "Differentiate between misinformation and disinformation, and learn fact-checking strategies.",
+      "contentType": "text",
+      "unit": "Unit 2: Media Literacy in the Digital Age",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between misinformation and disinformation.",
+            "Identify common characteristics of 'fake news' and unreliable sources.",
+            "Learn strategies for fact-checking and verifying information online."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Information Ecosystem",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the digital age, it's easier than ever to share information, but it's also easier than ever to spread false information. It's crucial to be able to tell the difference between reliable news and false content."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Misinformation vs. Disinformation",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Misinformation:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "False information that is spread, regardless of intent. Someone might share a false story because they genuinely believe it is true."
+        },
+        {
+          "type": "heading",
+          "content": "Disinformation:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "False information that is deliberately created and spread with the intent to deceive or cause harm. This is propaganda or 'fake news'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A government deliberately creates a false news story to make another country look bad. This is an example of...?",
+          "options": ["Misinformation", "Disinformation", "A logical fallacy"],
+          "correctAnswer": "Disinformation",
+          "explanation": "Not quite. Because the false story was created with the intent to deceive, it is disinformation."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Crafting a Persuasive Argument",
+      "description": "Develop claims, support with evidence, and address counterclaims.",
+      "contentType": "text",
+      "unit": "Unit 3: Creating Persuasive Media",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Develop a clear claim or thesis statement for an argument.",
+            "Support a claim with relevant evidence and logical reasoning.",
+            "Acknowledge and refute a counterclaim."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Structure of a Strong Argument",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A strong persuasive argument is more than just an opinion. It is a claim supported by evidence and reasoning. A truly powerful argument also anticipates what the other side might say (a counterclaim) and explains why that opposing view is wrong or less significant (a refutation)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Claim, Evidence, Reasoning",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Claim:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The main point you are trying to prove. (e.g., 'Schools should start later in the morning.')"
+        },
+        {
+          "type": "heading",
+          "content": "Evidence:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The facts, statistics, and expert opinions that support your claim. (e.g., 'A study by the American Academy of Pediatrics found that...')"
+        },
+        {
+          "type": "heading",
+          "content": "Reasoning:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The explanation of how your evidence proves your claim. (e.g., 'This shows that later start times are directly linked to better student health.')"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In an argument, the facts and statistics you use to support your claim are called...?",
+          "options": ["Reasoning", "Counterclaim", "Evidence"],
+          "correctAnswer": "Evidence",
+          "explanation": "Good try. The evidence is the 'proof' you use to back up your main point."
+        }
+      ],
+      "estimatedMinutes": 15
+    }
+  ]
+}

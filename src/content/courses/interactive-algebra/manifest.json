@@ -1,0 +1,288 @@
+{
+  "courseId": "interactive-algebra",
+  "courseSlug": "interactive-algebra",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Interactive Algebra",
+  "description": "Master fundamental algebra concepts through interactive lessons and practical applications.",
+  "backgroundImage": "",
+  "estimatedHours": 8,
+  "difficultyLevel": "intermediate",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Algebra",
+      "description": "Understanding variables, expressions, and equations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Interactive Algebra",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Algebra is the language of mathematics that allows us to solve problems using symbols and equations. This course will guide you through the fundamental concepts step by step."
+        },
+        {
+          "type": "heading",
+          "content": "What You'll Learn",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Variables and expressions",
+            "Solving equations",
+            "Working with polynomials",
+            "Graphing linear equations",
+            "Systems of equations",
+            "Factoring techniques"
+          ]
+        }
+      ],
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Variables and Expressions",
+      "description": "Learn to work with algebraic expressions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Understanding Variables",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "A variable is a symbol (usually a letter) that represents an unknown value. Variables allow us to write general mathematical statements that work for many different numbers."
+        },
+        {
+          "type": "heading",
+          "content": "Key Concepts",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Variables represent unknown values",
+            "Expressions combine variables and numbers",
+            "Like terms can be combined",
+            "Order of operations applies to algebraic expressions"
+          ]
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Solving Linear Equations",
+      "description": "Master techniques for solving one-variable equations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Linear Equations",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "A linear equation is an equation where the variable appears only to the first power. We'll learn systematic methods to isolate the variable and find its value."
+        },
+        {
+          "type": "heading",
+          "content": "Solution Strategies",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use inverse operations to isolate the variable",
+            "Maintain balance by doing the same to both sides",
+            "Simplify before solving when possible",
+            "Check your solution by substituting back"
+          ]
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Equations",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Working with Polynomials",
+      "description": "Operations with polynomial expressions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Polynomial Operations",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Polynomials are expressions with multiple terms. We'll learn to add, subtract, multiply, and divide these expressions."
+        },
+        {
+          "type": "heading",
+          "content": "Key Operations",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Adding and subtracting: Combine like terms",
+            "Multiplying: Use distributive property",
+            "Dividing: Factor when possible",
+            "Special products: Recognize patterns"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Polynomials",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 5,
+      "title": "Factoring Techniques",
+      "description": "Learn various methods for factoring expressions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Introduction to Factoring",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Factoring is the process of breaking down a polynomial into simpler components. This is a crucial skill for solving quadratic equations and simplifying expressions."
+        },
+        {
+          "type": "heading",
+          "content": "Factoring Methods",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Greatest Common Factor (GCF)",
+            "Difference of squares",
+            "Trinomial factoring",
+            "Grouping method"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Polynomials",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Graphing Linear Equations",
+      "description": "Visualize equations on the coordinate plane",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Coordinate Plane",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Graphing allows us to visualize mathematical relationships. We'll learn to plot points, draw lines, and understand slope and intercepts."
+        },
+        {
+          "type": "heading",
+          "content": "Graphing Essentials",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Plot points using ordered pairs (x, y)",
+            "Calculate slope from two points",
+            "Identify x and y intercepts",
+            "Use slope-intercept form: y = mx + b"
+          ]
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Graphing",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 7,
+      "title": "Systems of Equations",
+      "description": "Solve problems with multiple equations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Working with Systems",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "When we have multiple equations with multiple variables, we need to find values that satisfy all equations simultaneously. We'll learn substitution and elimination methods."
+        },
+        {
+          "type": "heading",
+          "content": "Solution Methods",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Graphing method: Find intersection point",
+            "Substitution: Solve one equation for a variable",
+            "Elimination: Add or subtract equations",
+            "Check solutions in all original equations"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 5: Advanced Topics",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 8,
+      "title": "Quadratic Equations",
+      "description": "Solve second-degree equations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Introduction to Quadratics",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Quadratic equations involve variables raised to the second power. We'll learn multiple solution methods including factoring, completing the square, and the quadratic formula."
+        },
+        {
+          "type": "heading",
+          "content": "Solution Strategies",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Factoring when possible",
+            "Completing the square technique",
+            "Quadratic formula: x = (-b ± √(b²-4ac)) / 2a",
+            "Understanding the discriminant"
+          ]
+        }
+      ],
+      "estimatedMinutes": 50,
+      "unit": "Unit 5: Advanced Topics",
+      "unitColor": "bg-red-100 text-red-700"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "courseId": "public-speaking",
+  "courseSlug": "public-speaking",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Public Speaking",
+  "description": "Master the art of confident communication through speech preparation, delivery, and persuasion techniques.",
+  "backgroundImage": "/lovable-uploads/public-speaking-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "intermediate",
+  "category": "English",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Public Speaking",
+      "description": "Understand the fundamentals of effective speaking",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Overcoming Speech Anxiety",
+      "description": "Manage nervousness and build confidence",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Speech Organization",
+      "description": "Structure speeches with clear introductions, body, and conclusions",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Preparation",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Supporting Your Ideas",
+      "description": "Use evidence, examples, and visual aids effectively",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Preparation",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Delivery Techniques",
+      "description": "Master vocal variety, gestures, and eye contact",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Performance",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Persuasive Speaking",
+      "description": "Learn to influence and motivate audiences",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Advanced Skills",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

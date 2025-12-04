@@ -1,0 +1,434 @@
+{
+  "courseId": "math-7-1-expressions-equations-inequalities",
+  "courseSlug": "math-7-1-expressions-equations-inequalities",
+  "contentVersion": "v2",
+  "title": "Math 7.1: Expressions, Equations & Inequalities",
+  "description": "Master the foundational language of algebra by learning to write, interpret, and solve expressions, equations, and inequalities.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: The Language of Algebra",
+      "description": "Define key algebraic terms and translate verbal phrases into expressions.",
+      "contentType": "text",
+      "unit": "Unit 1: Algebraic Expressions",
+      "unitColor": "indigo",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define key algebraic terms: variable, constant, coefficient, and term.",
+            "Translate verbal phrases into algebraic expressions.",
+            "Understand that an expression does not have an equals sign."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - From Words to Symbols",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Algebra is a powerful language that uses symbols to represent unknown numbers and relationships. A variable, often represented by a letter like 'x' or 'n', is a symbol that stands for a number we don't know yet. An algebraic expression is a mathematical phrase that can contain ordinary numbers, variables, and operators (+, -, *, /). For example, '5 more than a number' can be written as the expression 'x + 5'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Key Vocabulary",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Variable:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A letter representing an unknown value (e.g., the 'x' in '2x + 3')."
+        },
+        {
+          "type": "heading",
+          "content": "Constant:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A number on its own (e.g., the '3' in '2x + 3')."
+        },
+        {
+          "type": "heading",
+          "content": "Coefficient:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The number multiplied by a variable (e.g., the '2' in '2x + 3')."
+        },
+        {
+          "type": "heading",
+          "content": "Term:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A single number, a variable, or numbers and variables multiplied together (e.g., '2x' and '3' are both terms)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the expression '4y - 7', what is the coefficient?",
+          "options": ["4", "y", "-7"],
+          "correctAnswer": "4",
+          "explanation": "The coefficient is the number directly in front of the variable."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Simplifying Expressions",
+      "description": "Combine like terms and apply the distributive property.",
+      "contentType": "text",
+      "unit": "Unit 1: Algebraic Expressions",
+      "unitColor": "indigo",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify 'like terms' in an algebraic expression.",
+            "Combine like terms to simplify expressions.",
+            "Apply the distributive property to simplify expressions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Combining Like Terms",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Simplifying an expression means making it shorter and easier to work with, without changing its value. The first step is to combine 'like terms'. Like terms are terms that have the exact same variable part. For example, in the expression '3x + 2 + 5x', the terms '3x' and '5x' are like terms because they both have the variable 'x'. We can combine them by adding their coefficients: 3x + 5x = 8x. The simplified expression is '8x + 2'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Distributive Property",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The distributive property allows you to multiply a sum by multiplying each addend separately and then add the products. It looks like this: a(b + c) = ab + ac."
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "To simplify '4(x + 3)', you distribute the 4 to both terms inside the parentheses: 4 * x + 4 * 3, which simplifies to '4x + 12'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Simplify the expression: 7a + 2b + 3a",
+          "options": ["12ab", "10a + 2b", "7a + 5b"],
+          "correctAnswer": "10a + 2b",
+          "explanation": "You can only combine terms that have the exact same variable. You can't add 'a' terms and 'b' terms together."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Solving One-Step Equations",
+      "description": "Use inverse operations to solve one-step equations.",
+      "contentType": "text",
+      "unit": "Unit 2: Solving Equations",
+      "unitColor": "teal",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define an equation as a statement that two expressions are equal.",
+            "Understand the goal of solving an equation is to isolate the variable.",
+            "Use inverse operations to solve one-step equations involving addition, subtraction, multiplication, and division."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Keeping the Balance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An equation is like a balanced scale. Whatever you do to one side of the equals sign, you must do the exact same thing to the other side to keep it balanced. To solve an equation, we use inverse operations to 'undo' what is being done to the variable. The inverse of addition is subtraction, and the inverse of multiplication is division."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Examples",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Solve x + 5 = 12:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "To undo the '+ 5', we subtract 5 from both sides. x + 5 - 5 = 12 - 5. This gives us x = 7."
+        },
+        {
+          "type": "heading",
+          "content": "Solve 3y = 18:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "To undo the 'multiply by 3', we divide both sides by 3. 3y / 3 = 18 / 3. This gives us y = 6."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the solution to the equation n - 4 = 10?",
+          "options": ["n = 6", "n = 14", "n = 40"],
+          "correctAnswer": "n = 14",
+          "explanation": "To undo the '- 4', you need to do the inverse operation, which is to add 4 to both sides."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Solving Two-Step Equations",
+      "description": "Apply inverse operations in the correct order for two-step equations.",
+      "contentType": "text",
+      "unit": "Unit 2: Solving Equations",
+      "unitColor": "teal",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the two operations being performed on the variable.",
+            "Apply inverse operations in the correct order to solve two-step equations.",
+            "Check the solution by substituting it back into the original equation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Undoing in Reverse Order",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Solving two-step equations involves applying the same principles as one-step equations, just with an extra step. The key is to undo the operations in the reverse order of the order of operations (PEMDAS). This means you should always take care of any addition or subtraction first, before dealing with multiplication or division."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Solve 2x + 3 = 11:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "1. Undo the addition first: Subtract 3 from both sides. 2x + 3 - 3 = 11 - 3, which gives 2x = 8."
+        },
+        {
+          "type": "paragraph",
+          "content": "2. Now it's a one-step equation. Undo the multiplication: Divide both sides by 2. 2x / 2 = 8 / 2, which gives x = 4."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the first step to solve the equation 5n - 10 = 20?",
+          "options": ["Divide by 5", "Add 10 to both sides", "Subtract 20 from both sides"],
+          "correctAnswer": "Add 10 to both sides",
+          "explanation": "Remember to undo addition or subtraction before multiplication or division."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Graphing Inequalities",
+      "description": "Learn to graph inequalities on a number line.",
+      "contentType": "text",
+      "unit": "Unit 3: Inequalities",
+      "unitColor": "orange",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the four inequality symbols: <, >, ≤, ≥.",
+            "Understand that an inequality represents a range of possible values, not just one.",
+            "Graph the solution to an inequality on a number line."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - More Than One Answer",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An inequality is a mathematical sentence that compares two values that are not equal. Unlike an equation, which usually has one solution, an inequality has a whole set of solutions. For example, the inequality x > 3 means that x can be any number greater than 3 (like 4, 5.5, or 100)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Graphing on a Number Line",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Open Circle (o):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Used for 'greater than' (>) and 'less than' (<). The circle is open because the number itself is not included in the solution."
+        },
+        {
+          "type": "heading",
+          "content": "Closed Circle (•):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Used for 'greater than or equal to' (≥) and 'less than or equal to' (≤). The circle is closed because the number is included in the solution."
+        },
+        {
+          "type": "heading",
+          "content": "Shading:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "You shade the part of the number line that represents all the possible solutions."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "When graphing the inequality x ≤ 5, what kind of circle do you use on the number 5?",
+          "options": ["An open circle", "A closed circle"],
+          "correctAnswer": "A closed circle",
+          "explanation": "The 'or equal to' part of the symbol means the number is included, so we use a closed circle."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: Solving One-Step Inequalities",
+      "description": "Solve inequalities and understand the special rule for negative numbers.",
+      "contentType": "text",
+      "unit": "Unit 3: Inequalities",
+      "unitColor": "orange",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Solve one-step inequalities using inverse operations.",
+            "Understand the special rule for multiplying or dividing both sides by a negative number.",
+            "Graph the solution set on a number line."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Almost Like Equations",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Solving one-step inequalities is almost exactly the same as solving one-step equations. You use inverse operations to isolate the variable. There is only one very important special rule to remember."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Special Rule",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "The Rule:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "If you multiply or divide both sides of an inequality by a negative number, you MUST flip the direction of the inequality sign."
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "To solve -2x < 10, you divide both sides by -2. Because you are dividing by a negative number, you must flip the '<' to a '>'. The solution is x > -5."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the solution to the inequality x + 7 > 15?",
+          "options": ["x > 8", "x < 8", "x > 22"],
+          "correctAnswer": "x > 8",
+          "explanation": "You solve this just like an equation by subtracting 7 from both sides. You don't need to flip the sign because you are not multiplying or dividing by a negative."
+        }
+      ]
+    }
+  ]
+}

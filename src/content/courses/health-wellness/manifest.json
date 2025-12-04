@@ -1,0 +1,86 @@
+{
+  "courseId": "health-wellness",
+  "courseSlug": "health-wellness",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Health and Wellness",
+  "description": "Learn about nutrition, exercise, mental health, and healthy lifestyle choices for overall well-being.",
+  "backgroundImage": "/lovable-uploads/health-wellness-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Life Skills",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Health and Wellness",
+      "description": "Understand the dimensions of wellness",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 2,
+      "title": "Nutrition Basics",
+      "description": "Learn about healthy eating and nutrients",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Physical Health",
+      "unitColor": "bg-emerald-100 text-emerald-700"
+    },
+    {
+      "id": 3,
+      "title": "Physical Fitness",
+      "description": "Explore exercise types and fitness plans",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Physical Health",
+      "unitColor": "bg-emerald-100 text-emerald-700"
+    },
+    {
+      "id": 4,
+      "title": "Mental Health and Stress",
+      "description": "Understand stress management and emotional wellness",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Mental Health",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Sleep and Recovery",
+      "description": "Learn the importance of sleep and rest",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Mental Health",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 6,
+      "title": "Building Healthy Habits",
+      "description": "Create sustainable wellness routines",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 4: Lifestyle",
+      "unitColor": "bg-teal-100 text-teal-700"
+    }
+  ]
+}

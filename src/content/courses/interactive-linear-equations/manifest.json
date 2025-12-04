@@ -1,0 +1,163 @@
+{
+  "courseId": "interactive-linear-equations",
+  "courseSlug": "interactive-linear-equations",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Interactive Linear Equations",
+  "description": "Master solving linear equations through step-by-step interactive lessons and practical applications.",
+  "backgroundImage": "",
+  "estimatedHours": 6,
+  "difficultyLevel": "beginner",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Linear Equations",
+      "description": "Understanding what linear equations are and why they matter",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Linear Equations",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "A linear equation is an algebraic equation in which each term is either a constant or the product of a constant and a single variable. Linear equations appear everywhere in mathematics, science, and everyday problem-solving."
+        },
+        {
+          "type": "heading",
+          "content": "What You'll Learn",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identifying linear equations",
+            "One-step and multi-step solving techniques",
+            "Equations with variables on both sides",
+            "Word problems and applications",
+            "Checking your solutions"
+          ]
+        }
+      ],
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "One-Step Equations",
+      "description": "Solving simple equations using inverse operations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Mastering One-Step Equations",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "One-step equations can be solved using a single operation. The key is to perform the inverse operation to isolate the variable."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Addition and subtraction equations",
+            "Multiplication and division equations",
+            "Using inverse operations",
+            "Checking solutions by substitution"
+          ]
+        }
+      ],
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Two-Step Equations",
+      "description": "Solving equations requiring multiple operations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Two-Step Solutions",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Two-step equations require two operations to solve. We follow the reverse order of operations to isolate the variable."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Remember: Undo addition/subtraction first, then undo multiplication/division."
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Building Skills",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Multi-Step Equations",
+      "description": "Solving complex equations with multiple operations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Complex Equation Solving",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Multi-step equations require combining like terms, using the distributive property, and performing multiple inverse operations."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Building Skills",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Equations with Variables on Both Sides",
+      "description": "Solving equations where the variable appears multiple times",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Variables on Both Sides",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "When variables appear on both sides of an equation, we need to collect all variable terms on one side before solving."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Advanced Techniques",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Word Problems and Applications",
+      "description": "Translating real-world problems into equations",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Real-World Applications",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Linear equations help us solve countless real-world problems, from calculating costs to determining rates and distances."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Advanced Techniques",
+      "unitColor": "bg-purple-100 text-purple-700"
+    }
+  ]
+}

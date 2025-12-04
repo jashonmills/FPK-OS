@@ -1,0 +1,28 @@
+
+{
+  "myGoals": "My Goals",
+  "createNew": "Create Goal",
+  "createFirst": "Create Your First Goal",
+  "tabs": {
+    "all": "All",
+    "active": "Active",
+    "completed": "Completed",
+    "paused": "Paused"
+  },
+  "stats": {
+    "totalGoals": "Total Goals",
+    "activeGoals": "Active Goals",
+    "completedGoals": "Completed",
+    "completionRate": "Completion Rate"
+  },
+  "empty": {
+    "allTitle": "No goals found",
+    "allDescription": "Start by creating your first goal to track your learning progress",
+    "activeTitle": "No active goals",
+    "activeDescription": "Create a new goal to start tracking your progress",
+    "completedTitle": "No completed goals yet",
+    "completedDescription": "Complete some goals to see them here",
+    "pausedTitle": "No paused goals",
+    "pausedDescription": "Goals you pause will appear here"
+  }
+}

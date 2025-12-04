@@ -1,0 +1,371 @@
+{
+  "courseId": "math-7-2-geometry-angles-area-volume-scale",
+  "courseSlug": "math-7-2-geometry-angles-area-volume-scale",
+  "contentVersion": "v2",
+  "title": "Math 7.2: Geometry - Angles, Area, Volume & Scale",
+  "description": "Explore the world of shapes and space by mastering angles, calculating area and volume, and working with scale drawings.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Angle Relationships",
+      "description": "Define and use angle relationships to find unknown measures.",
+      "contentType": "text",
+      "unit": "Unit 1: Angles and Triangles",
+      "unitColor": "sky",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define and identify complementary and supplementary angles.",
+            "Define and identify vertical angles and adjacent angles.",
+            "Use angle relationships to find unknown angle measures in a figure."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Angles Formed by Intersecting Lines",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "When two lines intersect, they form angles with special relationships. Understanding these relationships allows us to find the measure of an angle even if it's not given directly. These rules are fundamental building blocks for solving more complex geometry problems."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Key Angle Pairs",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Complementary Angles:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Two angles whose measures add up to 90 degrees."
+        },
+        {
+          "type": "heading",
+          "content": "Supplementary Angles:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Two angles whose measures add up to 180 degrees (forming a straight line)."
+        },
+        {
+          "type": "heading",
+          "content": "Vertical Angles:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Angles opposite each other when two lines cross. Vertical angles are always equal."
+        },
+        {
+          "type": "heading",
+          "content": "Adjacent Angles:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Angles that are next to each other and share a common side and vertex."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "If two angles are supplementary and one angle measures 110 degrees, what is the measure of the other angle?",
+          "options": ["70 degrees", "90 degrees", "110 degrees"],
+          "correctAnswer": "70 degrees",
+          "explanation": "Supplementary angles add up to 180 degrees. So, 180 - 110 = 70."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Triangles and the Angle Sum Theorem",
+      "description": "Classify triangles and use the Triangle Angle Sum Theorem.",
+      "contentType": "text",
+      "unit": "Unit 1: Angles and Triangles",
+      "unitColor": "sky",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Classify triangles by their side lengths (scalene, isosceles, equilateral) and by their angles (acute, obtuse, right).",
+            "State the Triangle Angle Sum Theorem.",
+            "Use the theorem to find the measure of a missing angle in a triangle."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Triangle Angle Sum Theorem",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One of the most important rules in all of geometry is the Triangle Angle Sum Theorem. It states that the sum of the measures of the three interior angles of any triangle is always 180 degrees. This is true for every single triangle, no matter its size or shape. This powerful rule allows us to find a missing angle if we know the other two."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagine a triangle with two known angles: one is 50 degrees and the other is 70 degrees. To find the third angle (let's call it 'x'), we set up an equation:"
+        },
+        {
+          "type": "code",
+          "content": "50 + 70 + x = 180",
+          "language": "plaintext"
+        },
+        {
+          "type": "paragraph",
+          "content": "First, add the known angles: 120 + x = 180. Then, solve for x by subtracting 120 from both sides. x = 60. The third angle is 60 degrees."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A triangle has angles measuring 90 degrees and 40 degrees. What is the measure of the third angle?",
+          "options": ["50 degrees", "90 degrees", "130 degrees"],
+          "correctAnswer": "50 degrees",
+          "explanation": "The three angles must add up to 180. So, 180 - 90 - 40 = 50."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Area of 2D Shapes",
+      "description": "Calculate the area of rectangles, triangles, and circles.",
+      "contentType": "text",
+      "unit": "Unit 2: 2D and 3D Shapes",
+      "unitColor": "lime",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define area as the measure of the space inside a two-dimensional figure.",
+            "Calculate the area of rectangles, triangles, and circles.",
+            "Understand that area is measured in square units (e.g., cm²)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Measuring Surface Space",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Area is the amount of surface a 2D shape covers. We measure it by seeing how many square units can fit inside the shape. Different shapes have different formulas for calculating their area, but they all answer the same question: 'How much space is inside?'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Area Formulas",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Rectangle:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Area = length × width",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Triangle:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Area = (1/2) × base × height",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Circle:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Area = π × radius² (π ≈ 3.14)",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the area of a rectangle with a length of 8 cm and a width of 5 cm?",
+          "options": ["13 cm²", "40 cm²", "26 cm²"],
+          "correctAnswer": "40 cm²",
+          "explanation": "The formula for the area of a rectangle is length times width (8 x 5)."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Volume of 3D Shapes",
+      "description": "Calculate the volume of rectangular prisms and cylinders.",
+      "contentType": "text",
+      "unit": "Unit 2: 2D and 3D Shapes",
+      "unitColor": "lime",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define volume as the amount of space a three-dimensional object occupies.",
+            "Calculate the volume of rectangular prisms and cylinders.",
+            "Understand that volume is measured in cubic units (e.g., cm³)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Measuring 3D Space",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Volume is the measure of how much space an object takes up in three dimensions. You can think of it as the capacity of a container—how much water, sand, or air it can hold. We measure volume by seeing how many cubic units can fit inside the object."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Volume Formulas",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Rectangular Prism (a box):",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Volume = length × width × height",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Cylinder:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Volume = Area of the base × height = (π × radius²) × height",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the volume of a box with a length of 10 in, a width of 4 in, and a height of 3 in?",
+          "options": ["17 in³", "60 in³", "120 in³"],
+          "correctAnswer": "120 in³",
+          "explanation": "Remember to multiply all three dimensions: length x width x height (10 x 4 x 3)."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Scale Drawings",
+      "description": "Understand and use scale drawings to find actual dimensions.",
+      "contentType": "text",
+      "unit": "Unit 3: Scale and Proportions",
+      "unitColor": "rose",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a scale drawing as a proportional 2D drawing of an object.",
+            "Understand and use a map scale to find actual distances.",
+            "Calculate the actual dimensions of an object from a scale drawing."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Proportional Representations",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A scale drawing is a drawing that shows a real object with accurate sizes reduced or enlarged by a certain amount, called the scale. Blueprints, maps, and model car instructions are all examples of scale drawings. The scale is a ratio that compares the measurement on the drawing to the actual measurement of the object."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Using a Scale",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagine a map with a scale of '1 inch = 50 miles'. This means that for every 1 inch you measure on the map, the actual distance is 50 miles."
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "If the distance between two cities on this map is 3 inches, you can find the actual distance by setting up a proportion or simply multiplying: 3 inches × 50 miles/inch = 150 miles. The cities are 150 miles apart."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A blueprint has a scale of 1 cm = 2 meters. If a room on the blueprint is 5 cm long, what is the actual length of the room?",
+          "options": ["5 meters", "7 meters", "10 meters"],
+          "correctAnswer": "10 meters",
+          "explanation": "Since 1 cm represents 2 meters, you need to multiply the blueprint measurement by 2 (5 cm x 2 m/cm)."
+        }
+      ]
+    }
+  ]
+}

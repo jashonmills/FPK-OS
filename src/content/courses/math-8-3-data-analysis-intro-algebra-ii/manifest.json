@@ -1,0 +1,360 @@
+{
+  "courseId": "math-8-3-data-analysis-intro-algebra-ii",
+  "courseSlug": "math-8-3-data-analysis-intro-algebra-ii",
+  "contentVersion": "v2",
+  "title": "Math 8.3: Data Analysis & Introduction to Algebra II",
+  "description": "Learn to interpret data using scatter plots and two-way tables, and get a first look at the advanced concepts of Algebra II.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Scatter Plots and Association",
+      "description": "Construct and interpret scatter plots for bivariate data and describe patterns of association.",
+      "contentType": "text",
+      "unit": "Unit 1: Bivariate Data Analysis",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Construct and interpret scatter plots for bivariate (two-variable) data.",
+            "Describe patterns of association: positive, negative, or no association.",
+            "Identify linear and non-linear associations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Visualizing Relationships",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "So far, we've mostly looked at data with one variable. But what if we want to see if two variables are related? For example, is there a relationship between the hours you study and your test scores? A scatter plot is a graph that uses points to display the values for two variables. By looking at the pattern of the points, we can see if there is a relationship, or 'association,' between the variables."
+        },
+        {
+          "type": "heading",
+          "content": "Types of Association",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Positive Association",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "As one variable increases, the other variable also tends to increase. The points on the scatter plot will generally trend upwards from left to right."
+        },
+        {
+          "type": "heading",
+          "content": "Negative Association",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "As one variable increases, the other variable tends to decrease. The points will generally trend downwards from left to right."
+        },
+        {
+          "type": "heading",
+          "content": "No Association",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "There is no clear relationship between the two variables. The points will appear randomly scattered with no discernible pattern."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** A scatter plot shows that as the temperature outside increases, the sales of ice cream also increase. What type of association is this? Answer: Positive Association (since both variables are increasing together).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Trend Lines (Lines of Best Fit)",
+      "description": "Draw trend lines that model data and use them to make predictions.",
+      "contentType": "text",
+      "unit": "Unit 1: Bivariate Data Analysis",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that a trend line (or line of best fit) is a line that models the data in a scatter plot.",
+            "Draw a trend line that fits the data well.",
+            "Use the equation of a trend line to make predictions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Modeling the Data",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "When a scatter plot shows a linear association (the points roughly form a line), we can draw a straight line through the data to model the relationship. This is called a trend line or a line of best fit. The line should be drawn so that it is as close as possible to all the data points, with roughly the same number of points above the line as below it. This line doesn't have to pass through any of the actual data points."
+        },
+        {
+          "type": "heading",
+          "content": "Using a Trend Line to Predict",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Once we have a trend line, we can find its equation (in y = mx + b form). We can then use this equation to make predictions. For example, if our trend line models the relationship between study hours (x) and test scores (y), we could plug in a certain number of study hours to predict the likely test score. This is a powerful tool for making informed guesses based on data."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What is the main purpose of a trend line? Answer: To model the relationship in the data and make predictions (the trend line represents the general trend of the data).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Two-Way Tables",
+      "description": "Organize categorical data into two-way frequency tables and interpret associations.",
+      "contentType": "text",
+      "unit": "Unit 1: Bivariate Data Analysis",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Organize categorical data into a two-way frequency table.",
+            "Calculate relative frequencies from a two-way table.",
+            "Interpret the data in a two-way table to find associations between variables."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Organizing Categorical Data",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Scatter plots are great for numerical data, but what about categorical data (data that fits into categories, like 'yes/no' or 'cat/dog')? A two-way table is a tool used to display the frequencies of two different categorical variables. It allows us to see if there is a relationship between the two categories."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A survey asks 100 students if they play a sport and if they play an instrument. The results can be organized in a two-way table. From this table, we can calculate relative frequencies. For example, what percentage of students who play a sport also play an instrument? We would take the number in the 'Sport and Instrument' box and divide it by the total number of students who play a sport."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** A two-way table is best used for what type of data? Answer: Categorical Data (two-way tables are specifically for organizing and comparing data that falls into different categories).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Introduction to Exponents and Radicals",
+      "description": "Review exponent rules and understand negative exponents and square roots.",
+      "contentType": "text",
+      "unit": "Unit 2: Introduction to Algebra II Concepts",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Review basic exponent rules (product, quotient, power of a power).",
+            "Understand negative exponents and the zero exponent.",
+            "Define a square root as the inverse of squaring a number."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Exponent Rules",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Exponents are a shorthand for repeated multiplication. As we move into higher-level algebra, we need to be fluent with the rules for manipulating them. These rules allow us to simplify complex expressions quickly."
+        },
+        {
+          "type": "heading",
+          "content": "Key Rules",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Product Rule",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "xᵃ ⋅ xᵇ = xᵃ⁺ᵇ (When multiplying, add the exponents)."
+        },
+        {
+          "type": "heading",
+          "content": "Zero Exponent",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "x⁰ = 1 (Any non-zero number to the power of 0 is 1)."
+        },
+        {
+          "type": "heading",
+          "content": "Negative Exponent",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "x⁻ᵃ = 1/xᵃ (A negative exponent means to take the reciprocal)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What is the value of 5⁻²? Answer: 1/25 (The negative exponent rule: 5⁻² = 1/5² = 1/25).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Introduction to Polynomials",
+      "description": "Define polynomials and learn to add and subtract them by combining like terms.",
+      "contentType": "text",
+      "unit": "Unit 2: Introduction to Algebra II Concepts",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a polynomial and identify its terms, coefficients, and degree.",
+            "Classify polynomials by the number of terms (monomial, binomial, trinomial).",
+            "Add and subtract polynomials by combining like terms."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Language of Algebra II",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A polynomial is an expression consisting of variables and coefficients, that involves only the operations of addition, subtraction, multiplication, and non-negative integer exponents of variables. They are the building blocks of much of higher-level algebra. For example, 3x² + 2x - 5 is a polynomial."
+        },
+        {
+          "type": "heading",
+          "content": "Adding Polynomials",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To add or subtract polynomials, you simply combine 'like terms.' Like terms are terms that have the exact same variable part (the same variable raised to the same power)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Add (3x² + 5x - 2) and (2x² - 3x + 7)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Combine the x² terms: 3x² + 2x² = 5x²",
+            "Combine the x terms: 5x - 3x = 2x",
+            "Combine the constant terms: -2 + 7 = 5",
+            "The result is 5x² + 2x + 5."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What is the result of (4x + 8) + (2x - 3)? Answer: 6x + 5 (Combine the x terms: 4x + 2x = 6x, and the constant terms: 8 - 3 = 5).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Introduction to Quadratic Functions",
+      "description": "Identify quadratic functions and understand that their graphs are parabolas.",
+      "contentType": "text",
+      "unit": "Unit 2: Introduction to Algebra II Concepts",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify a quadratic function and its standard form: y = ax² + bx + c.",
+            "Understand that the graph of a quadratic function is a parabola.",
+            "Identify the vertex and axis of symmetry of a parabola."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Beyond the Line",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "We've spent a lot of time with linear functions, which graph as straight lines. A quadratic function is a next-level function where the highest exponent on the variable is 2. Their graphs are not lines, but U-shaped curves called parabolas. These parabolas can open upwards or downwards."
+        },
+        {
+          "type": "heading",
+          "content": "The Parabola",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The most important point on a parabola is the vertex. This is the minimum point (the bottom of the 'U') if the parabola opens up, or the maximum point (the top of the 'U') if it opens down. A vertical line drawn through the vertex is called the axis of symmetry, because the parabola is a mirror image of itself on either side of this line."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What is the shape of the graph of a quadratic function? Answer: A parabola (Linear functions create straight lines, quadratic functions create U-shaped curves).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "🎉 **Course Complete!** You've gained essential skills in data analysis and received your first introduction to Algebra II concepts, preparing you for advanced mathematics.",
+          "style": "success"
+        }
+      ]
+    }
+  ]
+}

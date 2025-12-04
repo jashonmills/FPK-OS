@@ -1,0 +1,45 @@
+-- Insert the new Empowering Learning State course into the courses table
+INSERT INTO courses (
+  id,
+  title,
+  description,
+  duration_minutes,
+  difficulty_level,
+  instructor_name,
+  featured,
+  is_free,
+  price,
+  tags,
+  status,
+  course_visibility,
+  created_at,
+  updated_at
+) VALUES (
+  'empowering-learning-state',
+  'Empowering Learning State',
+  'Master the optimal learning state through calming techniques and brain integration methods. Learn essential techniques to achieve the most effective learning state, including breathing exercises, grounding methods, and brain integration activities designed to enhance focus and memory retention.',
+  180,
+  'beginner',
+  'FPK University',
+  true,
+  true,
+  0.00,
+  ARRAY['Learning Skills', 'Brain Integration', 'Focus Enhancement', 'Calming Techniques'],
+  'published',
+  'global',
+  now(),
+  now()
+)
+ON CONFLICT (id) DO UPDATE SET
+  title = EXCLUDED.title,
+  description = EXCLUDED.description,
+  duration_minutes = EXCLUDED.duration_minutes,
+  difficulty_level = EXCLUDED.difficulty_level,
+  instructor_name = EXCLUDED.instructor_name,
+  featured = EXCLUDED.featured,
+  is_free = EXCLUDED.is_free,
+  price = EXCLUDED.price,
+  tags = EXCLUDED.tags,
+  status = EXCLUDED.status,
+  course_visibility = EXCLUDED.course_visibility,
+  updated_at = now();

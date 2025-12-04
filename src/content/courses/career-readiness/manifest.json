@@ -1,0 +1,86 @@
+{
+  "courseId": "career-readiness",
+  "courseSlug": "career-readiness",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Career Readiness",
+  "description": "Prepare for your future career with resume writing, interview skills, and professional development strategies.",
+  "backgroundImage": "/lovable-uploads/career-readiness-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Life Skills",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Career Exploration",
+      "description": "Discover career paths and interests",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Self-Discovery",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 2,
+      "title": "Skills Assessment",
+      "description": "Identify your strengths and areas for growth",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Self-Discovery",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Resume Writing",
+      "description": "Create a professional resume",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Job Search",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Cover Letters and Applications",
+      "description": "Write effective cover letters and applications",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Job Search",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Interview Skills",
+      "description": "Prepare for and excel in job interviews",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Landing the Job",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Professional Development",
+      "description": "Build workplace skills and networking",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 4: Career Growth",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

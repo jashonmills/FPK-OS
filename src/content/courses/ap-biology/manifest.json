@@ -1,0 +1,305 @@
+{
+  "courseId": "ap-biology",
+  "courseSlug": "ap-biology",
+  "contentVersion": "v2",
+  "title": "AP Biology",
+  "description": "A college-level course exploring the core principles of biology, from biochemistry and evolution to complex ecosystems. Aligned with the AP curriculum to prepare students for the exam.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Structure of Water and Hydrogen Bonding",
+      "description": "Explore water's unique molecular structure and understand how hydrogen bonding creates the properties essential for life.",
+      "contentType": "text",
+      "unit": "Unit 1: Chemistry of Life",
+      "unitColor": "blue",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe the structure and polarity of a water molecule.",
+            "Explain how hydrogen bonds form between water molecules.",
+            "Relate the properties of water (cohesion, adhesion, high specific heat) to its structure."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - A Polar Molecule",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Water (H₂O) is a simple molecule, but its unique properties are essential for all life on Earth. The oxygen atom in water is highly electronegative, meaning it pulls electrons closer to itself. This creates a slight negative charge on the oxygen atom and slight positive charges on the two hydrogen atoms. This unequal sharing of electrons makes water a 'polar' molecule, with distinct positive and negative poles, much like a tiny magnet."
+        },
+        {
+          "type": "heading",
+          "content": "Hydrogen Bonds and Emergent Properties",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The polarity of water allows it to form weak attractions called hydrogen bonds with other water molecules. The positive hydrogen of one molecule is attracted to the negative oxygen of another. While individually weak, these bonds are collectively very strong and give water its 'emergent properties':\n\n**Cohesion & Adhesion:** Cohesion is the attraction between water molecules, which creates high surface tension. Adhesion is the attraction of water to other substances, which allows for capillary action in plants.\n\n**High Specific Heat:** Water can absorb a large amount of heat before its temperature increases. This moderates climates and helps organisms maintain a stable internal temperature.\n\n**Universal Solvent:** Water's polarity allows it to dissolve many other polar and ionic substances, making it the ideal medium for the chemical reactions of life.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The attraction of water molecules to other water molecules is called...?",
+          "options": ["Adhesion", "Cohesion", "Specific Heat"],
+          "correctAnswer": "Cohesion",
+          "explanation": "Cohesion is the attraction between like molecules (water to water), while adhesion is attraction to different substances."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Introduction to Biological Macromolecules",
+      "description": "Master the four major classes of biological macromolecules and understand how monomers build polymers.",
+      "contentType": "text",
+      "unit": "Unit 1: Chemistry of Life",
+      "unitColor": "blue",
+      "estimatedMinutes": 35,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the four major classes of biological macromolecules: carbohydrates, lipids, proteins, and nucleic acids.",
+            "Understand the relationship between monomers and polymers.",
+            "Explain dehydration synthesis and hydrolysis."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Monomers and Polymers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Large biological molecules (polymers) are built from smaller, repeating subunits called monomers. Think of it like a train (the polymer) made up of many individual train cars (the monomers). The process of linking monomers together to form a polymer is called dehydration synthesis (or condensation reaction), because a molecule of water is removed to form the bond. The reverse process, breaking a polymer back down into monomers, is called hydrolysis, because a molecule of water is added to break the bond."
+        },
+        {
+          "type": "heading",
+          "content": "The Four Macromolecules",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Carbohydrates:** Monomer: Monosaccharide (e.g., glucose). Function: Main source of energy, structural support (e.g., cellulose).\n\n**Lipids:** Not true polymers, but large molecules (e.g., fats, steroids). Function: Long-term energy storage, cell membrane structure, hormones.\n\n**Proteins:** Monomer: Amino acid. Function: The 'workhorses' of the cell; enzymes, structural components, transport, etc.\n\n**Nucleic Acids:** Monomer: Nucleotide. Function: Store and transmit genetic information (DNA and RNA).",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the monomer of a protein?",
+          "options": ["Monosaccharide", "Nucleotide", "Amino Acid"],
+          "correctAnswer": "Amino Acid",
+          "explanation": "Proteins are polymers made up of amino acid monomers linked together."
+        },
+        {
+          "type": "quiz",
+          "question": "The process of breaking down a polymer by adding water is called...?",
+          "options": ["Dehydration Synthesis", "Hydrolysis", "Condensation"],
+          "correctAnswer": "Hydrolysis",
+          "explanation": "Hydrolysis uses water to break bonds between monomers in a polymer."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Eukaryotic Cell Structure and Organelles",
+      "description": "Explore the compartmentalized structure of eukaryotic cells and the specialized functions of organelles.",
+      "contentType": "text",
+      "unit": "Unit 2: Cell Structure and Function",
+      "unitColor": "purple",
+      "estimatedMinutes": 35,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe the structure of a eukaryotic cell and the function of its major organelles.",
+            "Explain the endosymbiotic theory for the origin of mitochondria and chloroplasts.",
+            "Differentiate between plant and animal cells."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - A City of Organelles",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Eukaryotic cells are highly compartmentalized, with various organelles performing specialized functions, much like different departments in a city. The endomembrane system (including the nuclear envelope, endoplasmic reticulum, Golgi apparatus, and lysosomes) works together to synthesize, modify, package, and transport proteins and lipids. This internal organization allows for greater efficiency and complexity."
+        },
+        {
+          "type": "heading",
+          "content": "Key Organelles and Endosymbiosis",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Endoplasmic Reticulum (ER):** The Rough ER (studded with ribosomes) synthesizes proteins, while the Smooth ER synthesizes lipids and detoxifies poisons.\n\n**Golgi Apparatus:** The 'post office' of the cell. It receives proteins and lipids from the ER, modifies them, sorts them, and packages them into vesicles for delivery.\n\n**Endosymbiotic Theory:** This theory proposes that mitochondria and chloroplasts were once free-living prokaryotic cells that were engulfed by an ancestral eukaryotic cell. Evidence includes the fact that they have their own DNA and ribosomes, and they reproduce independently of the cell.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which organelle is responsible for modifying, sorting, and packaging proteins for secretion?",
+          "options": ["Rough ER", "Golgi Apparatus", "Mitochondria"],
+          "correctAnswer": "Golgi Apparatus",
+          "explanation": "The Golgi Apparatus processes and packages proteins from the ER for transport."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Cellular Respiration",
+      "description": "Learn how cells harvest energy from glucose through the three stages of aerobic respiration.",
+      "contentType": "text",
+      "unit": "Unit 3: Cellular Energetics",
+      "unitColor": "green",
+      "estimatedMinutes": 40,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Summarize the overall process of aerobic cellular respiration.",
+            "Identify the three main stages: glycolysis, the Krebs cycle (citric acid cycle), and oxidative phosphorylation.",
+            "Explain the role of ATP as the energy currency of the cell."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Harvesting Energy from Food",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Cellular respiration is the process by which cells break down glucose and other food molecules in the presence of oxygen to produce ATP (adenosine triphosphate), the main energy currency used to power cellular work. It is a highly efficient process that captures the chemical energy stored in food and converts it into a form the cell can use."
+        },
+        {
+          "type": "heading",
+          "content": "The Stages of Respiration",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**1. Glycolysis:** Occurs in the cytoplasm. One molecule of glucose is broken down into two molecules of pyruvate. A small amount of ATP is produced.\n\n**2. Krebs Cycle (Citric Acid Cycle):** Occurs in the mitochondrial matrix. Pyruvate is further broken down, releasing carbon dioxide. High-energy electrons are harvested and loaded onto electron carriers (NADH and FADH₂).\n\n**3. Oxidative Phosphorylation:** Occurs on the inner mitochondrial membrane. The electron carriers drop off their high-energy electrons to the electron transport chain. As electrons move down the chain, a proton gradient is created, which powers an enzyme called ATP synthase to produce a large amount of ATP. Oxygen is the final electron acceptor, forming water.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In which stage of cellular respiration is the majority of ATP produced?",
+          "options": ["Glycolysis", "Krebs Cycle", "Oxidative Phosphorylation"],
+          "correctAnswer": "Oxidative Phosphorylation",
+          "explanation": "Oxidative phosphorylation via the electron transport chain produces the most ATP."
+        },
+        {
+          "type": "quiz",
+          "question": "What is the final electron acceptor in the electron transport chain?",
+          "options": ["Glucose", "Water", "Oxygen"],
+          "correctAnswer": "Oxygen",
+          "explanation": "Oxygen accepts electrons at the end of the chain, forming water as a byproduct."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Photosynthesis",
+      "description": "Discover how plants convert light energy into chemical energy through the light and dark reactions.",
+      "contentType": "text",
+      "unit": "Unit 3: Cellular Energetics",
+      "unitColor": "green",
+      "estimatedMinutes": 40,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Summarize the overall process of photosynthesis.",
+            "Differentiate between the light-dependent reactions and the Calvin cycle.",
+            "Explain the role of chlorophyll in capturing light energy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Capturing Light Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Photosynthesis is the process used by plants, algae, and some bacteria to convert light energy into chemical energy, stored in the bonds of glucose. It is the foundation of nearly all life on Earth, as it produces the oxygen we breathe and the food that consumers rely on. The process takes place in an organelle called the chloroplast."
+        },
+        {
+          "type": "heading",
+          "content": "The Two Stages of Photosynthesis",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**1. Light-Dependent Reactions:** Occur in the thylakoid membranes of the chloroplast. Light energy is captured by chlorophyll and used to split water molecules (photolysis), releasing oxygen as a byproduct. The captured energy is temporarily stored in the energy-carrying molecules ATP and NADPH.\n\n**2. Calvin Cycle (Light-Independent Reactions):** Occurs in the stroma of the chloroplast. The ATP and NADPH from the light reactions are used to power the conversion of carbon dioxide from the atmosphere into glucose (a sugar). This process is also known as carbon fixation.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Where do the light-dependent reactions of photosynthesis take place?",
+          "options": ["Stroma", "Thylakoid Membranes", "Cytoplasm"],
+          "correctAnswer": "Thylakoid Membranes",
+          "explanation": "Light-dependent reactions occur in the thylakoid membranes where chlorophyll captures light."
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary product of the Calvin Cycle?",
+          "options": ["Oxygen", "ATP", "Glucose"],
+          "correctAnswer": "Glucose",
+          "explanation": "The Calvin Cycle uses ATP and NADPH to synthesize glucose from CO₂."
+        }
+      ]
+    }
+  ]
+}

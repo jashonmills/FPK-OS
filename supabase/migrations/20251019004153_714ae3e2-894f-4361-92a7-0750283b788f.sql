@@ -1,0 +1,17 @@
+-- Make logo_url nullable for partner_resources without logos
+ALTER TABLE partner_resources ALTER COLUMN logo_url DROP NOT NULL;
+
+-- Seed partner_resources table with 11 recommended organizations
+INSERT INTO partner_resources (name, tagline, description, website_url, category, display_order, is_active) VALUES
+('Understood.org', 'Understanding Learning Differences', 'A premier resource for learning and thinking differences, offering personalized support, expert advice, and practical strategies for parents and educators.', 'https://www.understood.org/', 'Educational Resources', 10, true),
+('Child Mind Institute', 'Transforming Mental Health Care', 'An independent non-profit dedicated to transforming the lives of children struggling with mental health and learning disorders through clinical care and free, accessible public education.', 'https://childmind.org/', 'Educational Resources', 20, true),
+('ADDitude Magazine', 'ADHD Support & Strategies', 'The leading resource for families and adults living with ADHD, providing strategies and support for school, work, and daily life.', 'https://www.additudemag.com/', 'Educational Resources', 30, true),
+('International Dyslexia Association', 'Global Dyslexia Authority', 'A global organization providing authoritative information about dyslexia and promoting effective, evidence-based teaching approaches and interventions.', 'https://dyslexiaida.org/', 'Educational Resources', 40, true),
+('AsIAm', 'Ireland''s Autism Community', 'Ireland''s leading Autism charity, providing community support, advocacy, and educational resources tailored specifically for the Irish Autism community.', 'https://asiam.ie/', 'Educational Resources', 50, true),
+('Dyslexia Association of Ireland', 'Dyslexia Support in Ireland', 'Provides information, services, and support to people with dyslexia across Ireland, advocating for their needs within the Irish education system.', 'https://www.dyslexia.ie/', 'Educational Resources', 60, true),
+('ADHD Ireland', 'ADHD Awareness & Support', 'The Irish national charity providing support groups, courses, and information to raise awareness and understanding of ADHD in Ireland.', 'https://adhdireland.ie/', 'Educational Resources', 70, true),
+('National Council for Special Education', 'Irish Special Education Authority', 'The official Irish statutory body for information on special educational needs, policy, and resources within the Irish education system.', 'https://ncse.ie/', 'Educational Resources', 80, true),
+('Wrightslaw', 'Special Education Law Expert', 'The foremost U.S. resource for accurate, reliable information about special education law, education law, and advocacy for children with disabilities.', 'https://www.wrightslaw.com/', 'Educational Resources', 90, true),
+('COPAA', 'Advocating for Student Rights', 'A U.S. national organization of attorneys and advocates protecting the legal and civil rights of students with disabilities. A key resource for finding professional help.', 'https://www.copaa.org/', 'Educational Resources', 100, true),
+('CPIR', 'Parent Center Resource Hub', 'A central hub of information and products for the network of Parent Centers serving families of children with disabilities in the U.S.', 'https://www.parentcenterhub.org/', 'Educational Resources', 110, true)
+ON CONFLICT (id) DO NOTHING;

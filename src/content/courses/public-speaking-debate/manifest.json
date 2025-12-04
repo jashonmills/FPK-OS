@@ -1,0 +1,379 @@
+{
+  "courseId": "public-speaking-debate",
+  "courseSlug": "public-speaking-debate",
+  "contentVersion": "v2",
+  "title": "Public Speaking & Debate",
+  "description": "A crucial life-skill course that teaches students how to structure and deliver a persuasive speech, control body language, and engage in formal evidence-based debate.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Overcoming the Fear",
+      "description": "Understand and manage the fear of public speaking through proven techniques.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 1: The Foundations of Public Speaking",
+      "unitColor": "hsl(210, 100%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that fear of public speaking (glossophobia) is extremely common.",
+            "Learn techniques to manage anxiety, such as deep breathing and visualization.",
+            "Reframe nervousness as excitement."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The fear of public speaking is a natural fight-or-flight response. Your body is preparing for a high-stakes situation. The key is not to eliminate this feeling, but to manage it. Techniques like practicing your speech until it's familiar, focusing on your message instead of your fear, and using deep breathing exercises can turn that nervous energy into positive enthusiasm."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Before you go on stage, take three slow, deep breaths. Inhale for four seconds, hold for four, and exhale for six. Visualize yourself delivering your speech confidently and the audience responding positively. Tell yourself, 'I'm not nervous, I'm excited to share my ideas.'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a key strategy for managing public speaking anxiety?",
+          "options": ["Avoiding eye contact", "Ignoring the audience", "Reframing nervousness as excitement"],
+          "correctAnswer": "Reframing nervousness as excitement"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've taken the most important step: acknowledging and addressing the fear. You now have tools to manage your anxiety and channel it productively. This is the foundation upon which all other speaking skills are built."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Structuring a Powerful Speech",
+      "description": "Learn the classic three-part speech structure and create effective outlines.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 1: The Foundations of Public Speaking",
+      "unitColor": "hsl(210, 100%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the classic three-part speech structure: Introduction, Body, and Conclusion.",
+            "Understand the purpose of each section.",
+            "Create a simple outline for a short speech."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Every effective speech has a clear structure. The Introduction grabs the audience's attention and tells them what you're going to talk about. The Body presents your main points with supporting evidence or stories (usually three main points). The Conclusion summarizes your points and gives the audience a clear takeaway or call to action."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Introduction: 'Tell them what you're going to tell them.' (Start with a surprising statistic or a question).\nBody: 'Tell them.' (Point 1, Point 2, Point 3).\nConclusion: 'Tell them what you told them.' (Summarize and end with a memorable final thought)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which part of the speech is for presenting your main arguments?",
+          "options": ["Introduction", "Body", "Conclusion"],
+          "correctAnswer": "Body"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now have a roadmap for any speech. A clear structure makes your message easier for the audience to follow and makes it easier for you to remember what to say. Next, we'll work on how you deliver that message."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Delivery - Voice and Body Language",
+      "description": "Master vocal variety and body language for powerful presentations.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 1: The Foundations of Public Speaking",
+      "unitColor": "hsl(210, 100%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to control your vocal variety: pace, pitch, and volume.",
+            "Understand the importance of body language: posture, gestures, and eye contact.",
+            "Practice using pauses for emphasis."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "How you say something is as important as what you say. Varying your pace, pitch, and volume keeps the audience engaged. Stand up straight, use purposeful gestures to emphasize points, and make eye contact with different people in the audience. A well-timed pause before or after an important point can be incredibly powerful."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Instead of speaking in a monotone, raise your pitch when you ask a question and lower your volume to draw the audience in for a key point. Instead of fidgeting, plant your feet and use your hands to illustrate your words."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the term for varying your pace, pitch, and volume?",
+          "options": ["Body Language", "Vocal Variety", "Eye Contact"],
+          "correctAnswer": "Vocal Variety"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand that your body and voice are your most powerful tools. Practicing your delivery will make you appear more confident and make your message more impactful. Now, let's transition from speaking to debating."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "What is Debate? Building an Argument",
+      "description": "Learn the A-R-E model for constructing evidence-based arguments.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 2: The Art of Debate",
+      "unitColor": "hsl(280, 100%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define debate as a formal, evidence-based argument.",
+            "Learn the A-R-E model for building an argument: Assertion, Reasoning, Evidence.",
+            "Differentiate between a simple opinion and a structured argument."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Debate isn't just arguing. It's a structured discussion with rules. A strong argument has three parts. The Assertion is your main point (what you claim is true). The Reasoning is the 'why' behind your claim. The Evidence is the proof that supports your reasoning (facts, statistics, expert quotes)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Opinion: 'School uniforms are bad.'\nArgument:\nAssertion: 'School uniforms should be abolished.'\nReasoning: 'Because they stifle student individuality and self-expression.'\nEvidence: 'A 2020 study from the University of Nevada showed no statistical difference in behavior or academic performance, but did find that students in uniform reported lower levels of self-esteem.'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the A-R-E model, what does 'E' stand for?",
+          "options": ["Emotion", "Example", "Evidence"],
+          "correctAnswer": "Evidence"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now build a logical, persuasive argument. The A-R-E model is your blueprint for creating points that are not just opinions, but compelling cases supported by proof. Next, we'll learn how to respond to the other side."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Rebuttal - Responding to Arguments",
+      "description": "Master the four-step method for effective rebuttals in debate.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 2: The Art of Debate",
+      "unitColor": "hsl(280, 100%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that rebuttal is the process of countering your opponent's arguments.",
+            "Learn the four-step method for rebuttal.",
+            "Practice active listening to identify weaknesses in an argument."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A debate is won or lost in the rebuttal. A good rebuttal follows four steps: 1. 'They Say...': Briefly and accurately state your opponent's argument. 2. 'But...': State your counter-argument. 3. 'Because...': Provide reasoning and evidence for your counter-argument. 4. 'Therefore...': Explain why your point defeats theirs and is more important."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'They say that school uniforms save parents money. But this ignores the high upfront cost and the fact that students still need a separate wardrobe for weekends and holidays. Because of this, the actual savings are minimal for most families. Therefore, the argument of cost-savings is not a strong enough reason to enforce uniforms.'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the first step in a four-step rebuttal?",
+          "options": ["State your counter-argument", "Accurately state your opponent's argument", "Provide your evidence"],
+          "correctAnswer": "Accurately state your opponent's argument"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned how to think on your feet and engage critically with opposing viewpoints. Effective rebuttal is about listening carefully and responding logically, not just shouting your own points. This is the core skill of a great debater."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Putting It All Together - A Mini-Debate",
+      "description": "Apply all your skills in a practical mini-debate project.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 2: The Art of Debate",
+      "unitColor": "hsl(280, 100%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Choose a simple debate topic.",
+            "Prepare one main argument using the A-R-E model.",
+            "Deliver your argument and prepare a potential rebuttal to a counter-argument."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This project combines everything you've learned about public speaking and debate. You will prepare and deliver a short, structured argument. The goal is not to 'win,' but to practice the skills of clear communication, logical reasoning, and persuasive delivery in a structured format."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Topic: 'Cats are better pets than dogs.'\nYour task: Prepare a 1-minute speech arguing for this position. Use the A-R-E model for your main point. Think about what the other side might say ('Dogs are more loyal') and prepare a four-step rebuttal in your notes."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This entire lesson is the practice. Choose a topic, write your argument, and practice delivering it out loud. Record yourself on your phone to check your vocal variety and body language. This is your chance to be a speaker and a debater."
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have completed the course. You have learned how to conquer your fear, structure a message, deliver it with impact, and defend it with logic. These are not just academic skills; they are life skills that will empower you in the classroom, in your career, and in your community."
+        }
+      ]
+    }
+  ]
+}

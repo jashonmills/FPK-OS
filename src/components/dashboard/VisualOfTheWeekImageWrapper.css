@@ -1,0 +1,18 @@
+
+.visual-week__image-wrapper {
+  width: 100%;
+  padding-top: 60%; /* 5:3 aspect ratio for better fit */
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem; /* matches Tailwind rounded-lg */
+}
+
+.visual-week__image-wrapper img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: auto;
+  width: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}

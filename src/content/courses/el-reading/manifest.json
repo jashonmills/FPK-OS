@@ -1,0 +1,89 @@
+{
+  "courseId": "el-reading",
+  "courseSlug": "el-reading",
+  "contentVersion": "v2",
+  "title": "EL Reading",
+  "description": "Master reading through optimal learning states and proper positioning. A focused 4-lesson program with video and audio support for confident, empowered reading.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "A new perspective on learning to read",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%201%20-%20Introduction.mp4",
+        "title": "Module 1 - Introduction"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%201%20-%20Introduction.mp3",
+      "sections": [
+        {
+          "type": "paragraph",
+          "content": "Okay, here's your brief, short introduction to Empowering Learning Reading programme. This one is so simple, so straightforward, that you'll be amazed at how easy works. Right, that's our introduction, jump straight into the next one."
+        }
+      ],
+      "estimatedMinutes": 1,
+      "unit": "Introduction",
+      "unitColor": "blue"
+    },
+    {
+      "id": 2,
+      "title": "The Optimal Learning State",
+      "description": "Calm your nervous system for effective reading",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%202%20-%20The%20Optimal%20Learning%20State.mp4",
+        "title": "Module 2 - The Optimal Learning State"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%202%20-%20The%20Optimal%20Learning%20State.mp3",
+      "sections": [
+        {
+          "type": "paragraph",
+          "content": "Okay, you know what's coming next don't you? Like with the Empowering Learning Spelling and Numeracy programmes, we need to get in to the optimal learning state. So we need to calm our nervous system down so that we give ourselves the best chance of being able to read successfully, and not have our brain going at 100 miles an hour. Choose Your Technique. Use your technique that works best for you or techniques cause sometimes one will work on one day but not on the next. Get Grounded. Pick what it is you wanna do, get you and your child grounded and then we'll get ready to jump into the Empowering Learning Reading programme. Begin Reading. That's so simple!"
+        }
+      ],
+      "estimatedMinutes": 2,
+      "unit": "Foundation",
+      "unitColor": "green"
+    },
+    {
+      "id": 3,
+      "title": "The Technique",
+      "description": "Proper positioning and emotional state for reading",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%203%20-%20The%20Technique.mp4",
+        "title": "Module 3 - The Technique"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%203%20-%20The%20Technique.mp3",
+      "sections": [
+        {
+          "type": "paragraph",
+          "content": "When we are reading in school or doing homework, usually our book is down on the table or on our lap. When we look down, that takes us into our emotional state and we've got a negative emotion attached to reading, we're going to feel negative about it and it's going to make it a lot more difficult for us. Key Tip: Don't put the book flat down on the table. Prop the book up so that it is closer to eye level for when they are reading. For Young Children. If your children are really small, let them come up with the story themselves. Let them come up with pictures, let them describe what's happening. Let them pick subjects that they're interested in. * There are fantastic books in your local library that help chart the children's development as they go along. If your child is creating a story in their head or pictures and they start talking about pink coloured elephants, don't correct them, because this is their story."
+        }
+      ],
+      "estimatedMinutes": 3,
+      "unit": "Core Technique",
+      "unitColor": "purple"
+    },
+    {
+      "id": 4,
+      "title": "Conclusion",
+      "description": "Celebrating your reading journey and next steps",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%204%20-%20Conclusion.mp4",
+        "title": "Module 4 - Conclusion"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%204%20-%20Conclusion.mp3",
+      "sections": [
+        {
+          "type": "paragraph",
+          "content": "Another congratulations, you've finished another course, the Empowering Learning Reading. I hope you found it useful. I hope you're having fun practising it. I hope that we're taking the pressure off everybody through this process, including yourself as a parent or educator, or a young person if you're watching this yourself. Take Your Time. Take your time and start to learn and enjoy reading for the things that it brings, calmness. Bedtime is a good one, just that unwind. 5 Minutes Makes a Difference. Instead of flashing cartoons or flashing games, which your child might really want to do, even just set aside 5 minutes for reading time, can help to start to still the mind and help with the wind down to get to sleep. So give it a go and if you want to learn more check out Olive Hickmott, and she will absolutely give you all the information you need. Right, that's the end of this one, you're onto the next one. Look after yourselves!"
+        }
+      ],
+      "estimatedMinutes": 2,
+      "unit": "Wrap-up",
+      "unitColor": "amber"
+    }
+  ]
+}

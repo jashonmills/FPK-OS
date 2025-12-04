@@ -1,0 +1,325 @@
+{
+  "courseId": "social-studies-6-2-world-geography-cultures",
+  "courseSlug": "social-studies-6-2-world-geography-cultures",
+  "contentVersion": "v2",
+  "title": "Social Studies 6.2: World Geography & Cultures",
+  "description": "Explore the Earth's diverse physical landscapes and the vibrant human cultures that inhabit them, learning the tools of a geographer along the way.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Five Themes of Geography",
+      "description": "Learn the five themes that geographers use to understand the world: Location, Place, Human-Environment Interaction, Movement, and Region.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define geography as the study of the Earth and its people.",
+            "Identify and describe the five themes of geography: Location, Place, Human-Environment Interaction, Movement, and Region.",
+            "Apply the five themes to describe your own community."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "More Than Just Maps",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Geography is much more than memorizing capitals and locating places on a map. It's the study of the Earth's physical features and the way that living things, especially people, interact with them. To help organize this study, geographers use five main themes as a framework for asking questions and understanding the world."
+        },
+        {
+          "type": "heading",
+          "content": "The Five Themes",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Location:** Where is it? (Absolute: latitude/longitude. Relative: next to the library).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Place:** What is it like there? (Physical features like mountains, and human features like language).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Human-Environment Interaction:** How do people adapt to, modify, and depend on their environment?",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Movement:** How do people, goods, and ideas move from one location to another?",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Region:** How are places similar or different? (Areas grouped by shared characteristics).",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Geographer's Toolkit",
+      "unitColor": "bg-cyan-600"
+    },
+    {
+      "id": 2,
+      "title": "Maps, Globes, and Projections",
+      "description": "Understand how cartographers represent the round Earth on flat surfaces and learn to read maps.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Differentiate between a map and a globe.",
+            "Understand the problem of distortion in map projections.",
+            "Identify key map elements like the compass rose, scale, and legend (key)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Representing a Round Earth",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A globe is the most accurate representation of the Earth because it is a sphere, just like the planet. A map is a flat representation of the Earth's surface. The main challenge for mapmakers (cartographers) is how to show a round, 3D surface on a flat, 2D piece of paper. This process is called a map projection, and every projection has some kind of distortion—it might stretch or shrink the size, shape, or distance of places."
+        },
+        {
+          "type": "heading",
+          "content": "Reading a Map",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Compass Rose:** Shows the cardinal directions (North, South, East, West).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Scale:** Shows the relationship between a distance on the map and the actual distance on Earth.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Legend (or Key):** Explains the meaning of the symbols, lines, and colors used on the map.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Geographer's Toolkit",
+      "unitColor": "bg-cyan-600"
+    },
+    {
+      "id": 3,
+      "title": "Earth's Major Landforms",
+      "description": "Identify major landforms and understand how they are shaped by tectonic and erosional forces.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify and describe major landforms such as mountains, plains, plateaus, and valleys.",
+            "Understand how landforms are created by forces like plate tectonics and erosion.",
+            "Explain how landforms can affect human settlement and culture."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Shaping the Surface",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Landforms are the natural physical features of the Earth's surface. They are created and shaped by powerful forces. Tectonic forces from within the Earth push up mountains and create plateaus. At the same time, forces on the surface, like weathering (breaking down rock) and erosion (carrying away sediment by wind and water), work to wear them down, carving out valleys and creating plains."
+        },
+        {
+          "type": "heading",
+          "content": "Major Landforms",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Mountains:** High, steep landforms, often created by the collision of tectonic plates.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Plains:** Large areas of flat or gently rolling land with low elevation.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Plateaus:** Large areas of flat land with high elevation.",
+          "style": "warning"
+        },
+        {
+          "type": "callout",
+          "content": "**Valleys:** Low areas between mountains or hills, often carved by rivers or glaciers.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Physical Geography",
+      "unitColor": "bg-green-600"
+    },
+    {
+      "id": 4,
+      "title": "Climate, Weather, and Vegetation",
+      "description": "Differentiate between weather and climate and understand how climate determines natural vegetation.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Differentiate between weather and climate.",
+            "Identify the main factors that influence a region's climate (latitude, elevation, proximity to water).",
+            "Understand how climate determines the natural vegetation of a region."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Weather vs. Climate",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Weather and climate are related but different. Weather is the condition of the atmosphere over a short period of time (e.g., 'It is sunny and warm today'). Climate is the average weather pattern in a region over a long period of time (e.g., 'This region has hot, dry summers'). A simple way to remember is: climate is what you expect, and weather is what you get."
+        },
+        {
+          "type": "heading",
+          "content": "Climate and Vegetation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The climate of a place is the most important factor in determining its natural vegetation, or the plant life that grows there. For example, tropical rainforests are found in hot, wet climates near the equator. Cacti and other succulents are found in hot, dry desert climates. Coniferous forests with pine trees are found in cold climates."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Physical Geography",
+      "unitColor": "bg-green-600"
+    },
+    {
+      "id": 5,
+      "title": "What is Culture?",
+      "description": "Define culture and identify its key elements, understanding how cultures spread through diffusion.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define culture as the shared beliefs, values, and practices of a group of people.",
+            "Identify the key elements of culture, such as language, religion, and customs.",
+            "Understand the concept of cultural diffusion."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Human Landscape",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Human geography focuses on people and how they live. Culture is the total way of life of a group of people. It includes all the things that make one group different from another: the language they speak, the food they eat, the holidays they celebrate, their religious beliefs, their government, and their family structures. Culture is learned and shared."
+        },
+        {
+          "type": "heading",
+          "content": "Cultural Diffusion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Cultures are not static; they change and influence one another. Cultural diffusion is the spread of cultural traits from one group to another. This can happen through trade, migration, war, or modern communication like the internet. The popularity of pizza (an Italian food) all over the world is a great example of cultural diffusion."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Human Geography",
+      "unitColor": "bg-indigo-600"
+    },
+    {
+      "id": 6,
+      "title": "Population and Migration",
+      "description": "Learn about population density and the push and pull factors that drive human migration.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define population density.",
+            "Understand the difference between immigration and emigration.",
+            "Identify push factors and pull factors that cause people to migrate."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Where People Live",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Population geography is the study of how many people live in a place and why. Population density is a measure of how crowded a place is (the number of people per square mile or kilometer). People are not spread evenly across the Earth; they tend to cluster in areas with favorable climates, access to water, and economic opportunities."
+        },
+        {
+          "type": "heading",
+          "content": "Push and Pull Factors",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Migration is the movement of people from one place to another. People migrate because of push factors and pull factors."
+        },
+        {
+          "type": "callout",
+          "content": "**Push Factors:** Negative reasons that 'push' people to leave a place, such as war, famine, lack of jobs, or natural disasters.",
+          "style": "warning"
+        },
+        {
+          "type": "callout",
+          "content": "**Pull Factors:** Positive reasons that 'pull' people to a new place, such as better job opportunities, political freedom, or a better climate.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Human Geography",
+      "unitColor": "bg-indigo-600"
+    }
+  ]
+}

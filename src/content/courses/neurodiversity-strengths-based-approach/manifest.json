@@ -1,0 +1,211 @@
+{
+  "courseId": "neurodiversity-strengths-based-approach",
+  "courseSlug": "neurodiversity-strengths-based-approach",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Neurodiversity: A Strengths-Based Approach",
+  "description": "Embrace neurodiversity and discover how different thinking styles are valuable assets. Learn strategies to leverage your unique cognitive strengths.",
+  "backgroundImage": "",
+  "estimatedHours": 6,
+  "difficultyLevel": "beginner",
+  "category": "Personal Development",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Understanding Neurodiversity",
+      "description": "What neurodiversity means and why it matters",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Celebrating Different Minds",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Neurodiversity is the concept that differences in brain function and behavior are natural variations in the human population, not deficits or disorders. Just as biodiversity strengthens ecosystems, neurodiversity enriches human societies."
+        },
+        {
+          "type": "quote",
+          "content": "Neurodiversity is the idea that neurological differences like autism and ADHD are the result of normal, natural variation in the human genome. - John Elder Robison"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Moving from deficit to difference",
+            "Recognizing diverse cognitive profiles",
+            "Understanding common neurotypes (ADHD, autism, dyslexia, etc.)",
+            "Identifying personal strengths",
+            "Creating supportive environments",
+            "Self-advocacy and accommodation"
+          ]
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "ADHD Strengths and Strategies",
+      "description": "Leveraging creativity, hyperfocus, and energy",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The ADHD Advantage",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "ADHD brains are wired for creativity, adaptability, and seeing connections others miss. Understanding how to work with—not against—ADHD traits unlocks tremendous potential."
+        },
+        {
+          "type": "heading",
+          "content": "Common Strengths",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Creative problem-solving and out-of-the-box thinking",
+            "High energy and enthusiasm",
+            "Ability to hyperfocus on interesting tasks",
+            "Adaptability and resilience",
+            "Intuitive understanding of complex systems"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Many successful entrepreneurs, artists, and innovators have ADHD. The key is finding environments and strategies that align with your natural strengths."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Neurotype Profiles",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "Autism Strengths and Strategies",
+      "description": "Pattern recognition, systematic thinking, and deep focus",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Autistic Advantage",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Autistic individuals often excel at pattern recognition, systematic thinking, attention to detail, and maintaining deep focus on areas of interest."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Exceptional attention to detail",
+            "Strong pattern recognition abilities",
+            "Systematic and logical thinking",
+            "Deep expertise in areas of interest",
+            "Honesty and directness in communication",
+            "Unique perspectives and insights"
+          ]
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Neurotype Profiles",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Dyslexia and Learning Differences",
+      "description": "Visual-spatial strengths and creative thinking",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Different Learning, Unique Strengths",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Dyslexia and other learning differences come with remarkable strengths in visual-spatial reasoning, creativity, and big-picture thinking."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Superior visual-spatial reasoning",
+            "Creative problem-solving",
+            "Big-picture thinking and strategy",
+            "Strong intuition and empathy",
+            "Entrepreneurial mindset"
+          ]
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Neurotype Profiles",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Building on Your Strengths",
+      "description": "Practical strategies for success",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Creating Your Success System",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Success comes from understanding your unique strengths and challenges, then building systems and environments that amplify the strengths while managing the challenges."
+        },
+        {
+          "type": "heading",
+          "content": "Key Strategies",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify and leverage your natural strengths",
+            "Create supportive routines and environments",
+            "Use tools and accommodations strategically",
+            "Build on interests and passions",
+            "Find your optimal working conditions",
+            "Develop self-advocacy skills"
+          ]
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Practical Application",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Self-Advocacy and Thriving",
+      "description": "Communicating needs and creating success",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Advocating for Yourself",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Self-advocacy means understanding your needs, communicating them effectively, and working to create environments where you can thrive."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Remember: Your neurodiversity is not a limitation—it's a different way of experiencing and interacting with the world, with its own unique strengths and gifts."
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Practical Application",
+      "unitColor": "bg-purple-100 text-purple-700"
+    }
+  ]
+}

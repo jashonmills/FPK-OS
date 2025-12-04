@@ -1,0 +1,274 @@
+
+{
+  "common": {
+    "learnerPortal": "Portal del Estudiante",
+    "userMenu": "Menú de Usuario",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "search": "Buscar",
+    "learningDashboard": "Panel de Aprendizaje",
+    "support": "Soporte",
+    "signOut": "Cerrar Sesión",
+    "beta": "Beta",
+    "back": "Atrás"
+  },
+  "dashboard": {
+    "myCourses": {
+      "title": "Mis Cursos",
+      "description": "Gestiona y continúa tu viaje de aprendizaje con cursos personalizados"
+    },
+    "navigation": {
+      "home": "Inicio",
+      "courses": "Mis Cursos",
+      "analytics": "Análisis de Aprendizaje",
+      "goals": "Objetivos",
+      "notes": "Notas",
+      "study": "Estudiar",
+      "aiCoach": "Coach de Estudio IA",
+      "liveHub": "Hub de Aprendizaje en Vivo",
+      "settings": "Configuración"
+    },
+    "stats": {
+      "activeCourses": "Cursos Activos",
+      "currentStreak": "Racha Actual",
+      "activeGoals": "Objetivos Activos",
+      "goalProgress": "Progreso de Objetivos",
+      "completedCourses": "Cursos Completados",
+      "totalXP": "XP Total",
+      "studyTime": "Tiempo de Estudio",
+      "achievements": "Logros"
+    },
+    "charts": {
+      "courseProgress": "Progreso del Curso",
+      "weeklyTime": "Tiempo de Estudio Semanal",
+      "noCourseProgress": "No hay datos de progreso del curso disponibles",
+      "noWeeklyTime": "No hay datos de tiempo de estudio disponibles",
+      "noStudyTime": "No hay datos de tiempo de estudio",
+      "noStudyTimeDesc": "Comienza a completar sesiones de estudio para ver tu progreso aquí",
+      "noCourseProgressDesc": "Inscríbete en cursos para ver el seguimiento de tu progreso",
+      "hours": "horas",
+      "minutes": "minutos",
+      "week": "Semana"
+    },
+    "insights": {
+      "personalGoals": "Objetivos Personales",
+      "communityActivity": "Actividad de la Comunidad",
+      "aiInsights": "Perspectivas de IA",
+      "studyPattern": "Patrón de Estudio",
+      "joinCommunity": "Únete a la Comunidad",
+      "joinCommunityDesc": "Conéctate con otros estudiantes y comparte tu progreso",
+      "exploreCommunity": "Explorar Comunidad"
+    },
+    "welcomeModal": {
+      "title": "Bienvenido a tu Viaje de Aprendizaje",
+      "quickSetup": "Configuración Rápida",
+      "quickSetupDesc": "Configura tu perfil y preferencias para obtener recomendaciones personalizadas",
+      "skipForNow": "Omitir por Ahora",
+      "getStarted": "Comenzar",
+      "completeProfile": "Completar Perfil",
+      "remindLater": "Recordar Más Tarde"
+    },
+    "badges": {
+      "learner": "Aprendiz",
+      "level1": "Nivel 1",
+      "newbie": "Novato",
+      "beginner": "Principiante"
+    }
+  },
+  "courses": {
+    "learningState": {
+      "title": "Curso de Estado de Aprendizaje",
+      "description": "Domina los fundamentos de los estados de aprendizaje y procesos cognitivos",
+      "playerTitle": "Reproductor del Curso de Estado de Aprendizaje",
+      "outline": {
+        "intro": "Introducción a los Estados de Aprendizaje",
+        "cognitiveLoad": "Entendiendo la Carga Cognitiva",
+        "attention": "Gestión de Atención y Enfoque",
+        "memory": "Formación y Retención de Memoria",
+        "metacognition": "Estrategias Metacognitivas"
+      }
+    },
+    "courseOutline": "Esquema del Curso",
+    "backToCourses": "Volver a Cursos"
+  },
+  "goals": {
+    "myGoals": "Mis Objetivos",
+    "createNew": "Crear Objetivo",
+    "createFirst": "Crea tu Primer Objetivo",
+    "tabs": {
+      "all": "Todos",
+      "active": "Activos",
+      "completed": "Completados",
+      "paused": "Pausados"
+    },
+    "stats": {
+      "totalGoals": "Objetivos Totales",
+      "activeGoals": "Objetivos Activos",
+      "completedGoals": "Completados",
+      "completionRate": "Tasa de Finalización"
+    },
+    "empty": {
+      "allTitle": "No se encontraron objetivos",
+      "allDescription": "Comienza creando tu primer objetivo para seguir tu progreso de aprendizaje",
+      "activeTitle": "No hay objetivos activos",
+      "activeDescription": "Crea un nuevo objetivo para comenzar a seguir tu progreso",
+      "completedTitle": "Aún no hay objetivos completados",
+      "completedDescription": "Completa algunos objetivos para verlos aquí",
+      "pausedTitle": "No hay objetivos pausados",
+      "pausedDescription": "Los objetivos que pauses aparecerán aquí"
+    }
+  },
+  "nav": {
+    "home": "Inicio",
+    "courses": "Mis Cursos",
+    "analytics": "Análisis de Aprendizaje",
+    "goals": "Objetivos",
+    "notes": "Notas",
+    "settings": "Configuración",
+    "liveHub": "Hub de Aprendizaje en Vivo",
+    "dashboard": "Panel"
+  },
+  "liveHub": {
+    "title": "Hub de Aprendizaje en Vivo",
+    "subtitle": "Conéctate con instructores y compañeros en sesiones de aprendizaje en tiempo real",
+    "liveSessions": "Sesiones en Vivo",
+    "upcomingEvents": "Eventos Próximos",
+    "noSessions": "Sin Sesiones Activas",
+    "noSessionsDesc": "Actualmente no hay sesiones en vivo disponibles. ¡Programa una para comenzar!",
+    "noEvents": "Sin Eventos Próximos",
+    "noEventsDesc": "No hay eventos programados en este momento.",
+    "scheduleSession": "Programar Sesión"
+  },
+  "auth": {
+    "title": "Bienvenido al Aprendizaje",
+    "subtitle": "Tu viaje de aprendizaje personalizado comienza aquí",
+    "portalTitle": "Portal de Aprendizaje",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "displayName": "Nombre de Usuario",
+    "confirmPassword": "Confirmar Contraseña",
+    "emailPlaceholder": "Ingresa tu correo electrónico",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "fullNamePlaceholder": "Ingresa tu nombre completo",
+    "createPassword": "Crear una contraseña",
+    "confirmPasswordPlaceholder": "Confirma tu contraseña",
+    "signInButton": "Iniciar Sesión",
+    "signUpButton": "Crear Cuenta",
+    "signingIn": "Iniciando sesión...",
+    "creatingAccount": "Creando cuenta...",
+    "welcomeBack": "¡Bienvenido de vuelta!",
+    "signInSuccess": "Has iniciado sesión exitosamente.",
+    "accountCreated": "¡Cuenta creada!",
+    "checkEmail": "Por favor revisa tu correo electrónico para verificar tu cuenta.",
+    "betaVersion": "Versión Beta - Tu retroalimentación nos ayuda a mejorar",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "register": "Registrarse"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Gestiona las preferencias de tu cuenta y experiencia de aprendizaje",
+    "saving": "Guardando...",
+    "autoSavePending": "Guardado automático pendiente...",
+    "allChangesSaved": "Todos los cambios guardados",
+    "restoreDefaults": "Restaurar Valores Predeterminados",
+    "settingsRestored": "Configuración Restaurada",
+    "defaultsMessage": "Toda la configuración ha sido restaurada a sus valores predeterminados",
+    "tabs": {
+      "profile": "Perfil",
+      "language": "Idioma",
+      "accessibility": "Accesibilidad",
+      "notifications": "Notificaciones",
+      "security": "Seguridad",
+      "integrations": "Integraciones"
+    },
+    "profile": {
+      "title": "Información del Perfil",
+      "fullName": "Nombre Completo",
+      "fullNamePlaceholder": "Ingresa tu nombre completo",
+      "displayName": "Nombre de Usuario",
+      "displayNamePlaceholder": "Ingresa tu nombre de usuario",
+      "email": "Correo Electrónico",
+      "bio": "Biografía",
+      "bioPlaceholder": "Cuéntanos un poco sobre ti..."
+    },
+    "language": {
+      "primaryLanguage": "Idioma Principal",
+      "dualLanguageMode": "Modo Bilingüe",
+      "dualLanguageDescription": "Mostrar inglés junto a tu idioma",
+      "timeFormat": "Formato de Hora",
+      "dateFormat": "Formato de Fecha",
+      "timezone": "Zona Horaria"
+    },
+    "accessibility": {
+      "title": "Accesibilidad y Visualización",
+      "fontFamily": "Familia de Fuente",
+      "fontHelp": "Elige una fuente que sea cómoda para leer",
+      "systemFont": "Predeterminado del Sistema",
+      "colorContrast": "Contraste de Color",
+      "standard": "Estándar",
+      "highContrast": "Alto Contraste",
+      "comfortMode": "Modo Confort",
+      "comfortHelp": "Ajusta la interfaz para una comodidad de aprendizaje óptima",
+      "normal": "Normal",
+      "lowStimulus": "Bajo Estímulo",
+      "focusMode": "Modo Enfoque",
+      "textSize": "Tamaño de Texto",
+      "small": "Pequeño",
+      "medium": "Mediano",
+      "large": "Grande",
+      "lineSpacing": "Espaciado de Línea",
+      "compact": "Compacto",
+      "comfortable": "Cómodo",
+      "airy": "Espacioso",
+      "speechToText": "Voz a Texto",
+      "speechToTextDesc": "Habilitar entrada de voz para mejor accesibilidad"
+    },
+    "notifications": {
+      "emailTitle": "Notificaciones por Correo",
+      "appTitle": "Notificaciones de la App",
+      "newCourses": "Nuevos Cursos",
+      "newCoursesDesc": "Recibir notificaciones cuando haya nuevos cursos disponibles",
+      "weeklySum": "Resumen Semanal",
+      "weeklySumDesc": "Recibir un resumen semanal de progreso",
+      "aiPrompts": "Sugerencias de IA para Aprendizaje",
+      "aiPromptsDesc": "Obtener sugerencias de aprendizaje personalizadas",
+      "pushNotifications": "Notificaciones Push",
+      "pushNotificationsDesc": "Recibir notificaciones en tu dispositivo",
+      "studyStreak": "Recordatorios de Racha de Estudio",
+      "studyStreakDesc": "Recibir recordatorios para mantener tu racha de aprendizaje",
+      "moduleNudges": "Recordatorios de Finalización de Módulos",
+      "moduleNudgesDesc": "Recordatorios suaves para completar módulos en progreso"
+    },
+    "security": {
+      "title": "Configuración de Seguridad",
+      "twoFactor": "Autenticación de Dos Factores",
+      "twoFactorDesc": "Agregar una capa adicional de seguridad a tu cuenta"
+    },
+    "integrations": {
+      "title": "Integraciones Externas",
+      "googleCalendar": "Google Calendar",
+      "googleDesc": "Sincronizar tu horario de estudio con Google Calendar",
+      "outlookCalendar": "Outlook Calendar",
+      "outlookDesc": "Sincronizar tu horario de estudio con Outlook Calendar"
+    }
+  },
+  "preview": {
+    "title": "Vista Previa en Vivo",
+    "description": "Ve cómo afectan tus configuraciones de accesibilidad a la visualización",
+    "fontLabel": "Fuente",
+    "sizeLabel": "Tamaño",
+    "spacingLabel": "Espaciado",
+    "contrastLabel": "Contraste",
+    "comfortLabel": "Modo Confort",
+    "sampleTitle": "Contenido de Aprendizaje de Muestra",
+    "sampleText": "Así es como aparecerá tu contenido de aprendizaje con tu configuración actual. Puedes ajustar la fuente, tamaño, espaciado y otras preferencias para crear la experiencia de lectura más cómoda para ti."
+  }
+}

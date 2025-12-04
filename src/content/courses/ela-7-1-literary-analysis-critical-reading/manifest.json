@@ -1,0 +1,462 @@
+{
+  "courseId": "ela-7-1-literary-analysis-critical-reading",
+  "courseSlug": "ela-7-1-literary-analysis-critical-reading",
+  "contentVersion": "v2",
+  "title": "ELA 7.1: Literary Analysis & Critical Reading",
+  "description": "Develop the skills to read between the lines, analyze an author's craft, and understand the deeper meanings in literature.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Theme and Central Idea",
+      "description": "Define theme as the underlying message or 'big idea' of a literary work.",
+      "contentType": "text",
+      "unit": "Unit 1: The Author's Craft",
+      "unitColor": "emerald",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define theme as the underlying message or 'big idea' of a literary work.",
+            "Differentiate theme from the plot and the subject.",
+            "Analyze how characters, plot, and setting work together to develop a theme."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Beyond the Plot",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The theme is the universal message about life or human nature that the author wants to convey. It's not just what the story is about (the subject), but what the story says about that subject. For example, the subject of a story might be 'war', but the theme could be 'war has a dehumanizing effect on soldiers'. A theme is a complete statement that is inferred by the reader; it's rarely stated directly."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Finding the Theme",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To find the theme, ask yourself:"
+        },
+        {
+          "type": "heading",
+          "content": "How does the main character change?",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The lessons the character learns often point to the theme."
+        },
+        {
+          "type": "heading",
+          "content": "What is the central conflict?",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "How the conflict is resolved can reveal the author's message."
+        },
+        {
+          "type": "heading",
+          "content": "What does the title suggest?",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Sometimes the title itself is a major clue."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is the best example of a theme?",
+          "options": ["The story is about friendship.", "True friendship requires sacrifice.", "The main characters are friends."],
+          "correctAnswer": "True friendship requires sacrifice.",
+          "explanation": "A theme is a complete sentence that makes a statement about the subject, not just identifying what the story is about."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Characterization and Motivation",
+      "description": "Differentiate between direct and indirect characterization.",
+      "contentType": "text",
+      "unit": "Unit 1: The Author's Craft",
+      "unitColor": "emerald",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between direct and indirect characterization.",
+            "Analyze a character's motivations, traits, and development (character arc).",
+            "Understand the roles of different character types (protagonist, antagonist, foil)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Revealing Character",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Characterization is how an author reveals a character's personality. Direct characterization is when the author tells you directly ('She was a kind person'). Indirect characterization is more powerful; the author shows the character's personality through their speech, thoughts, actions, appearance, and how other characters react to them. As critical readers, our job is to be detectives, gathering these clues to understand who the character truly is."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Character Motivation and Arc",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Motivation:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The reason behind a character's actions. What do they want more than anything?"
+        },
+        {
+          "type": "heading",
+          "content": "Character Arc:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The internal journey of change a character undergoes throughout the story. A 'dynamic' character changes significantly, while a 'static' character stays the same."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "If an author writes, 'Tom slammed the door and stomped up the stairs,' what method of characterization is being used?",
+          "options": ["Direct Characterization", "Indirect Characterization"],
+          "correctAnswer": "Indirect Characterization",
+          "explanation": "The author isn't telling us Tom is angry; they are showing us through his actions."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Figurative Language",
+      "description": "Identify and analyze the effect of key types of figurative language.",
+      "contentType": "text",
+      "unit": "Unit 2: Literary Devices and Structure",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify and analyze the effect of key types of figurative language: simile, metaphor, personification, and hyperbole.",
+            "Understand how figurative language creates imagery and mood.",
+            "Interpret the meaning of figurative language in context."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Painting with Words",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Figurative language is language that uses words or expressions with a meaning that is different from the literal interpretation. Authors use it to create vivid mental pictures (imagery), evoke emotions, and make their writing more impactful and memorable."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Key Devices",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Simile:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A comparison using 'like' or 'as' (e.g., 'The clouds were like cotton balls')."
+        },
+        {
+          "type": "heading",
+          "content": "Metaphor:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A direct comparison stating one thing IS another (e.g., 'Her classroom was a zoo')."
+        },
+        {
+          "type": "heading",
+          "content": "Personification:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Giving human qualities to non-human things (e.g., 'The wind howled')."
+        },
+        {
+          "type": "heading",
+          "content": "Hyperbole:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "An extreme exaggeration for effect (e.g., 'I'm so hungry I could eat a horse')."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The sentence 'The old house groaned under the weight of the snow' is an example of...?",
+          "options": ["Simile", "Metaphor", "Personification"],
+          "correctAnswer": "Personification",
+          "explanation": "The house is being given the human quality of 'groaning'."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Point of View and Tone",
+      "description": "Identify the narrative point of view and analyze tone.",
+      "contentType": "text",
+      "unit": "Unit 2: Literary Devices and Structure",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the narrative point of view (1st person, 3rd person limited, 3rd person omniscient).",
+            "Define tone as the author's attitude toward the subject.",
+            "Analyze how point of view and word choice create a specific tone."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Narrator's Lens",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Point of view is the perspective from which a story is told. This choice dramatically affects what information the reader receives and how they feel about the characters and events. Tone is the author's attitude towards the subject, which is conveyed through their word choice (diction) and sentence structure (syntax). The tone could be humorous, sarcastic, serious, or suspenseful."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Types of Point of View",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "1st Person:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The narrator is a character in the story ('I', 'we'). The reader only knows what this character knows."
+        },
+        {
+          "type": "heading",
+          "content": "3rd Person Limited:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The narrator is outside the story but focuses on the thoughts and feelings of one character."
+        },
+        {
+          "type": "heading",
+          "content": "3rd Person Omniscient:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The narrator is 'all-knowing' and can reveal the thoughts and feelings of any character."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "If a narrator knows what every character is thinking, the point of view is...?",
+          "options": ["1st Person", "3rd Person Limited", "3rd Person Omniscient"],
+          "correctAnswer": "3rd Person Omniscient",
+          "explanation": "Remember, 'omniscient' means all-knowing."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Making Inferences and Drawing Conclusions",
+      "description": "Define an inference as an educated guess based on textual evidence.",
+      "contentType": "text",
+      "unit": "Unit 3: Reading Critically",
+      "unitColor": "purple",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define an inference as an educated guess based on textual evidence and prior knowledge.",
+            "Practice making logical inferences from a text.",
+            "Differentiate between an inference and a direct statement."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Reading Like a Detective",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Authors don't always state everything directly. They provide clues and expect the reader to figure things out. Making an inference is the process of 'reading between the lines'. You take evidence from the text, combine it with your own background knowledge, and make a logical conclusion that is not explicitly stated."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Inference Formula",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "Textual Evidence + Background Knowledge = Inference",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "If a character walks in with a dripping umbrella and wet shoes (textual evidence), and you know that rain makes things wet (background knowledge), you can infer that it is raining outside."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "If a story says 'The crowd roared and waved their flags,' what can you logically infer?",
+          "options": ["The crowd is at a library.", "The crowd is excited about an event.", "The crowd is bored."],
+          "correctAnswer": "The crowd is excited about an event.",
+          "explanation": "Think about what kind of situations cause crowds to roar and wave flags."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: Citing Textual Evidence",
+      "description": "Understand the importance of supporting claims with evidence from the text.",
+      "contentType": "text",
+      "unit": "Unit 3: Reading Critically",
+      "unitColor": "purple",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the importance of supporting claims with evidence from the text.",
+            "Learn how to select strong and relevant textual evidence.",
+            "Practice embedding quotes and paraphrasing to support an analysis."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Proving Your Point",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In literary analysis, your opinion is only as good as the evidence you use to support it. Citing textual evidence means providing specific examples, quotes, or details from the text to prove that your interpretation is valid. It's the difference between saying 'The character is brave' and saying 'The character is brave, as shown when he ran into the burning building to save the cat'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: How to Cite Evidence",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Direct Quote:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Using the author's exact words, placed in quotation marks."
+        },
+        {
+          "type": "heading",
+          "content": "Paraphrase:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Restating a specific detail from the text in your own words. This is useful when the original wording is long or complex."
+        },
+        {
+          "type": "heading",
+          "content": "Summary:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Briefly describing a larger section of the text to provide context."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Why is it important to cite textual evidence?",
+          "options": ["To make your essay longer.", "To prove your analysis is based on the text.", "To show you have a good vocabulary."],
+          "correctAnswer": "To prove your analysis is based on the text.",
+          "explanation": "The main goal is to show that your ideas come directly from the story you are analyzing."
+        }
+      ]
+    }
+  ]
+}

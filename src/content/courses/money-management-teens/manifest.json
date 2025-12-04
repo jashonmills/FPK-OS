@@ -1,0 +1,56 @@
+{
+  "courseTitle": "Money Management for Teens",
+  "courseSlug": "money-management-teens",
+  "description": "Build essential financial literacy skills for life success. Learn budgeting, saving, banking, and smart money decisions to secure your financial future.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Financial Foundations",
+      "description": "Learn basic financial concepts, money values, and needs vs wants",
+      "unit": "Unit 1: Basics",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 2,
+      "title": "Banking and Accounts",
+      "description": "Understand banking basics, account types, and safety practices",
+      "unit": "Unit 1: Basics",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "Budgeting Mastery",
+      "description": "Create budgets, track expenses, and manage income effectively",
+      "unit": "Unit 2: Planning",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Smart Saving Strategies",
+      "description": "Explore savings accounts, compound interest, and goal setting",
+      "unit": "Unit 2: Planning",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Introduction to Investing",
+      "description": "Learn basic investment concepts and long-term wealth building",
+      "unit": "Unit 3: Growth",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Credit, Debt, and Future Planning",
+      "description": "Understand credit scores, responsible borrowing, and financial goals",
+      "unit": "Unit 3: Growth",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "Financial Decision-Making Game",
+      "description": "Apply your knowledge in an interactive money management simulation",
+      "unit": "Unit 3: Growth",
+      "unitColor": "bg-purple-100 text-purple-700"
+    }
+  ]
+}

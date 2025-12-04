@@ -1,0 +1,86 @@
+{
+  "courseId": "philosophy-ethics",
+  "courseSlug": "philosophy-ethics",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Philosophy and Ethics",
+  "description": "Examine fundamental questions about existence, knowledge, morality, and the good life.",
+  "backgroundImage": "/lovable-uploads/philosophy-ethics-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "intermediate",
+  "category": "Social Studies",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Philosophy",
+      "description": "Explore the nature and branches of philosophy",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: What is Philosophy?",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 2,
+      "title": "Ancient Philosophy",
+      "description": "Study Socrates, Plato, and Aristotle",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: History",
+      "unitColor": "bg-amber-100 text-amber-700"
+    },
+    {
+      "id": 3,
+      "title": "Modern Philosophy",
+      "description": "Learn about rationalism and empiricism",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: History",
+      "unitColor": "bg-amber-100 text-amber-700"
+    },
+    {
+      "id": 4,
+      "title": "Ethical Theories",
+      "description": "Explore consequentialism, deontology, and virtue ethics",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Ethics",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Applied Ethics",
+      "description": "Examine real-world moral dilemmas",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Ethics",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Critical Thinking",
+      "description": "Develop logical reasoning and argumentation skills",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 4: Logic",
+      "unitColor": "bg-blue-100 text-blue-700"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# Redirects are now handled by public/_redirects file for better SPA support
+# This prevents static assets (JS, CSS) from being served as HTML
+
+[[redirects]]
+  from = "/functions/v1/*"
+  to = "https://zgcegkmqfgznbpdplscz.functions.supabase.co/:splat"
+  status = 200
+  force = true

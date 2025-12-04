@@ -1,0 +1,344 @@
+{
+  "courseId": "science-7-3-earth-science-space-astronomy",
+  "courseSlug": "science-7-3-earth-science-space-astronomy",
+  "contentVersion": "v2",
+  "title": "Science 7.3: Earth Science - Space & Astronomy",
+  "description": "Journey from our home planet to the farthest reaches of the universe, exploring stars, galaxies, and the forces that shape the cosmos.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: The Earth-Moon-Sun System",
+      "description": "Explain how Earth's rotation and revolution cause day, night, and seasons.",
+      "contentType": "text",
+      "unit": "Unit 1: Our Place in Space",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Explain how the Earth's rotation causes day and night.",
+            "Describe how the Earth's revolution around the Sun and its axial tilt cause the seasons.",
+            "Explain the cause of the phases of the Moon."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Earth's Motions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Our daily and yearly cycles are governed by the Earth's movements in space. Rotation is the spinning of the Earth on its axis, which takes about 24 hours and causes day and night. Revolution is the Earth's orbit, or path, around the Sun, which takes about 365.25 days and defines our year. It is the combination of this revolution and the Earth's 23.5-degree axial tilt that causes the seasons."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Phases of the Moon",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Moon does not produce its own light; it reflects light from the Sun. The phases of the Moon we see depend on how much of the sunlit side of the Moon faces Earth as it orbits our planet. When the Moon is between the Earth and Sun, we see a New Moon. When the Earth is between the Sun and Moon, we see a Full Moon. The phases in between (crescent, quarter, gibbous) are determined by the Moon's position in its orbit."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary cause of the Earth's seasons?",
+          "options": ["The Earth's distance from the Sun", "The tilt of the Earth's axis", "The phases of the Moon"],
+          "correctAnswer": "The tilt of the Earth's axis",
+          "explanation": "This is a common misconception. While the Earth's orbit is not a perfect circle, the seasons are caused by the tilt of the axis, which determines how directly sunlight hits different parts of the Earth at different times of the year."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: The Solar System",
+      "description": "Identify the Sun and differentiate between inner rocky planets and outer gas giants.",
+      "contentType": "text",
+      "unit": "Unit 1: Our Place in Space",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the Sun as the center of our solar system.",
+            "Differentiate between the inner, rocky planets and the outer, gas giant planets.",
+            "Describe other objects in the solar system, such as asteroids, comets, and dwarf planets."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Our Cosmic Neighborhood",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Our solar system consists of our star, the Sun, and everything bound to it by gravity. This includes the eight planets and their moons, dwarf planets like Pluto, and countless asteroids and comets. The planets are generally divided into two groups."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Two Groups of Planets",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Inner Planets (Terrestrial):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Mercury, Venus, Earth, and Mars. These planets are relatively small, dense, and have rocky surfaces."
+        },
+        {
+          "type": "heading",
+          "content": "Outer Planets (Gas Giants):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Jupiter, Saturn, Uranus, and Neptune. These planets are much larger, less dense, and are composed primarily of gases like hydrogen and helium."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a gas giant?",
+          "options": ["Mars", "Earth", "Jupiter"],
+          "correctAnswer": "Jupiter",
+          "explanation": "Not quite. Mars and Earth are inner, rocky planets. Jupiter is the largest of the outer gas giants."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: The Life Cycle of Stars",
+      "description": "Describe how stars are born and understand their life paths based on mass.",
+      "contentType": "text",
+      "unit": "Unit 2: Stars and Galaxies",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe how stars are born from nebulas.",
+            "Understand that a star's mass determines its life path.",
+            "Differentiate between the final stages of a star's life (white dwarf, neutron star, black hole)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Stellar Nurseries",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Stars are not eternal; they are born, live for millions or billions of years, and eventually die. A star's life begins in a nebula, which is a vast cloud of gas and dust in space. Gravity causes clumps of this material to pull together. As a clump gets denser, it gets hotter, and eventually, nuclear fusion begins in its core. This is the birth of a star."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: A Star's Life Path",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Average Stars (like our Sun):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "After burning for billions of years, they expand into a red giant, then shed their outer layers, leaving behind a small, dense core called a white dwarf."
+        },
+        {
+          "type": "heading",
+          "content": "Massive Stars:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "These stars live shorter, more dramatic lives. They swell into a supergiant, then explode in a massive explosion called a supernova. The remnant can be either an incredibly dense neutron star or, if the star was massive enough, a black hole."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the name for a giant cloud of gas and dust where stars are born?",
+          "options": ["Galaxy", "Nebula", "Supernova"],
+          "correctAnswer": "Nebula",
+          "explanation": "Good try. A supernova is a star's death explosion. A nebula is its birthplace."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Galaxies and the Universe",
+      "description": "Define galaxies and understand the structure of the universe.",
+      "contentType": "text",
+      "unit": "Unit 2: Stars and Galaxies",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a galaxy as a massive system of stars, gas, dust, and dark matter, bound together by gravity.",
+            "Identify the three main types of galaxies: spiral, elliptical, and irregular.",
+            "Understand the Big Bang Theory as the leading explanation for the origin of the universe."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Islands of Stars",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A galaxy is a vast collection of billions of stars. Our solar system is located in the Milky Way galaxy, which is a type of spiral galaxy. Galaxies are the major building blocks of the universe. They come in different shapes and sizes."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Types of Galaxies",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Spiral Galaxy:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Has a central bulge of older stars and spiral arms where new stars are forming (e.g., the Milky Way)."
+        },
+        {
+          "type": "heading",
+          "content": "Elliptical Galaxy:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Smooth, oval-shaped galaxies that contain mostly older stars and have very little gas and dust."
+        },
+        {
+          "type": "heading",
+          "content": "Irregular Galaxy:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Galaxies with no distinct regular shape. They are often chaotic in appearance."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What type of galaxy is our own Milky Way?",
+          "options": ["Elliptical", "Irregular", "Spiral"],
+          "correctAnswer": "Spiral",
+          "explanation": "Not quite. The Milky Way is a classic example of a spiral galaxy, with beautiful arms stretching out from its center."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Tools of Astronomy",
+      "description": "Differentiate between telescope types and understand space exploration tools.",
+      "contentType": "text",
+      "unit": "Unit 3: Exploring Space",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between refracting and reflecting telescopes.",
+            "Understand why space telescopes like the Hubble can see more clearly than ground-based telescopes.",
+            "Describe the role of robotic probes and rovers in exploring our solar system."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Seeing the Unseen",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Astronomy is the study of celestial objects, and our understanding of the universe depends on the tools we use to observe it. Telescopes are the most important tool, designed to collect and focus light from distant objects, making them appear brighter and closer. We use different types of telescopes to see different types of light, from visible light to radio waves and X-rays."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Space Telescopes and Probes",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Space Telescopes:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Telescopes like the Hubble and James Webb are placed in orbit above Earth's atmosphere. This gives them a crystal-clear view of the universe, free from the distortion and blurring caused by our atmosphere."
+        },
+        {
+          "type": "heading",
+          "content": "Robotic Probes:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "These are unmanned spacecraft sent to explore planets, moons, and other objects up close. Probes like Voyager have traveled to the outer solar system, while rovers like Perseverance are currently exploring the surface of Mars."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the main advantage of a space telescope over a ground-based telescope?",
+          "options": ["It is bigger", "It is above the Earth's distorting atmosphere", "It is closer to the stars"],
+          "correctAnswer": "It is above the Earth's distorting atmosphere",
+          "explanation": "Good try. While space telescopes are large, their main advantage is being above the atmosphere, which blurs and blocks light."
+        }
+      ],
+      "estimatedMinutes": 15
+    }
+  ]
+}

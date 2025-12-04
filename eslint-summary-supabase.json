@@ -1,0 +1,51 @@
+{
+  "totals": {
+    "files": 73,
+    "errors": 23,
+    "warnings": 0
+  },
+  "topRules": [
+    [
+      "no-useless-escape",
+      14
+    ],
+    [
+      "no-case-declarations",
+      8
+    ],
+    [
+      "prefer-const",
+      1
+    ]
+  ],
+  "topFiles": [
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\ai-study-chat\\index.ts",
+      9
+    ],
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\xp-system\\index.ts",
+      6
+    ],
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\xp-backfill\\index.ts",
+      3
+    ],
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\fetch-linear-equations-content\\index.ts",
+      2
+    ],
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\ai-study-chat\\mode-detection.ts",
+      1
+    ],
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\native-content-proxy\\index.ts",
+      1
+    ],
+    [
+      "C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\supabase\\functions\\scorm-parser-advanced\\index.ts",
+      1
+    ]
+  ]
+}

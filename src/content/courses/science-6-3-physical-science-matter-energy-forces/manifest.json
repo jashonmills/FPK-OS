@@ -1,0 +1,315 @@
+{
+  "courseId": "science-6-3-physical-science-matter-energy-forces",
+  "courseSlug": "science-6-3-physical-science-matter-energy-forces",
+  "contentVersion": "v2",
+  "title": "Science 6.3: Physical Science - Matter, Energy & Forces",
+  "description": "An introduction to the fundamental concepts of the physical world, including the nature of matter, the forms of energy, and the forces that govern motion.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "States of Matter and Phase Changes",
+      "description": "Define matter and identify the three common states of matter and their phase changes.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define matter as anything that has mass and takes up space.",
+            "Identify the three common states of matter: solid, liquid, and gas.",
+            "Describe the phase changes that occur when matter is heated or cooled."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "What is Matter?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Everything around you is made of matter. Matter is the 'stuff' that makes up the universe. The key properties of matter are that it has mass (you can weigh it) and volume (it takes up space). Matter exists in different states, or phases, depending on how its particles (atoms and molecules) are arranged and how much energy they have."
+        },
+        {
+          "type": "heading",
+          "content": "The States of Matter",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Solid:** Particles are tightly packed in a fixed position. Solids have a definite shape and a definite volume.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Liquid:** Particles are close together but can slide past one another. Liquids have a definite volume but take the shape of their container.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Gas:** Particles are far apart and move randomly and quickly. Gases have no definite shape and no definite volume; they expand to fill their container.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Matter and Its Properties",
+      "unitColor": "bg-purple-500"
+    },
+    {
+      "id": 2,
+      "title": "Physical and Chemical Changes",
+      "description": "Differentiate between physical and chemical changes in matter.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Differentiate between a physical property and a chemical property.",
+            "Define a physical change as a change in form, not identity.",
+            "Define a chemical change (reaction) as a change that creates a new substance."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Changing Matter",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Matter can change in two main ways. A physical change alters the form of a substance, but not its chemical identity. For example, ice melting into water is a physical change; it's still H₂O. A chemical change, or chemical reaction, results in the formation of a new substance with new properties. Burning wood is a chemical change because the wood turns into ash, smoke, and gases."
+        },
+        {
+          "type": "heading",
+          "content": "Examples",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Physical Changes:** Tearing paper, crushing a can, dissolving salt in water, boiling water.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Chemical Changes:** Baking a cake, rusting iron, digesting food, burning a candle.",
+          "style": "warning"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Matter and Its Properties",
+      "unitColor": "bg-purple-500"
+    },
+    {
+      "id": 3,
+      "title": "Forms of Energy",
+      "description": "Explore potential and kinetic energy and identify various forms of energy.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define energy as the ability to do work.",
+            "Differentiate between potential energy (stored energy) and kinetic energy (energy of motion).",
+            "Identify various forms of energy, such as thermal, chemical, and electrical."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Potential vs. Kinetic Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Energy is what makes everything happen. The two main types are potential energy and kinetic energy. Potential energy is stored energy, or the energy of position. A rock held at the top of a hill has potential energy. Kinetic energy is the energy of motion. As the rock rolls down the hill, its potential energy is converted into kinetic energy."
+        },
+        {
+          "type": "heading",
+          "content": "Forms of Energy",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Thermal Energy:** The energy of moving particles (heat).",
+          "style": "warning"
+        },
+        {
+          "type": "callout",
+          "content": "**Chemical Energy:** Energy stored in the bonds of atoms and molecules (e.g., in food or batteries).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Electrical Energy:** The energy of moving electrons.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Radiant Energy:** Energy that travels in waves (e.g., light from the sun).",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Energy",
+      "unitColor": "bg-orange-500"
+    },
+    {
+      "id": 4,
+      "title": "Energy Transformations",
+      "description": "Understand the Law of Conservation of Energy and trace energy transformations.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "State the Law of Conservation of Energy.",
+            "Trace the transformation of energy from one form to another in everyday examples.",
+            "Understand that some energy is often 'lost' as heat during transformations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Law of Conservation of Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Law of Conservation of Energy is a fundamental principle of physics. It states that energy cannot be created or destroyed, but it can be transformed from one form to another. The total amount of energy in a closed system always remains constant."
+        },
+        {
+          "type": "heading",
+          "content": "Example of Transformation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Consider a flashlight:"
+        },
+        {
+          "type": "callout",
+          "content": "**1. Chemical Energy:** Stored in the batteries.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**2. Electrical Energy:** The chemical energy is converted into electrical energy that flows through the wires.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**3. Radiant & Thermal Energy:** The electrical energy is converted by the bulb into light (radiant energy) and heat (thermal energy).",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Energy",
+      "unitColor": "bg-orange-500"
+    },
+    {
+      "id": 5,
+      "title": "Forces, Motion, and Newton's First Law",
+      "description": "Define forces and understand Newton's First Law of Motion.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define a force as a push or a pull.",
+            "Understand that unbalanced forces cause a change in motion.",
+            "State Newton's First Law of Motion (the Law of Inertia)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "What is a Force?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A force is simply a push or a pull on an object. Forces can make objects start moving, stop moving, or change direction. When the forces on an object are balanced, its motion doesn't change. When the forces are unbalanced, the object's motion will change—it will accelerate."
+        },
+        {
+          "type": "heading",
+          "content": "Newton's First Law (Inertia)",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Newton's First Law of Motion is also known as the Law of Inertia. It states: 'An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.' Inertia is the tendency of an object to resist changes in its state of motion. The more mass an object has, the more inertia it has."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Forces and Motion",
+      "unitColor": "bg-blue-500"
+    },
+    {
+      "id": 6,
+      "title": "Gravity and Friction",
+      "description": "Explore the forces of gravity and friction and how they affect motion.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define gravity as a force of attraction between any two objects with mass.",
+            "Understand that the force of gravity depends on mass and distance.",
+            "Define friction as a force that opposes motion between two surfaces in contact."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Universal Force of Gravity",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Gravity is a fundamental force of nature that attracts any two objects with mass. You don't float off into space because the Earth's large mass is constantly pulling you down. The strength of this force depends on two things: the mass of the objects (more mass = more gravity) and the distance between them (more distance = less gravity)."
+        },
+        {
+          "type": "heading",
+          "content": "Friction - The Force of Resistance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Friction is a force that resists motion when two surfaces rub against each other. It's the reason why a rolling ball eventually stops. While it can be useful (it allows you to walk and car brakes to work), it also causes things to wear out and generates heat. The amount of friction depends on the types of surfaces and how hard they are pressed together."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Forces and Motion",
+      "unitColor": "bg-blue-500"
+    }
+  ]
+}

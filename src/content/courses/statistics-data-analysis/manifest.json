@@ -1,0 +1,98 @@
+{
+  "courseId": "statistics-data-analysis",
+  "courseSlug": "statistics-data-analysis",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Statistics and Data Analysis",
+  "description": "Learn to collect, analyze, and interpret data using statistical methods and probability theory.",
+  "backgroundImage": "/lovable-uploads/statistics-data-analysis-bg.jpg",
+  "estimatedHours": 4,
+  "difficultyLevel": "intermediate",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Statistics",
+      "description": "Explore data types and statistical thinking",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-cyan-100 text-cyan-700"
+    },
+    {
+      "id": 2,
+      "title": "Descriptive Statistics",
+      "description": "Learn measures of center and spread",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Describing Data",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Data Visualization",
+      "description": "Master charts, graphs, and visual representations",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Describing Data",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Probability Fundamentals",
+      "description": "Understand probability rules and calculations",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Probability",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 5,
+      "title": "Probability Distributions",
+      "description": "Study normal, binomial, and other distributions",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Probability",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Sampling and Inference",
+      "description": "Learn about sampling methods and confidence intervals",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Inference",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 7,
+      "title": "Hypothesis Testing",
+      "description": "Master statistical hypothesis testing",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 4: Inference",
+      "unitColor": "bg-green-100 text-green-700"
+    }
+  ]
+}

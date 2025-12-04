@@ -1,0 +1,145 @@
+{
+  "courseId": "introduction-modern-economics",
+  "courseSlug": "introduction-modern-economics",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Introduction to Modern Economics",
+  "description": "Understand fundamental economic principles, market systems, and how economic decisions shape our world.",
+  "backgroundImage": "",
+  "estimatedHours": 8,
+  "difficultyLevel": "beginner",
+  "category": "Social Sciences",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "What is Economics?",
+      "description": "Understanding scarcity, choice, and opportunity cost",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Economics",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Economics is the study of how individuals, businesses, and societies make choices about using limited resources. It affects everything from personal finances to global trade."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Scarcity and choice",
+            "Opportunity cost",
+            "Economic systems",
+            "Supply and demand",
+            "Market equilibrium",
+            "Government's role in the economy"
+          ]
+        }
+      ],
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Supply and Demand",
+      "description": "The fundamental forces that determine prices",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Market Forces",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Supply and demand are the twin forces that drive market economies. Understanding how they interact helps explain price changes and market behavior."
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Market Structures",
+      "description": "Different types of competition and market organization",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Types of Markets",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Markets can be organized in different ways, from perfect competition to monopolies, each with distinct characteristics and outcomes."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Microeconomics",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Economic Growth and GDP",
+      "description": "Measuring economic performance and prosperity",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Big Picture Economy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Macroeconomics examines the economy as a whole, including growth, unemployment, inflation, and government policy."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Macroeconomics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 5,
+      "title": "Money, Banking, and Monetary Policy",
+      "description": "The role of money and central banks in the economy",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Financial System",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Money, banks, and central banks play crucial roles in modern economies, influencing interest rates, inflation, and economic growth."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Macroeconomics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Global Economics and Trade",
+      "description": "International trade, exchange rates, and globalization",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Global Economy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "In our interconnected world, understanding international trade, exchange rates, and global economic relationships is essential."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Global Perspective",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

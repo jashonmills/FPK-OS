@@ -1,0 +1,381 @@
+{
+  "courseId": "pre-calculus",
+  "courseSlug": "pre-calculus",
+  "contentVersion": "v2",
+  "title": "Pre-Calculus",
+  "description": "This course bridges the gap between Algebra and Calculus, covering advanced functions, trigonometry, and analytical geometry to prepare students for higher-level mathematics.",
+  "backgroundImage": "/course-images/pre-calculus-bg.jpg",
+  "estimatedHours": 10,
+  "difficultyLevel": "intermediate",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Polynomial and Rational Functions",
+      "description": "Analyze the end behavior of polynomial functions and identify asymptotes of rational functions.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Advanced Functions",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Analyze the end behavior of polynomial functions.",
+            "Find the zeros (roots) of a polynomial.",
+            "Identify vertical and horizontal asymptotes of rational functions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Polynomial End Behavior",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A polynomial function's 'end behavior' describes what happens to the graph as x approaches positive or negative infinity. This behavior is determined entirely by the term with the highest power, known as the leading term. By looking at the degree (even or odd) and the sign (positive or negative) of the leading coefficient, we can predict whether the graph will rise or fall on the far left and far right sides."
+        },
+        {
+          "type": "heading",
+          "content": "Rational Functions and Asymptotes",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A rational function is a fraction where both the numerator and the denominator are polynomials. These functions often have 'asymptotes'—lines that the graph approaches but never touches."
+        },
+        {
+          "type": "callout",
+          "content": "Vertical Asymptotes: Occur at the x-values that make the denominator equal to zero (but not the numerator).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Horizontal Asymptotes: Describe the end behavior. Their location is determined by comparing the degrees of the numerator and the denominator.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "A vertical asymptote of a rational function is typically found where the...?",
+          "options": ["Numerator is zero", "Denominator is zero", "Function crosses the y-axis"],
+          "correctAnswer": "Denominator is zero",
+          "explanation": "Remember that dividing by zero is undefined, which leads to vertical asymptotes."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Exponential and Logarithmic Functions",
+      "description": "Understand the relationship between exponential and logarithmic functions as inverses.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Advanced Functions",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Understand the relationship between exponential and logarithmic functions as inverses.",
+            "Learn the properties of logarithms (product, quotient, power rules).",
+            "Solve exponential and logarithmic equations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Inverse Functions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Exponential functions model rapid growth or decay (e.g., population growth, radioactive decay). A function like f(x) = 2ˣ gets very large, very fast. The logarithmic function is the inverse of the exponential function. It answers the question: 'What exponent do I need to raise the base to in order to get a certain number?' For example, since 2³ = 8, we can say that log₂(8) = 3."
+        },
+        {
+          "type": "heading",
+          "content": "Properties of Logarithms",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Logarithms have powerful properties that allow us to simplify complex expressions and solve equations."
+        },
+        {
+          "type": "callout",
+          "content": "Product Rule: log(ab) = log(a) + log(b)",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Quotient Rule: log(a/b) = log(a) - log(b)",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Power Rule: log(aⁿ) = n * log(a)",
+          "style": "teaching"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the value of log₁₀(100)?",
+          "options": ["2", "10", "1000"],
+          "correctAnswer": "2",
+          "explanation": "Review the definition of a logarithm: 10² = 100, so log₁₀(100) = 2."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Unit Circle and Radian Measure",
+      "description": "Define a radian as a unit of angle measure and understand the unit circle.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Trigonometry",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define a radian as a unit of angle measure.",
+            "Convert between degrees and radians.",
+            "Understand the unit circle as a tool for defining trigonometric functions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Radians and the Unit Circle",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "While degrees are common, radians are the natural unit for angles in calculus and higher math. A radian is defined as the angle created when the arc length on a circle is equal to its radius. The unit circle is a circle with a radius of 1, centered at the origin. It's a powerful tool because for any angle, the (x, y) coordinates of the point on the circle correspond directly to the cosine and sine of that angle, respectively (x = cos(θ), y = sin(θ))."
+        },
+        {
+          "type": "heading",
+          "content": "Key Conversions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The key conversion factor is that 180° = π radians."
+        },
+        {
+          "type": "callout",
+          "content": "Degrees to Radians: Multiply by π/180. (e.g., 90° * π/180 = π/2 radians).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Radians to Degrees: Multiply by 180/π. (e.g., π * 180/π = 180°).",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "On the unit circle, the x-coordinate of a point corresponds to what?",
+          "options": ["sine", "cosine", "tangent"],
+          "correctAnswer": "cosine",
+          "explanation": "Remember the relationship: (x, y) = (cos(θ), sin(θ))."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Graphs of Trigonometric Functions",
+      "description": "Recognize the graphs of the sine and cosine functions and understand their key features.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Trigonometry",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Recognize the graphs of the sine and cosine functions.",
+            "Define amplitude, period, and phase shift.",
+            "Analyze transformations of trigonometric graphs."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Periodic Functions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Trigonometric functions are 'periodic', meaning their graphs repeat in a predictable cycle. The sine and cosine functions both produce smooth, continuous waves. Understanding the key features of these waves allows us to model many real-world phenomena, such as sound waves, light waves, and oscillating springs."
+        },
+        {
+          "type": "heading",
+          "content": "Key Features",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Amplitude: The height of the wave from its center line. It represents the maximum displacement.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Period: The length of one full cycle of the wave before it starts repeating. For sine and cosine, the standard period is 2π.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Phase Shift: A horizontal shift of the graph to the left or right.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "The length of one full cycle of a periodic function is called the...?",
+          "options": ["Amplitude", "Phase Shift", "Period"],
+          "correctAnswer": "Period",
+          "explanation": "Remember, the period is how long it takes for the wave to repeat."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Trigonometric Identities",
+      "description": "Learn and apply fundamental trigonometric identities to simplify expressions.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Trigonometry",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Recall the fundamental Pythagorean identities.",
+            "Learn and apply the sum, difference, and double-angle formulas.",
+            "Use identities to simplify complex trigonometric expressions and solve equations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Rules of Trigonometry",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Trigonometric identities are equations involving trigonometric functions that are true for every value of the variable. They are the 'rules of the game' for trigonometry, allowing us to rewrite and manipulate expressions into different, more useful forms. Mastering these identities is essential for solving trigonometric equations and is a critical skill for calculus."
+        },
+        {
+          "type": "heading",
+          "content": "Key Identities",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Pythagorean Identity: sin²(x) + cos²(x) = 1",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Sum Formula for Sine: sin(A + B) = sin(A)cos(B) + cos(A)sin(B)",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Double-Angle Formula for Cosine: cos(2A) = cos²(A) - sin²(A)",
+          "style": "teaching"
+        },
+        {
+          "type": "quiz",
+          "question": "The expression sin²(x) + cos²(x) is always equal to...?",
+          "options": ["0", "1", "tan(x)"],
+          "correctAnswer": "1",
+          "explanation": "This is the fundamental Pythagorean identity that you should memorize."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Conic Sections",
+      "description": "Identify the four conic sections and recognize their standard form equations.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Analytic Geometry",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the four conic sections: circles, parabolas, ellipses, and hyperbolas.",
+            "Recognize the standard form equations for each conic section.",
+            "Understand how conic sections are formed by intersecting a plane with a double cone."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Slicing a Cone",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Conic sections are the curves we get when we intersect a flat plane with a double-napped cone. The angle of the slice determines the shape. A horizontal slice gives a circle. A slightly angled slice gives an ellipse. A slice parallel to the side of the cone gives a parabola. A steeper slice that cuts through both cones gives a hyperbola. These shapes appear everywhere in physics and astronomy, describing planetary orbits and the paths of projectiles."
+        },
+        {
+          "type": "heading",
+          "content": "Standard Equations",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Circle: (x-h)² + (y-k)² = r²",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Parabola: y = a(x-h)² + k",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Ellipse: (x-h)²/a² + (y-k)²/b² = 1",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "Which conic section describes the orbit of a planet around the sun?",
+          "options": ["Circle", "Parabola", "Ellipse"],
+          "correctAnswer": "Ellipse",
+          "explanation": "While close to circular, planetary orbits are technically ellipses."
+        }
+      ]
+    }
+  ]
+}

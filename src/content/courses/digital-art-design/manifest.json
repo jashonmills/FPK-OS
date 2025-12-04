@@ -1,0 +1,98 @@
+{
+  "courseId": "digital-art-design",
+  "courseSlug": "digital-art-design",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Digital Art and Design",
+  "description": "Create stunning digital artwork using design principles, color theory, and popular software tools.",
+  "backgroundImage": "/lovable-uploads/digital-art-design-bg.jpg",
+  "estimatedHours": 4,
+  "difficultyLevel": "intermediate",
+  "category": "Arts",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Digital Art",
+      "description": "Explore digital art tools and techniques",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Getting Started",
+      "unitColor": "bg-pink-100 text-pink-700"
+    },
+    {
+      "id": 2,
+      "title": "Design Principles",
+      "description": "Learn composition, balance, and visual hierarchy",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Color Theory",
+      "description": "Master color schemes and psychology",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Digital Drawing Techniques",
+      "description": "Practice brushes, layers, and blending",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Techniques",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Typography and Text",
+      "description": "Design with fonts and text elements",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Techniques",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 6,
+      "title": "Photo Editing and Manipulation",
+      "description": "Learn retouching and creative effects",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 4: Advanced Skills",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 7,
+      "title": "Creating a Portfolio",
+      "description": "Build and present your digital artwork",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 5: Professional Development",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

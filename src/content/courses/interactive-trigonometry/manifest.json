@@ -1,0 +1,149 @@
+{
+  "courseId": "interactive-trigonometry",
+  "courseSlug": "interactive-trigonometry",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Interactive Trigonometry",
+  "description": "Explore the relationships between angles and sides in triangles through interactive lessons and practical applications.",
+  "backgroundImage": "",
+  "estimatedHours": 10,
+  "difficultyLevel": "intermediate",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Trigonometry",
+      "description": "Understanding angles, triangles, and trigonometric ratios",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Trigonometry",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Trigonometry is the study of relationships between angles and sides of triangles. It has applications in navigation, architecture, physics, and countless other fields."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Right triangle trigonometry",
+            "Sine, cosine, and tangent ratios",
+            "The unit circle",
+            "Trigonometric identities",
+            "Applications and problem-solving"
+          ]
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Fundamentals",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Right Triangle Trigonometry",
+      "description": "SOH-CAH-TOA and solving right triangles",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Three Basic Ratios",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "In right triangles, three fundamental ratios relate angles to side lengths: sine, cosine, and tangent."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "SOH-CAH-TOA: Sine = Opposite/Hypotenuse, Cosine = Adjacent/Hypotenuse, Tangent = Opposite/Adjacent"
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: Fundamentals",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "The Unit Circle",
+      "description": "Understanding angles beyond right triangles",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Beyond Right Triangles",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "The unit circle extends trigonometry beyond right triangles, allowing us to work with any angle measure."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Extending Concepts",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Trigonometric Functions and Graphs",
+      "description": "Visualizing sine, cosine, and tangent functions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Graphing Trig Functions",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Trigonometric functions create beautiful wave patterns that model periodic phenomena in nature and science."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Extending Concepts",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Trigonometric Identities",
+      "description": "Fundamental relationships between trig functions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Essential Identities",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Trigonometric identities are equations that are true for all angle values. They're essential tools for simplifying expressions and solving equations."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Advanced Topics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Applications of Trigonometry",
+      "description": "Real-world uses in navigation, physics, and engineering",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Trigonometry in Action",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "From GPS navigation to sound waves to architecture, trigonometry solves countless real-world problems."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Advanced Topics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    }
+  ]
+}

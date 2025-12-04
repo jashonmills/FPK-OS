@@ -1,0 +1,95 @@
+
+{
+  "title": "Settings",
+  "subtitle": "Manage your account preferences and learning experience",
+  "saving": "Saving...",
+  "autoSavePending": "Auto-save pending...",
+  "allChangesSaved": "All changes saved",
+  "restoreDefaults": "Restore Defaults",
+  "settingsRestored": "Settings Restored",
+  "defaultsMessage": "All settings have been restored to their default values",
+  "tabs": {
+    "profile": "Profile",
+    "language": "Language",
+    "accessibility": "Accessibility",
+    "notifications": "Notifications",
+    "security": "Security",
+    "integrations": "Integrations"
+  },
+  "profile": {
+    "title": "Profile Information",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "Enter your display name",
+    "email": "Email",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us a bit about yourself..."
+  },
+  "language": {
+    "title": "Language & Localization",
+    "primaryLanguage": "Primary Language",
+    "dualLanguageMode": "Dual Language Mode",
+    "dualLanguageDescription": "Show English alongside your language",
+    "timeFormat": "Time Format",
+    "dateFormat": "Date Format",
+    "timezone": "Timezone",
+    "12hour": "12-hour (AM/PM)",
+    "24hour": "24-hour",
+    "usDate": "US (MM/DD/YYYY)",
+    "intlDate": "International (DD/MM/YYYY)",
+    "preview": "Preview"
+  },
+  "accessibility": {
+    "title": "Accessibility & Display",
+    "fontFamily": "Font Family",
+    "fontHelp": "Choose a font that's comfortable for you to read",
+    "systemFont": "System Default",
+    "colorContrast": "Color Contrast",
+    "standard": "Standard",
+    "highContrast": "High Contrast",
+    "comfortMode": "Comfort Mode",
+    "comfortHelp": "Adjust the interface for optimal learning comfort",
+    "normal": "Normal",
+    "lowStimulus": "Low-Stimulus",
+    "focusMode": "Focus Mode",
+    "textSize": "Text Size",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "lineSpacing": "Line Spacing",
+    "compact": "Compact",
+    "comfortable": "Comfortable",
+    "airy": "Airy",
+    "speechToText": "Speech to Text",
+    "speechToTextDesc": "Enable voice input for better accessibility"
+  },
+  "notifications": {
+    "emailTitle": "Email Notifications",
+    "appTitle": "App Notifications",
+    "newCourses": "New Courses",
+    "newCoursesDesc": "Get notified when new courses are available",
+    "weeklySum": "Weekly Summary",
+    "weeklySumDesc": "Receive a weekly progress summary",
+    "aiPrompts": "AI Learning Prompts",
+    "aiPromptsDesc": "Get personalized learning suggestions",
+    "pushNotifications": "Push Notifications",
+    "pushNotificationsDesc": "Receive notifications on your device",
+    "studyStreak": "Study Streak Reminders",
+    "studyStreakDesc": "Get reminded to maintain your learning streak",
+    "moduleNudges": "Module Completion Nudges",
+    "moduleNudgesDesc": "Gentle reminders to complete ongoing modules"
+  },
+  "security": {
+    "title": "Security Settings",
+    "twoFactor": "Two-Factor Authentication",
+    "twoFactorDesc": "Add an extra layer of security to your account"
+  },
+  "integrations": {
+    "title": "External Integrations",
+    "googleCalendar": "Google Calendar",
+    "googleDesc": "Sync your study schedule with Google Calendar",
+    "outlookCalendar": "Outlook Calendar",
+    "outlookDesc": "Sync your study schedule with Outlook Calendar"
+  }
+}

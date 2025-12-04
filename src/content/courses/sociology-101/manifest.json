@@ -1,0 +1,86 @@
+{
+  "courseId": "sociology-101",
+  "courseSlug": "sociology-101",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Sociology 101",
+  "description": "Explore human society, culture, social institutions, and the dynamics of social interaction.",
+  "backgroundImage": "/lovable-uploads/sociology-101-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Social Studies",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Sociology",
+      "description": "Learn what sociology is and its major perspectives",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 2,
+      "title": "Culture and Society",
+      "description": "Explore cultural norms, values, and diversity",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Culture",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Socialization",
+      "description": "Understand how individuals learn social norms",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Individual and Society",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Social Groups and Organizations",
+      "description": "Study different types of social groups",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Individual and Society",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Social Inequality",
+      "description": "Examine class, race, and gender stratification",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Inequality",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 6,
+      "title": "Social Change",
+      "description": "Learn about social movements and modernization",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 5: Change",
+      "unitColor": "bg-green-100 text-green-700"
+    }
+  ]
+}

@@ -1,0 +1,348 @@
+{
+  "courseId": "science-8-3-environmental-science-sustainability",
+  "courseSlug": "science-8-3-environmental-science-sustainability",
+  "contentVersion": "v2",
+  "title": "Science 8.3: Environmental Science & Sustainability",
+  "description": "Explore the intricate connections within Earth's ecosystems, understand the impact of human activity, and learn about the solutions that can lead to a sustainable future.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Ecosystems and Biomes",
+      "description": "Define an ecosystem, identify its components, and understand energy flow through food chains and food webs.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define an ecosystem and identify its biotic (living) and abiotic (non-living) components.",
+            "Describe how energy flows through an ecosystem via food chains and food webs.",
+            "Define a biome as a large community of plants and animals that occupies a distinct region."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Web of Life",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Environmental science begins with ecology, the study of how living things interact with each other and with their environment. An ecosystem includes all the living organisms (biotic factors like plants and animals) and the non-living physical components (abiotic factors like sunlight, water, and soil) in a particular area. These components are intricately linked through the flow of energy and the cycling of nutrients."
+        },
+        {
+          "type": "heading",
+          "content": "Energy Flow",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Producers:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Organisms, like plants, that produce their own food, usually through photosynthesis. They form the base of the food chain."
+        },
+        {
+          "type": "heading",
+          "content": "Consumers:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Organisms that get energy by eating other organisms. Herbivores eat producers, carnivores eat other consumers."
+        },
+        {
+          "type": "heading",
+          "content": "Decomposers:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Organisms, like bacteria and fungi, that break down dead organic matter, returning nutrients to the soil."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In an ecosystem, which of the following is an abiotic factor?",
+          "options": ["A tree", "A rabbit", "Sunlight"],
+          "correctAnswer": "Sunlight",
+          "explanation": "Remember, 'biotic' means living. 'Abiotic' means non-living. Sunlight is a critical non-living component."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Principles of Ecology",
+      "unitColor": "emerald"
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Biogeochemical Cycles",
+      "description": "Understand the water, carbon, and nitrogen cycles and how Earth's materials are recycled through ecosystems.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe the water cycle (hydrologic cycle).",
+            "Describe the carbon cycle, including the roles of photosynthesis and respiration.",
+            "Describe the nitrogen cycle and the importance of nitrogen-fixing bacteria."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Recycling Earth's Materials",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Earth has a finite amount of essential materials like water, carbon, and nitrogen. These materials are constantly recycled through ecosystems in processes called biogeochemical cycles. These cycles involve both biological processes (like plants absorbing carbon) and geological processes (like water evaporating from oceans)."
+        },
+        {
+          "type": "heading",
+          "content": "The Carbon Cycle",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The carbon cycle is a key example. Plants take carbon dioxide (CO₂) from the atmosphere during photosynthesis. Animals get carbon by eating plants. When plants and animals respire (breathe) or decompose, they release CO₂ back into the atmosphere. Human activities, like burning fossil fuels, release large amounts of extra CO₂ into the atmosphere, disrupting this natural balance."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which process removes carbon dioxide from the atmosphere?",
+          "options": ["Respiration", "Decomposition", "Photosynthesis"],
+          "correctAnswer": "Photosynthesis",
+          "explanation": "Respiration and decomposition both release carbon dioxide. Photosynthesis is the process where plants 'breathe in' carbon dioxide to make their food."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Principles of Ecology",
+      "unitColor": "emerald"
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Natural Resources and Pollution",
+      "description": "Learn about renewable and non-renewable resources and understand different types of pollution.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between renewable and non-renewable resources.",
+            "Identify major types of pollution (air, water, land).",
+            "Understand the concept of a 'human footprint' as a measure of our impact on the environment."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Using Earth's Resources",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Human societies depend on natural resources from the Earth. These resources can be classified as renewable or non-renewable. Our use of these resources, especially non-renewable ones, often leads to pollution, which is the introduction of harmful materials into the environment."
+        },
+        {
+          "type": "heading",
+          "content": "Renewable vs. Non-Renewable",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Renewable Resources:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Resources that can be replenished naturally over a relatively short period of time. Examples include solar energy, wind, and timber (if managed properly)."
+        },
+        {
+          "type": "heading",
+          "content": "Non-Renewable Resources:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Resources that exist in a fixed amount and are used up faster than they can be replaced by natural processes. Examples include fossil fuels (coal, oil, natural gas) and minerals."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a non-renewable resource?",
+          "options": ["Wind energy", "Solar energy", "Coal"],
+          "correctAnswer": "Coal",
+          "explanation": "Wind and solar are considered renewable because they won't run out. Coal is a fossil fuel that was formed over millions of years and exists in a finite supply."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Human Impact and Sustainability",
+      "unitColor": "sky"
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Climate Change",
+      "description": "Understand the greenhouse effect, global warming, and the impacts of climate change.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the greenhouse effect and identify key greenhouse gases (e.g., CO₂, methane).",
+            "Explain how human activities are enhancing the greenhouse effect, leading to global warming.",
+            "Describe some of the potential impacts of climate change."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Earth's Blanket",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The greenhouse effect is a natural process that warms the Earth's surface. Certain gases in the atmosphere, called greenhouse gases, trap heat from the sun, acting like a blanket to keep our planet at a livable temperature. However, human activities, primarily the burning of fossil fuels, have released massive amounts of extra greenhouse gases, thickening this blanket and causing the planet's average temperature to rise. This is often called global warming, and it is the primary driver of modern climate change."
+        },
+        {
+          "type": "heading",
+          "content": "Impacts of Climate Change",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The consequences of a warming planet are far-reaching and include:"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Rising sea levels due to melting glaciers and ice sheets.",
+            "More frequent and intense heatwaves, droughts, and storms.",
+            "Disruption to ecosystems and loss of biodiversity.",
+            "Impacts on agriculture and food supplies."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The primary cause of the enhanced greenhouse effect and modern climate change is...?",
+          "options": ["Volcanic eruptions", "Human activities burning fossil fuels", "Natural cycles of the sun"],
+          "correctAnswer": "Human activities burning fossil fuels",
+          "explanation": "While natural factors can influence climate, the overwhelming scientific consensus is that the rapid warming we are currently experiencing is caused by human activities."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Human Impact and Sustainability",
+      "unitColor": "sky"
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Sustainability and Solutions",
+      "description": "Learn about sustainability principles and key strategies for creating a balanced future.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define sustainability as meeting the needs of the present without compromising the ability of future generations to meet their own needs.",
+            "Identify key strategies for sustainability, such as conservation and renewable energy.",
+            "Understand the importance of the 'Three R's': Reduce, Reuse, Recycle."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Living in Balance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Sustainability is the central challenge of environmental science. It asks: How can we live and develop our societies in a way that does not permanently damage the Earth's systems that support us? It involves finding a balance between environmental health, social equity, and economic vitality. The goal is to create a world where both people and nature can thrive for generations to come."
+        },
+        {
+          "type": "heading",
+          "content": "Pathways to Sustainability",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Conservation:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Protecting and managing natural resources wisely. This includes protecting habitats and using resources like water and energy more efficiently."
+        },
+        {
+          "type": "heading",
+          "content": "Renewable Energy:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Transitioning away from fossil fuels to clean energy sources like solar, wind, and geothermal power."
+        },
+        {
+          "type": "heading",
+          "content": "The Three R's:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Reduce the amount of stuff we consume. Reuse items instead of throwing them away. Recycle materials to be made into new products."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the 'Three R's' is generally considered the most effective way to reduce environmental impact?",
+          "options": ["Reduce", "Reuse", "Recycle"],
+          "correctAnswer": "Reduce",
+          "explanation": "While all three are important, reducing consumption in the first place is the most powerful way to lessen our impact, as it prevents resource use and waste from the very beginning."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Human Impact and Sustainability",
+      "unitColor": "sky"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "courseId": "introduction-to-psychology",
+  "courseSlug": "introduction-to-psychology",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Introduction to Psychology",
+  "description": "Explore the fundamentals of psychology, including behavior, cognition, development, and mental health.",
+  "backgroundImage": "/lovable-uploads/intro-psychology-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Psychology",
+      "description": "Explore what psychology is and its major branches",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 2,
+      "title": "Research Methods",
+      "description": "Learn about psychological research techniques",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Biological Psychology",
+      "description": "Understand the brain and nervous system",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Biological Bases",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Sensation and Perception",
+      "description": "Explore how we sense and interpret the world",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Biological Bases",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Learning and Memory",
+      "description": "Study how we learn and remember information",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Cognitive Processes",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Developmental Psychology",
+      "description": "Learn about human development across the lifespan",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 4: Development",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 7,
+      "title": "Social Psychology",
+      "description": "Understand how social factors influence behavior",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 5: Social Behavior",
+      "unitColor": "bg-pink-100 text-pink-700"
+    }
+  ]
+}

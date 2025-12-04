@@ -1,0 +1,356 @@
+{
+  "courseId": "math-8-1-linear-equations-functions",
+  "courseSlug": "math-8-1-linear-equations-functions",
+  "contentVersion": "v2",
+  "title": "Math 8.1: Linear Equations & Functions",
+  "description": "Dive into the core of algebra by graphing lines, understanding functions, and solving systems of linear equations.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Coordinate Plane and Plotting Points",
+      "description": "Identify the x-axis, y-axis, and the four quadrants of the coordinate plane.",
+      "contentType": "text",
+      "unit": "Unit 1: Graphing Linear Equations",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the x-axis, y-axis, and the four quadrants of the coordinate plane.",
+            "Understand an ordered pair (x, y) and how it represents a location.",
+            "Plot ordered pairs on the coordinate plane."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A Map for Numbers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The coordinate plane is a two-dimensional grid formed by the intersection of a horizontal number line (the x-axis) and a vertical number line (the y-axis). It gives us a way to visualize relationships between two variables. Any point on the plane can be identified by an ordered pair of numbers, (x, y). The first number tells you how far to move horizontally along the x-axis, and the second number tells you how far to move vertically along the y-axis."
+        },
+        {
+          "type": "heading",
+          "content": "Plotting a Point",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To plot the point (3, -2):"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Start at the origin (0, 0), where the axes cross.",
+            "Move 3 units to the right along the x-axis (because the x-coordinate is positive 3).",
+            "From there, move 2 units down (because the y-coordinate is negative 2).",
+            "Place a dot at this location. This point is in Quadrant IV."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** In which quadrant would you find the point (-4, 5)? Answer: Quadrant II (move left for negative x, and up for positive y, landing in the top-left quadrant).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Slope and Rate of Change",
+      "description": "Calculate the slope of a line given two points using the formula 'rise over run'.",
+      "contentType": "text",
+      "unit": "Unit 1: Graphing Linear Equations",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define slope as a measure of the steepness of a line.",
+            "Calculate the slope of a line given two points using the formula 'rise over run'.",
+            "Interpret slope as a rate of change in real-world contexts."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Rise Over Run",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Slope is a number that describes both the direction and the steepness of a line. It is often expressed as a fraction, 'rise over run'. The 'rise' is the vertical change between two points on the line, and the 'run' is the horizontal change. A positive slope means the line goes up from left to right. A negative slope means the line goes down. A slope of 0 is a horizontal line, and an undefined slope is a vertical line."
+        },
+        {
+          "type": "heading",
+          "content": "The Slope Formula",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Given two points (x₁, y₁) and (x₂, y₂), the formula for the slope (m) is:"
+        },
+        {
+          "type": "code",
+          "content": "m = (y₂ - y₁) / (x₂ - x₁)",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Find the slope of the line passing through (2, 3) and (4, 7). Using the formula, m = (7 - 3) / (4 - 2) = 4 / 2 = 2. The slope is 2."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** A line goes up 3 units for every 4 units it moves to the right. What is its slope? Answer: 3/4 (rise over run = 3 over 4).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Slope-Intercept Form",
+      "description": "Identify the slope-intercept form of a linear equation: y = mx + b.",
+      "contentType": "text",
+      "unit": "Unit 1: Graphing Linear Equations",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the slope-intercept form of a linear equation: y = mx + b.",
+            "Identify the slope (m) and y-intercept (b) from an equation.",
+            "Graph a line using its slope and y-intercept."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Equation of a Line",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The slope-intercept form, y = mx + b, is one of the most useful ways to write the equation of a line. It gives us two key pieces of information at a glance. The 'm' represents the slope of the line, and the 'b' represents the y-intercept, which is the point where the line crosses the vertical y-axis."
+        },
+        {
+          "type": "heading",
+          "content": "Graphing with y = mx + b",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To graph the equation y = 2x + 1:"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Begin with 'b': The y-intercept is 1. So, plot a point at (0, 1).",
+            "Move with 'm': The slope is 2, which can be written as 2/1 (rise over run). From your first point (0, 1), rise up 2 units and run to the right 1 unit.",
+            "Plot a second point at this new location (1, 3).",
+            "Draw a straight line through your two points."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** In the equation y = -3x + 5, what is the y-intercept? Answer: 5 (In y = mx + b, the 'b' value is the y-intercept).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Introduction to Functions",
+      "description": "Define a function as a rule that assigns each input to exactly one output.",
+      "contentType": "text",
+      "unit": "Unit 2: Functions and Systems",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a function as a rule that assigns each input to exactly one output.",
+            "Use the vertical line test to determine if a graph represents a function.",
+            "Differentiate between linear and non-linear functions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Input-Output Machine",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A function is like a machine. You put an input (usually an x-value) into the machine, it follows a specific rule, and it gives you exactly one output (usually a y-value). For every input, there can only be one output. For example, the equation y = 2x + 1 is a function because for any x you put in, you will get only one y back out."
+        },
+        {
+          "type": "heading",
+          "content": "The Vertical Line Test",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A simple way to check if a graph represents a function is the vertical line test. If you can draw a vertical line anywhere on the graph and it touches the graph in more than one spot, it is NOT a function. If any vertical line you draw only ever touches the graph once, it IS a function."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** Does the set of ordered pairs {(1, 2), (2, 4), (1, 3)} represent a function? Answer: No (the input '1' has two different outputs, '2' and '3'. A function can only have one output for each input).",
+          "style": "warning"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Solving Systems of Equations by Graphing",
+      "description": "Understand that the solution to a system is the point where the lines intersect.",
+      "contentType": "text",
+      "unit": "Unit 2: Functions and Systems",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a system of linear equations as a set of two or more linear equations.",
+            "Understand that the solution to a system is the point where the lines intersect.",
+            "Solve a system of linear equations by graphing both lines on the same coordinate plane."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Finding the Point of Intersection",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A system of equations is a collection of two or more equations with the same set of variables. When we are dealing with linear equations, we are looking for the one point (x, y) that makes both equations true at the same time. On a graph, this is the single point where the two lines cross or intersect."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To solve the system:"
+        },
+        {
+          "type": "code",
+          "content": "y = 2x - 3\ny = -x + 3",
+          "language": "plaintext"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Graph the first line, y = 2x - 3 (y-intercept at -3, slope of 2).",
+            "On the same coordinate plane, graph the second line, y = -x + 3 (y-intercept at 3, slope of -1).",
+            "Find the point where the two lines cross. In this case, they intersect at the point (2, 1).",
+            "Therefore, the solution to the system is x = 2 and y = 1."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What does the solution to a system of linear equations represent on a graph? Answer: The point where the lines intersect (the one point that is on both lines at the same time).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Solving Systems of Equations Algebraically",
+      "description": "Learn to solve a system of equations using the substitution method.",
+      "contentType": "text",
+      "unit": "Unit 2: Functions and Systems",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to solve a system of equations using the substitution method.",
+            "Understand when substitution is the most efficient method to use.",
+            "Check the solution by plugging it into both original equations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Substitution Method",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Graphing is a great way to visualize a system, but it's not always precise. The substitution method is an algebraic way to find the exact solution. The main idea is to solve one equation for one variable, and then substitute that expression into the other equation. This creates a new equation with only one variable, which we already know how to solve."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To solve the system:"
+        },
+        {
+          "type": "code",
+          "content": "y = x + 1\n3x + 2y = 8",
+          "language": "plaintext"
+        },
+        {
+          "type": "list",
+          "items": [
+            "The first equation is already solved for y. Substitute '(x + 1)' for 'y' in the second equation: 3x + 2(x + 1) = 8.",
+            "Now solve this new equation for x. Distribute the 2: 3x + 2x + 2 = 8. Combine like terms: 5x + 2 = 8. Subtract 2: 5x = 6. Divide by 5: x = 1.2.",
+            "Now that you have x, plug it back into the first equation to find y: y = 1.2 + 1, so y = 2.2.",
+            "The solution is (1.2, 2.2)."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** Given the system y = 2x and x + y = 9, what is the first step using substitution? Answer: Substitute '2x' for 'y' in the second equation (since the first equation tells us that y is the same as 2x).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "🎉 **Course Complete!** You've mastered the fundamentals of linear equations and functions, building a strong foundation for advanced algebra topics like quadratic equations, polynomials, and more complex systems.",
+          "style": "success"
+        }
+      ]
+    }
+  ]
+}

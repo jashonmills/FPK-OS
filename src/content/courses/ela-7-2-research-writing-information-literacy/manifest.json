@@ -1,0 +1,405 @@
+{
+  "courseId": "ela-7-2-research-writing-information-literacy",
+  "courseSlug": "ela-7-2-research-writing-information-literacy",
+  "contentVersion": "v2",
+  "title": "ELA 7.2: Research Writing & Information Literacy",
+  "description": "Learn how to ask powerful questions, find credible information, and synthesize it into a well-structured research paper.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Developing a Research Question",
+      "description": "Understand the purpose of a research question and learn to narrow topics.",
+      "contentType": "text",
+      "unit": "Unit 1: The Foundations of Research",
+      "unitColor": "cyan",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the purpose of a research question.",
+            "Differentiate between a topic and a research question.",
+            "Learn how to narrow a broad topic into a focused, answerable research question."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Guiding Star of Your Research",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A research project begins not with a topic, but with a question. A topic is broad (e.g., 'Ancient Egypt'). A research question is specific and guides your entire investigation (e.g., 'How did the geography of the Nile River influence the religious beliefs of ancient Egyptians?'). A good research question is not a simple 'yes' or 'no' question; it requires investigation and analysis to answer. It acts as your compass, keeping your research focused and on track."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: From Topic to Question",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Broad Topic:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Climate Change"
+        },
+        {
+          "type": "heading",
+          "content": "Narrowed Topic:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The effect of climate change on polar bears."
+        },
+        {
+          "type": "heading",
+          "content": "Focused Research Question:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "How has the melting of Arctic sea ice over the past 20 years impacted the hunting patterns and population of polar bears?"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is the best example of a focused research question?",
+          "options": ["World War II", "What were the main causes of World War II?", "How did the Treaty of Versailles contribute to the outbreak of World War II?"],
+          "correctAnswer": "How did the Treaty of Versailles contribute to the outbreak of World War II?",
+          "explanation": "A strong research question is specific and requires analysis, not just a list of facts."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Identifying Credible Sources",
+      "description": "Learn to evaluate sources for credibility using the CRAAP test.",
+      "contentType": "text",
+      "unit": "Unit 1: The Foundations of Research",
+      "unitColor": "cyan",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between primary and secondary sources.",
+            "Define credibility and understand why it's important.",
+            "Learn to evaluate sources for authority, accuracy, objectivity, and currency (the CRAAP test)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Not All Information is Equal",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the digital age, we are flooded with information. Information literacy is the skill of finding, evaluating, and using information effectively. A key part of this is determining if a source is credible, meaning it is trustworthy and reliable. Using non-credible sources can undermine your entire research project with misinformation."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The CRAAP Test",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Currency:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "When was it published? Is it up-to-date for your topic?"
+        },
+        {
+          "type": "heading",
+          "content": "Relevance:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Does it directly relate to your research question?"
+        },
+        {
+          "type": "heading",
+          "content": "Authority:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Who is the author? What are their credentials? Are they an expert?"
+        },
+        {
+          "type": "heading",
+          "content": "Accuracy:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Is the information correct? Can it be verified with other sources?"
+        },
+        {
+          "type": "heading",
+          "content": "Purpose:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Why was this information created? Is it to inform, persuade, entertain, or sell something? Is it biased?"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "You find a website about the benefits of a new medicine, but it is sponsored by the company that makes the medicine. Which part of the CRAAP test should make you cautious?",
+          "options": ["Currency", "Authority", "Purpose"],
+          "correctAnswer": "Purpose",
+          "explanation": "The key issue here is the purpose of the website—it's trying to sell something, which introduces bias."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Taking Notes and Avoiding Plagiarism",
+      "description": "Learn effective note-taking strategies and understand plagiarism.",
+      "contentType": "text",
+      "unit": "Unit 2: Building the Research Paper",
+      "unitColor": "amber",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn effective note-taking strategies (paraphrasing, summarizing, direct quoting).",
+            "Define plagiarism and understand its serious consequences.",
+            "Understand the importance of citing sources to give credit to the original author."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Using Information Ethically",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Plagiarism is using someone else's words or ideas without giving them proper credit. It is a form of academic dishonesty. To avoid plagiarism, you must always cite your sources. This means keeping careful track of where you get your information as you take notes. The three main ways to incorporate information are by paraphrasing, summarizing, or using direct quotes."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Note-Taking Methods",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Paraphrasing:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Restating a passage from a source in your own words. You must still cite the original source."
+        },
+        {
+          "type": "heading",
+          "content": "Summarizing:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Briefly stating the main points of a source in your own words. You must still cite the source."
+        },
+        {
+          "type": "heading",
+          "content": "Direct Quoting:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Using the author's exact words, enclosed in quotation marks. Use this sparingly, only when the original wording is particularly powerful or precise."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "If you rewrite a sentence from a book in your own words for your paper, what must you still do?",
+          "options": ["Put it in quotation marks", "Cite the original source", "Nothing, because it's in your own words"],
+          "correctAnswer": "Cite the original source",
+          "explanation": "Even if you use your own words, the idea came from someone else, so you must give them credit by citing the source."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Outlining and Structuring the Paper",
+      "description": "Understand thesis statements and research paper structure.",
+      "contentType": "text",
+      "unit": "Unit 2: Building the Research Paper",
+      "unitColor": "amber",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the purpose of an outline as a blueprint for your paper.",
+            "Learn the basic structure of a research paper: introduction, body paragraphs, and conclusion.",
+            "Develop a thesis statement that will guide your paper."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Thesis Statement",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The thesis statement is the most important sentence in your entire paper. It is a single sentence, usually at the end of your introduction, that states the main argument or point you are going to prove. Every single body paragraph in your paper should exist to support and prove your thesis statement."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Structure of the Paper",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Introduction:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Grabs the reader's attention, provides background information, and ends with the thesis statement."
+        },
+        {
+          "type": "heading",
+          "content": "Body Paragraphs:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Each paragraph focuses on one main idea that supports the thesis. It should start with a topic sentence and include evidence from your research."
+        },
+        {
+          "type": "heading",
+          "content": "Conclusion:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Restates the thesis in a new way, summarizes the main points, and provides a final thought for the reader."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the main purpose of a thesis statement?",
+          "options": ["To summarize the entire paper", "To state the main argument of the paper", "To ask a question"],
+          "correctAnswer": "To state the main argument of the paper",
+          "explanation": "The thesis isn't a summary, but the specific argument that the rest of the paper will prove."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Creating a Works Cited / Bibliography",
+      "description": "Learn to create proper citations in MLA format.",
+      "contentType": "text",
+      "unit": "Unit 2: Building the Research Paper",
+      "unitColor": "amber",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the purpose of a Works Cited or Bibliography page.",
+            "Identify the core elements needed for a citation (author, title, publication date, etc.).",
+            "Learn the basic format for citing a book and a website in MLA style."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Giving Credit Where It's Due",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A Works Cited or Bibliography page is a list at the end of your paper that provides the full details for every source you used in your research. It serves two main purposes: it gives credit to the original authors, and it allows your reader to find your sources for themselves. Different academic fields use different citation styles, such as MLA, APA, or Chicago. We will focus on the basics of MLA (Modern Language Association) style."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Basic MLA Format",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Citing a Book:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Author's Last Name, First Name. Title of Book. Publisher, Publication Year.",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Citing a Website:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "Author's Last Name, First Name. \"Title of Web Page.\" Title of Website, Publication Date, URL. Accessed Date.",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the main purpose of a Works Cited page?",
+          "options": ["To show how many sources you used", "To give credit to original authors and allow readers to find your sources", "To make the paper look more professional"],
+          "correctAnswer": "To give credit to original authors and allow readers to find your sources",
+          "explanation": "While it does show how many sources you used, its primary purpose is to give credit and provide a trail for other researchers."
+        }
+      ]
+    }
+  ]
+}

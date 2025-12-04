@@ -1,0 +1,356 @@
+{
+  "courseId": "science-8-1-physical-science-physics-fundamentals",
+  "courseSlug": "science-8-1-physical-science-physics-fundamentals",
+  "contentVersion": "v2",
+  "title": "Science 8.1: Physical Science - Physics Fundamentals",
+  "description": "Explore the laws that govern motion, forces, and energy, from the simple machines around us to the waves that carry sound and light.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Speed, Velocity, and Acceleration",
+      "description": "Differentiate between speed and velocity, and define acceleration as the rate of change of velocity.",
+      "contentType": "text",
+      "unit": "Unit 1: Motion and Forces",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between speed and velocity.",
+            "Define acceleration as the rate of change of velocity.",
+            "Interpret motion graphs (distance-time and velocity-time)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Describing Motion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Physics often starts with describing motion. Speed is a measure of how fast an object is moving (e.g., 60 miles per hour). Velocity is speed in a given direction (e.g., 60 miles per hour north). This distinction is crucial. Acceleration is any change in velocity. This means you are accelerating if you speed up, slow down, or change direction."
+        },
+        {
+          "type": "heading",
+          "content": "Motion Graphs",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Distance-Time Graph",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The slope of the line on this graph represents the object's speed. A steeper slope means a faster speed. A flat line means the object is not moving."
+        },
+        {
+          "type": "heading",
+          "content": "Velocity-Time Graph",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The slope of the line on this graph represents acceleration. A flat line means constant velocity (no acceleration)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** A car is traveling at a constant 50 mph on a straight highway. Is it accelerating? Answer: No (Acceleration is a change in velocity. Since the car's speed and direction are both constant, its velocity is constant, and it is not accelerating).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Newton's Laws of Motion",
+      "description": "State and understand Newton's three laws of motion that govern all mechanical systems.",
+      "contentType": "text",
+      "unit": "Unit 1: Motion and Forces",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "State Newton's First Law (Inertia).",
+            "State Newton's Second Law (F=ma).",
+            "State Newton's Third Law (Action-Reaction)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Foundation of Mechanics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Sir Isaac Newton's three laws of motion are the bedrock of classical mechanics. They describe the relationship between the forces acting on an object and the motion of that object. Understanding these laws is essential to understanding how everything in our physical world moves."
+        },
+        {
+          "type": "heading",
+          "content": "The Three Laws",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "First Law (Inertia)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "An object at rest stays at rest, and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force."
+        },
+        {
+          "type": "heading",
+          "content": "Second Law (F=ma)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. (Force = mass × acceleration)."
+        },
+        {
+          "type": "heading",
+          "content": "Third Law (Action-Reaction)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "For every action, there is an equal and opposite reaction."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** Which law explains why you feel pushed back into your seat when a car suddenly accelerates? Answer: First Law (Inertia) - Your body wants to stay at rest, so when the car moves forward, you feel pushed back relative to the car.",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Gravity, Friction, and Work",
+      "description": "Understand gravity, friction, and the scientific definition of work.",
+      "contentType": "text",
+      "unit": "Unit 1: Motion and Forces",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define gravity as a force of attraction between any two objects with mass.",
+            "Define friction as a force that opposes motion.",
+            "Define work in the scientific sense (Work = Force × Distance)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Everyday Forces",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Gravity and friction are two of the most common forces we experience every day. Gravity is what holds us to the Earth and what keeps the planets in orbit around the Sun. Friction is the force that allows us to walk without slipping and stops a rolling ball. In physics, 'work' has a very specific meaning: it is done only when a force causes an object to move a certain distance."
+        },
+        {
+          "type": "heading",
+          "content": "Scientific Work",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "For work to be done, two things must happen: 1) a force must be applied to an object, and 2) the object must move in the direction of the force. If you push against a wall with all your might, but the wall doesn't move, you have done zero scientific work, even though you might feel tired."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** You are holding a heavy box perfectly still. Are you doing 'work' on the box in the scientific sense? Answer: No (Even though your muscles are exerting a force to hold the box up, the box is not moving. Since the distance is zero, the work done is zero).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Forms of Energy",
+      "description": "Differentiate between potential and kinetic energy and understand the Law of Conservation of Energy.",
+      "contentType": "text",
+      "unit": "Unit 2: Energy and Waves",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between potential energy (stored energy) and kinetic energy (energy of motion).",
+            "Identify various forms of energy (e.g., chemical, thermal, electrical, nuclear).",
+            "State the Law of Conservation of Energy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Ability to Do Work",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Energy is defined as the ability to do work. It comes in many forms, but they can all be classified into two main categories: potential energy and kinetic energy. Potential energy is stored energy, like the energy in a stretched rubber band or a battery. Kinetic energy is the energy of motion, like a moving car or a thrown ball."
+        },
+        {
+          "type": "heading",
+          "content": "The Law of Conservation of Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One of the most fundamental laws in all of science is the Law of Conservation of Energy. It states that energy cannot be created or destroyed; it can only be transformed from one form to another. For example, when you drop a ball, its potential energy (due to its height) is converted into kinetic energy (as it speeds up)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** A rollercoaster car poised at the very top of the highest hill has a large amount of which type of energy? Answer: Potential Energy (Because the car is high up but not yet moving fast, it has a large amount of stored energy).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Waves and Their Properties",
+      "description": "Define waves and identify their basic properties: amplitude, wavelength, and frequency.",
+      "contentType": "text",
+      "unit": "Unit 2: Energy and Waves",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a wave as a disturbance that transfers energy.",
+            "Identify the basic properties of a wave: amplitude, wavelength, and frequency.",
+            "Differentiate between transverse and longitudinal waves."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Energy in Motion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A wave is a transfer of energy through a medium or through empty space. It's important to remember that waves transfer energy, not matter. Think of a wave in a stadium; the people move up and down, but they don't travel around the stadium with the wave. All waves have a few basic properties that we can measure."
+        },
+        {
+          "type": "heading",
+          "content": "Wave Properties",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Amplitude",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The maximum displacement or distance moved by a point on a wave from its equilibrium position. It relates to the wave's intensity or energy."
+        },
+        {
+          "type": "heading",
+          "content": "Wavelength",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The distance between two consecutive corresponding points of a wave, such as from crest to crest."
+        },
+        {
+          "type": "heading",
+          "content": "Frequency",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The number of waves that pass a fixed point in a given amount of time."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** If you are listening to a high-pitched sound, the sound wave has a high...? Answer: Frequency (The pitch of a sound is determined by its frequency. A higher frequency means a higher pitch).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Sound and Light Waves",
+      "description": "Describe sound as a mechanical wave and light as an electromagnetic wave.",
+      "contentType": "text",
+      "unit": "Unit 2: Energy and Waves",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe sound as a mechanical wave that requires a medium to travel.",
+            "Describe light as an electromagnetic wave that can travel through a vacuum.",
+            "Understand the electromagnetic spectrum."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Two Types of Waves",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Sound and light are two of the most important waves in our lives, but they are fundamentally different. Sound is a mechanical wave, which means it needs a medium (like air, water, or a solid) to travel through. It cannot travel in the vacuum of space. Light is an electromagnetic wave, which means it does not require a medium and can travel through the vacuum of space. This is why we can see the Sun, but we can't hear it."
+        },
+        {
+          "type": "heading",
+          "content": "The Electromagnetic Spectrum",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The light that we can see is just a tiny part of a much larger range of electromagnetic waves called the electromagnetic spectrum. This spectrum includes radio waves, microwaves, infrared, visible light, ultraviolet, X-rays, and gamma rays. All of these are forms of light, but our eyes are only sensitive to the small portion known as visible light."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** Why can't you hear an explosion in space, even in movies? Answer: Sound needs a medium like air to travel, and space is a vacuum (Sound is a mechanical wave and requires a substance to travel through. Space is empty, so the sound has nothing to travel through).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "🎉 **Course Complete!** You've mastered the fundamentals of physics, from Newton's laws of motion to the properties of waves. You're now prepared for more advanced physical science topics.",
+          "style": "success"
+        }
+      ]
+    }
+  ]
+}

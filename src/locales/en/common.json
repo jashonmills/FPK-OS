@@ -1,0 +1,23 @@
+
+{
+  "learnerPortal": "Learner Portal",
+  "userMenu": "User Menu",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "search": "Search",
+  "searchPlaceholder": "Search courses, notes, and more...",
+  "learningDashboard": "Learning Dashboard",
+  "support": "Support",
+  "signOut": "Sign Out",
+  "beta": "Beta",
+  "back": "Back",
+  "myAccount": "My Account",
+  "profileSettings": "Profile Settings",
+  "preferences": "Preferences",
+  "settings": "Settings"
+}

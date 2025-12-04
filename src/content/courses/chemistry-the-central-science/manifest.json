@@ -1,0 +1,381 @@
+{
+  "courseId": "chemistry-the-central-science",
+  "courseSlug": "chemistry-the-central-science",
+  "contentVersion": "v2",
+  "title": "Chemistry: The Central Science",
+  "description": "An interactive course exploring the composition, structure, and properties of matter. Covers the periodic table, chemical reactions, and the principles that govern the material world.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "What is Chemistry?",
+      "description": "Learn the fundamentals of chemistry and how it connects all sciences.",
+      "contentType": "text",
+      "estimatedMinutes": 120,
+      "unit": "Unit 1: Foundations of Matter",
+      "unitColor": "hsl(200, 80%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define chemistry as the study of matter and its changes.",
+            "Understand the scientific method as the process of chemical inquiry.",
+            "Differentiate between elements, compounds, and mixtures."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Chemistry is often called the 'central science' because it connects all other natural sciences. It's the study of matter—what it's made of, what its properties are, and how it changes. Everything you can touch, taste, or smell is made of chemicals. Chemists use the scientific method (observation, hypothesis, experiment, conclusion) to understand this world."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An element is a pure substance, like oxygen (O). A compound is two or more elements chemically bonded together, like water (H₂O). A mixture is two or more substances that are not chemically bonded, like salt water."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is an example of a compound?",
+          "options": ["Oxygen", "Air", "Carbon Dioxide (CO₂)"],
+          "correctAnswer": "Carbon Dioxide (CO₂)"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand the fundamental scope of chemistry. It's the science of 'stuff'! By learning to differentiate between elements, compounds, and mixtures, you've taken your first step into the molecular world. Next, we'll look at the building blocks of all matter."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Atoms and Molecules",
+      "description": "Explore the structure of atoms and how they form molecules.",
+      "contentType": "text",
+      "estimatedMinutes": 120,
+      "unit": "Unit 1: Foundations of Matter",
+      "unitColor": "hsl(200, 80%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the atom as the basic unit of an element.",
+            "Identify the three subatomic particles: protons, neutrons, and electrons.",
+            "Understand that a molecule is a group of atoms bonded together."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "All matter is made of tiny particles called atoms. At the center of the atom is the nucleus, which contains positively charged protons and neutral neutrons. Orbiting the nucleus are negatively charged electrons. The number of protons determines what element an atom is. When two or more atoms bond together, they form a molecule."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A hydrogen atom has one proton and one electron. An oxygen atom has 8 protons, 8 neutrons, and 8 electrons. When two hydrogen atoms bond with one oxygen atom, they form a single water molecule (H₂O)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which subatomic particle has a positive charge?",
+          "options": ["Neutron", "Electron", "Proton"],
+          "correctAnswer": "Proton"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've zoomed in on the fundamental building blocks of the universe! Understanding the structure of the atom is the key to understanding all of chemistry. Next, we'll see how these atoms are organized."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Periodic Table",
+      "description": "Master the organization and patterns of the periodic table.",
+      "contentType": "text",
+      "estimatedMinutes": 120,
+      "unit": "Unit 1: Foundations of Matter",
+      "unitColor": "hsl(200, 80%, 50%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that the periodic table organizes elements by their atomic number.",
+            "Learn to identify periods (rows) and groups (columns).",
+            "Recognize that elements in the same group have similar chemical properties."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The periodic table is chemistry's most important tool. It's a chart that organizes all known elements based on their atomic number (the number of protons). The rows are called periods, and the columns are called groups. The magic of the table is that elements in the same group behave in very similar ways because they have the same number of outer electrons."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A simplified periodic table highlights Group 1 (the alkali metals like sodium and potassium) and Group 18 (the noble gases like helium and neon) to show how elements in a group are related. Elements in Group 1 all have one outer electron and react vigorously with water. Elements in Group 18 all have full outer shells and rarely react with anything."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "On the periodic table, what are the columns called?",
+          "options": ["Periods", "Groups", "Blocks"],
+          "correctAnswer": "Groups"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned to read the map of the chemical world. The periodic table isn't just a list; it's a predictive tool that helps us understand the behavior of matter. Next, we'll look at how atoms connect to each other."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Chemical Bonds",
+      "description": "Understand ionic and covalent bonds that hold atoms together.",
+      "contentType": "text",
+      "estimatedMinutes": 120,
+      "unit": "Unit 2: Chemical Bonds and Reactions",
+      "unitColor": "hsl(160, 75%, 45%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a chemical bond as the force holding atoms together in a molecule.",
+            "Differentiate between ionic bonds (transfer of electrons) and covalent bonds (sharing of electrons).",
+            "Understand how bonding relates to an atom's desire to have a full outer shell of electrons."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Atoms form bonds to become more stable, which usually means having a full outer shell of electrons. In an ionic bond, one atom gives an electron to another, creating charged ions that attract each other (like in table salt, NaCl). In a covalent bond, atoms share electrons to complete their outer shells (like in water, H₂O)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Sodium (Na) has one outer electron. Chlorine (Cl) has seven. Sodium gives its electron to Chlorine. Now Na is a positive ion and Cl is a negative ion, and they stick together. This is an ionic bond. Two hydrogen atoms each share their one electron with an oxygen atom, which needs two. This is a covalent bond."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which type of bond involves the sharing of electrons between atoms?",
+          "options": ["Ionic Bond", "Covalent Bond", "Metallic Bond"],
+          "correctAnswer": "Covalent Bond"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand the 'glue' that holds the world together. The type of bond determines the properties of a substance, from the hardness of a diamond (covalent) to the solubility of salt (ionic). Next, we'll see what happens when these bonds break and reform."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Chemical Reactions and Equations",
+      "description": "Learn to read and balance chemical equations.",
+      "contentType": "text",
+      "estimatedMinutes": 120,
+      "unit": "Unit 2: Chemical Bonds and Reactions",
+      "unitColor": "hsl(160, 75%, 45%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a chemical reaction as a process that leads to the chemical transformation of one set of substances to another.",
+            "Learn to read a basic chemical equation (reactants -> products).",
+            "Understand the Law of Conservation of Mass."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A chemical reaction is a process where atoms are rearranged to form new substances. We represent this with a chemical equation. The starting materials are called reactants (on the left), and the resulting substances are called products (on the right). The Law of Conservation of Mass states that matter is not created or destroyed in a reaction, which is why we must 'balance' equations to ensure the same number of each type of atom is on both sides."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The reaction for burning methane is: CH₄ + 2O₂ -> CO₂ + 2H₂O. The reactants are methane (CH₄) and oxygen (O₂). The products are carbon dioxide (CO₂) and water (H₂O). Notice there is 1 carbon, 4 hydrogen, and 4 oxygen atoms on both sides of the arrow. The equation is balanced."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In a chemical equation, what are the starting materials called?",
+          "options": ["Products", "Reactants", "Catalysts"],
+          "correctAnswer": "Reactants"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned the language of chemical change. Chemical equations are the recipes that chemists use to describe how matter is transformed. Understanding them is fundamental to all of chemistry. Next, we'll explore a very common and important type of reaction."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Acids and Bases",
+      "description": "Explore acids, bases, pH scale, and neutralization reactions.",
+      "contentType": "text",
+      "estimatedMinutes": 120,
+      "unit": "Unit 2: Chemical Bonds and Reactions",
+      "unitColor": "hsl(160, 75%, 45%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define acids and bases.",
+            "Understand the pH scale as a measure of acidity.",
+            "Learn about neutralization reactions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Acids are substances that produce hydrogen ions (H+) in water, and they typically taste sour (like lemon juice). Bases produce hydroxide ions (OH-) and often feel slippery (like soap). The pH scale, from 0 to 14, measures how acidic or basic a solution is. A pH of 7 is neutral (pure water). Below 7 is acidic, and above 7 is basic (or alkaline)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Lemon juice has a pH of about 2 (acidic). Bleach has a pH of about 13 (basic). When you mix an acid and a base, they neutralize each other, producing water and a salt. For example: HCl (acid) + NaOH (base) -> H₂O (water) + NaCl (salt)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "On the pH scale, which number represents a neutral substance?",
+          "options": ["0", "7", "14"],
+          "correctAnswer": "7"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have completed the course. You've journeyed from the basic definition of matter to the structure of atoms, the organization of the periodic table, and the dynamics of chemical reactions. You now have a solid foundation in the central science that explains the world around you."
+        }
+      ]
+    }
+  ]
+}

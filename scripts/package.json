@@ -1,0 +1,17 @@
+{
+  "name": "stripe-setup",
+  "version": "1.0.0",
+  "description": "Automated Stripe product and price creation for AI Study Coach",
+  "type": "module",
+  "scripts": {
+    "setup": "tsx setup-stripe.ts"
+  },
+  "dependencies": {
+    "stripe": "^14.21.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "@types/node": "^20.11.0"
+  }
+}

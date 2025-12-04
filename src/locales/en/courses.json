@@ -1,0 +1,33 @@
+
+{
+  "learningState": {
+    "title": "EL Optimal Learning State",
+    "description": "Master the fundamentals of learning states and cognitive processes",
+    "playerTitle": "Optimal Learning State Course Player",
+    "outline": {
+      "intro": "Introduction to Learning States",
+      "cognitiveLoad": "Understanding Cognitive Load",
+      "attention": "Attention and Focus Management",
+      "memory": "Memory Formation and Retention",
+      "metacognition": "Metacognitive Strategies"
+    }
+  },
+  "elHandwriting": {
+    "title": "EL Handwriting",
+    "description": "Master handwriting through visual emulation techniques and optimal learning states",
+    "playerTitle": "EL Handwriting Course Player",
+    "outline": {
+      "introduction": "Introduction",
+      "optimalState": "The Optimal Learning State",
+      "technique": "The Technique",
+      "conclusion": "Conclusion",
+      "scienceDeepDive": "Deep Dive: The Science of Learning",
+      "optimalStateDeepDive": "Deep Dive: Techniques for Optimal Learning State",
+      "emulationDeepDive": "Deep Dive: The Art and Science of Emulation",
+      "beyondDeepDive": "Deep Dive: Beyond Handwriting",
+      "finalTest": "Final Test: Test Your Knowledge"
+    }
+  },
+  "courseOutline": "Course Outline",
+  "backToCourses": "Back to Courses"
+}

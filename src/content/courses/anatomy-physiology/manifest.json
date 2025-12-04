@@ -1,0 +1,110 @@
+{
+  "courseId": "anatomy-physiology",
+  "courseSlug": "anatomy-physiology",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Anatomy and Physiology",
+  "description": "Study the human body's structure and function, including major organ systems and their interactions.",
+  "backgroundImage": "/lovable-uploads/anatomy-physiology-bg.jpg",
+  "estimatedHours": 5,
+  "difficultyLevel": "advanced",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Human Anatomy",
+      "description": "Learn anatomical terminology and body organization",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 2,
+      "title": "The Skeletal System",
+      "description": "Explore bones, joints, and skeletal function",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Support Systems",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 3,
+      "title": "The Muscular System",
+      "description": "Study muscle types, contraction, and movement",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Support Systems",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 4,
+      "title": "The Cardiovascular System",
+      "description": "Understand the heart, blood vessels, and circulation",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Transport Systems",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 5,
+      "title": "The Respiratory System",
+      "description": "Learn about breathing and gas exchange",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Transport Systems",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 6,
+      "title": "The Nervous System",
+      "description": "Explore brain, nerves, and neural communication",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Control Systems",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "The Digestive System",
+      "description": "Study digestion and nutrient absorption",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 5: Processing Systems",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 8,
+      "title": "Body System Integration",
+      "description": "Understand how systems work together",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 6: Integration",
+      "unitColor": "bg-blue-100 text-blue-700"
+    }
+  ]
+}
