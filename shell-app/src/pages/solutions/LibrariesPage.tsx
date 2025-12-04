@@ -9,6 +9,7 @@ import {
   Users,
   WifiOff,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const painPoints = [
   {
@@ -126,6 +127,8 @@ const PainToGainSection = () => (
 );
 
 const LibrariesPage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white text-slate-900">
       <div className="bg-slate-900 text-white">
@@ -141,7 +144,10 @@ const LibrariesPage = () => {
             the digital infrastructure for the library of the future.
           </p>
           <div className="mt-8">
-            <button className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100">
+            <button
+              className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
+              onClick={() => navigate("/access?plan=business_demo")}
+            >
               Learn About Institutional Licensing
             </button>
           </div>
