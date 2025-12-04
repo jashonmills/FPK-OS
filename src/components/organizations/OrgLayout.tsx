@@ -11,6 +11,7 @@ import { EnhancedOrgThemeProvider } from '@/components/theme/EnhancedOrgThemePro
 import { useOrgContext } from './OrgContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Loader2 } from 'lucide-react';
+import { AdminCopilotContainer } from '@/components/admin/AdminCopilotContainer';
 import aiGeneratedOrgBg from '@/assets/ai-generated-org-bg.jpg';
 import stOliversCommunityCollegeBg from '@/assets/st-olivers-community-college-bg.jpg';
 import waterfordWexfordEducationBg from '@/assets/waterford-wexford-education-bg.jpg';
@@ -95,6 +96,9 @@ function OrgLayoutContent() {
           <Outlet />
         </div>
       </main>
+      
+      {/* Admin AI Co-pilot - only shows for Admin/Owner roles */}
+      <AdminCopilotContainer />
     </div>
   );
 }

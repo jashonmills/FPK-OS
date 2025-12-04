@@ -14,13 +14,14 @@ import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
-import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant, shouldUseNewTeacherDashboard, shouldUseAILearningCoachV2, shouldShowAIGovernance } from '@/lib/featureFlags';
 import "@/styles/mobile-responsive.css";
 import "./App.css";
 
 // Non-critical imports for better bundle splitting
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
+const ParentalConsent = lazy(() => import("./pages/ParentalConsent"));
 const PostLoginHandler = lazy(() => import("./components/auth/PostLoginHandler"));
 const ChooseOrganization = lazy(() => import("./pages/ChooseOrganization"));
 const NoOrganizationAccess = lazy(() => import("./pages/NoOrganizationAccess"));
@@ -51,6 +52,7 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 // Student Portal Guard
 import { StudentPortalGuard } from './components/organizations/StudentPortalGuard';
 import { EducatorPortalGuard } from './components/guards/EducatorPortalGuard';
+import { OrgRequireRole } from './components/organizations/OrgRequireRole';
 
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
@@ -79,6 +81,7 @@ const AnalyticsDebug = lazy(() => import("./pages/dashboard/AnalyticsDebug"));
 const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
 const FlashcardManagerPage = lazy(() => import("./pages/dashboard/FlashcardManagerPage"));
 const LiveLearningHub = lazy(() => import("./pages/dashboard/LiveLearningHub"));
+const StudyMaterialsPage = lazy(() => import("./pages/student/StudyMaterialsPage"));
 const DynamicCourse = lazy(() => import("./pages/dashboard/DynamicCourse"));
 const LearningStateCourse = lazy(() => import("./pages/dashboard/LearningStateCourse"));
 const LearningStateEmbed = lazy(() => import("./pages/dashboard/LearningStateEmbed"));
@@ -137,6 +140,9 @@ const SyncCourseManifests = lazy(() => import("./pages/admin/SyncCourseManifests
 
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
+const TeacherDashboardV2 = lazy(() => import("./pages/dashboard/TeacherDashboardV2"));
+const AILearningCoachV2 = lazy(() => import("./pages/dashboard/AILearningCoachV2"));
+const AIGovernancePage = lazy(() => import("./pages/admin/AIGovernancePage"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress"));
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
 const OrgWebsitePage = lazy(() => import("./pages/organizations/OrgWebsitePage"));
@@ -163,6 +169,8 @@ const GoalsManagement = lazy(() => import("./pages/org/goals"));
 const NotesManagementNew = lazy(() => import("./pages/instructor/NotesManagementNew"));
 const GoalsAndNotes = lazy(() => import("./pages/org/GoalsAndNotes"));
 const OrgAIStudyCoach = lazy(() => import("./pages/org/AIStudyCoach"));
+const OrgAIGovernance = lazy(() => import("./pages/org/OrgAIGovernance"));
+const MessagingPage = lazy(() => import("./pages/org/MessagingPage"));
 const AnalyticsOverview = lazy(() => import("./pages/instructor/AnalyticsOverview"));
 const OrgSettingsTabs = lazy(() => import("./pages/instructor/OrganizationSettingsTabs"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
@@ -307,6 +315,7 @@ const App: React.FC = () => {
           <Route path="/blog/contributors" element={<LazyRoute><ExpertContributors /></LazyRoute>} />
           <Route path="/blog/:slug" element={<LazyRoute><BlogPost /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+          <Route path="/parental-consent" element={<LazyRoute><ParentalConsent /></LazyRoute>} />
           
           {/* Post-login routing handler */}
           <Route path="/post-login" element={
@@ -442,7 +451,8 @@ const App: React.FC = () => {
             {shouldShowLegacyAIAssistant() && (
               <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
             )}
-            <Route path="learner/ai-command-center" element={<LazyRoute><AICoachPage /></LazyRoute>} />
+            <Route path="learner/ai-command-center" element={<LazyRoute>{shouldUseAILearningCoachV2() ? <AILearningCoachV2 /> : <AICoachPage />}</LazyRoute>} />
+            <Route path="learner/study-materials" element={<LazyRoute><StudyMaterialsPage /></LazyRoute>} />
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
             <Route path="learner/live-hub" element={
               <LazyRoute>
@@ -480,7 +490,7 @@ const App: React.FC = () => {
             } />
             
             {/* Instructor Routes */}
-            <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
+            <Route path="instructor" element={<LazyRoute>{shouldUseNewTeacherDashboard() ? <TeacherDashboardV2 /> : <InstructorDashboard />}</LazyRoute>} />
             <Route path="instructor/students/:studentId/progress" element={<LazyRoute><StudentProgress /></LazyRoute>} />
             <Route path="instructor/organization" element={<LazyRoute><OrgSettings /></LazyRoute>} />
             <Route path="instructor/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />
@@ -528,6 +538,21 @@ const App: React.FC = () => {
             <Route path="admin/phoenix-lab" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixLab /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="admin/teacher-dashboard-v2" element={
+              <RequireAdmin>
+                <LazyRoute><TeacherDashboardV2 /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="admin/ai-learning-coach-v2" element={
+              <RequireAdmin>
+                <LazyRoute><AILearningCoachV2 /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="admin/ai-governance" element={
+              <RequireAdmin>
+                <LazyRoute><AIGovernancePage /></LazyRoute>
               </RequireAdmin>
             } />
             <Route path="admin/phoenix-analytics" element={
@@ -855,9 +880,18 @@ const App: React.FC = () => {
             <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />
             <Route path=":orgId/groups/:groupId" element={<LazyRoute><GroupDetailPage /></LazyRoute>} />
             <Route path=":orgId/games" element={<LazyRoute><OrganizationGamesPage /></LazyRoute>} />
+            <Route path=":orgId/messages" element={<LazyRoute><MessagingPage /></LazyRoute>} />
+            <Route path=":orgId/messages/:conversationId" element={<LazyRoute><MessagingPage /></LazyRoute>} />
             <Route path=":orgId/goals-notes" element={<LazyRoute><GoalsAndNotes /></LazyRoute>} />
             {shouldShowLegacyAIAssistant() && (
               <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
+            )}
+            {shouldShowAIGovernance() && (
+              <Route path=":orgId/ai-governance" element={
+                <OrgRequireRole roles={['owner', 'admin']}>
+                  <LazyRoute><OrgAIGovernance /></LazyRoute>
+                </OrgRequireRole>
+              } />
             )}
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
             <Route path=":orgId/website" element={<LazyRoute><OrgWebsitePage /></LazyRoute>} />

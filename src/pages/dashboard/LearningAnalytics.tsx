@@ -113,33 +113,38 @@ const LearningAnalytics = () => {
         videoUrl="https://www.youtube.com/embed/yfKauiMPEX0?si=5oon8ri4QN3EptAX"
       />
 
+      <div className="flex justify-center mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20">
+            <TabsTrigger value="overview" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="courses" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Courses</span>
+            </TabsTrigger>
+            <TabsTrigger value="reading" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
+              <BookOpen className="h-4 w-4" />
+              <span className="hidden sm:inline">Reading</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai-coach" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">AI Coach</span>
+            </TabsTrigger>
+            <TabsTrigger value="goals" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Goals</span>
+            </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
+              <Medal className="h-4 w-4" />
+              <span className="hidden sm:inline">XP & Badges</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Overview</span>
-          </TabsTrigger>
-          <TabsTrigger value="courses" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            <span className="hidden sm:inline">Courses</span>
-          </TabsTrigger>
-          <TabsTrigger value="reading" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">Reading</span>
-          </TabsTrigger>
-          <TabsTrigger value="ai-coach" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">AI Coach</span>
-          </TabsTrigger>
-          <TabsTrigger value="goals" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            <span className="hidden sm:inline">Goals</span>
-          </TabsTrigger>
-          <TabsTrigger value="achievements" className="flex items-center gap-2">
-            <Medal className="h-4 w-4" />
-            <span className="hidden sm:inline">XP & Badges</span>
-          </TabsTrigger>
-        </TabsList>
 
         <TabsContent value="overview" className="mt-6">
           <ErrorBoundaryUnified>
@@ -255,10 +260,12 @@ const LearningAnalytics = () => {
 
             {/* Main Content Tabs */}
             <Tabs defaultValue="goals" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="goals">My Goals</TabsTrigger>
-                <TabsTrigger value="badges">Achievements</TabsTrigger>
-              </TabsList>
+              <div className="flex justify-center mb-6">
+                <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20">
+                  <TabsTrigger value="goals" className="px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">My Goals</TabsTrigger>
+                  <TabsTrigger value="badges" className="px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">Achievements</TabsTrigger>
+                </TabsList>
+              </div>
               
               <TabsContent value="goals" className="space-y-6">
                 {/* Goals Overview Stats */}

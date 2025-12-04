@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Building2, Users, Settings, Crown } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgCan } from '@/hooks/useOrgCan';
 
 export default function OrganizationSettings() {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
+  const { canAccessDangerZone } = useOrgCan();
 
   if (!currentOrg) {
     return (
@@ -168,8 +170,8 @@ export default function OrganizationSettings() {
         </OrgCardContent>
       </OrgCard>
 
-      {/* Danger Zone */}
-      {currentOrg.role === 'owner' && (
+      {/* Danger Zone - Owner only */}
+      {canAccessDangerZone() && (
         <OrgCard className="border-destructive/20">
           <OrgCardHeader>
             <OrgCardTitle className="flex items-center gap-2 text-destructive">

@@ -53,18 +53,16 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
 
         if (membersError) throw membersError;
 
-        // Get profile-only students from org_students
+        // Get profile-only students from org_students (only those WITHOUT linked accounts)
         const { data: orgStudents, error: studentsError } = await supabase
           .from('org_students')
-          .select('id', { count: 'exact' })
+          .select('id, linked_user_id')
           .eq('org_id', organizationId);
 
         if (studentsError) throw studentsError;
-
-        // Calculate active students (with accounts and active status)
-        const activeStudents = orgMembers?.filter(m => m.status === 'active').length || 0;
-        const profileOnlyStudents = orgStudents?.length || 0;
-        const totalStudents = (orgMembers?.length || 0) + profileOnlyStudents;
+        
+        // Only count students without linked accounts as "profile-only" to avoid double-counting
+        const profileOnlyStudentCount = orgStudents?.filter(s => !s.linked_user_id).length || 0;
 
         // Get course assignments
         const { count: courseAssignments } = await supabase
@@ -81,40 +79,40 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
         const activeGoals = goals?.filter(g => g.status === 'active').length || 0;
         const completedGoals = goals?.filter(g => g.status === 'completed').length || 0;
 
-        // Get enrollments for progress calculation
-        const studentUserIds = orgMembers?.map(m => m.user_id) || [];
-        
+        // FIX: Query enrollments directly by org_id instead of filtering by user_ids
+        const { data: enrollments } = await supabase
+          .from('interactive_course_enrollments')
+          .select('user_id, completion_percentage, completed_at, total_time_spent_minutes')
+          .eq('org_id', organizationId);
+
+        // Calculate progress from actual enrollments
         let averageProgress = 0;
         let completionRate = 0;
+        let totalLearningMinutes = 0;
+        const uniqueActiveUsers = new Set<string>();
         
-        if (studentUserIds.length > 0) {
-          const { data: enrollments } = await supabase
-            .from('interactive_course_enrollments')
-            .select('completion_percentage, completed_at')
-            .in('user_id', studentUserIds);
-
-          if (enrollments && enrollments.length > 0) {
-            const totalProgress = enrollments.reduce((sum, e) => sum + (e.completion_percentage || 0), 0);
-            averageProgress = Math.round(totalProgress / enrollments.length);
-            
-            const completedCount = enrollments.filter(e => e.completed_at).length;
-            completionRate = Math.round((completedCount / enrollments.length) * 100);
-          }
+        if (enrollments && enrollments.length > 0) {
+          const totalProgress = enrollments.reduce((sum, e) => {
+            // Track unique users who have any enrollment
+            if (e.user_id) uniqueActiveUsers.add(e.user_id);
+            // Sum up learning time
+            totalLearningMinutes += e.total_time_spent_minutes || 0;
+            return sum + (e.completion_percentage || 0);
+          }, 0);
+          averageProgress = Math.round(totalProgress / enrollments.length);
+          
+          const completedCount = enrollments.filter(e => e.completed_at).length;
+          completionRate = Math.round((completedCount / enrollments.length) * 100);
         }
 
-        // Get learning hours from study sessions
-        let totalLearningHours = 0;
-        if (studentUserIds.length > 0) {
-          const { data: sessions } = await supabase
-            .from('study_sessions')
-            .select('session_duration_seconds')
-            .in('user_id', studentUserIds);
+        // Convert minutes to hours
+        const totalLearningHours = Math.round((totalLearningMinutes / 60) * 10) / 10;
 
-          if (sessions) {
-            const totalSeconds = sessions.reduce((sum, s) => sum + (s.session_duration_seconds || 0), 0);
-            totalLearningHours = Math.round((totalSeconds / 3600) * 10) / 10; // Round to 1 decimal
-          }
-        }
+        // SINGLE SOURCE OF TRUTH: org_students is the canonical student roster
+        const totalStudents = orgStudents?.length || 0;
+        
+        // Active students: users who have actually engaged with courses
+        const activeStudents = uniqueActiveUsers.size;
 
         // Get IEP count - iep_documents doesn't have org_id, skip for now
         const iepCount = 0;
@@ -142,7 +140,7 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
         return {
           totalStudents,
           activeStudents,
-          profileOnlyStudents,
+          profileOnlyStudents: profileOnlyStudentCount,
           courseAssignments: courseAssignments || 0,
           activeGoals,
           completedGoals,

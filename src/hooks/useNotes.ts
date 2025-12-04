@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useXPIntegration } from './useXPIntegration';
+import { trackDailyActivity } from '@/utils/analyticsTracking';
 
 export interface Note {
   id: string;
@@ -18,6 +20,7 @@ export interface Note {
 export const useNotes = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { awardNoteCreationXP } = useXPIntegration();
 
   const { data: notes = [], isLoading } = useQuery({
     queryKey: ['notes', user?.id],
@@ -59,8 +62,23 @@ export const useNotes = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['notes', user?.id] });
+      
+      // Award XP for note creation
+      try {
+        await awardNoteCreationXP();
+        console.log('🎮 XP awarded for note creation');
+      } catch (error) {
+        console.warn('Failed to award XP for note creation:', error);
+      }
+      
+      // Track daily activity
+      if (user?.id) {
+        trackDailyActivity('notes', 0, user.id).catch(err => 
+          console.warn('Failed to track note activity:', err)
+        );
+      }
     },
   });
 

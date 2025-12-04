@@ -22,6 +22,7 @@ import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-pro
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
 import { fetchOrgData } from './org-data-fetcher.ts';
+import { trackSession, updateSessionCompletion, logAuditEvent } from './audit-logger.ts';
 
 // AI Study Coach v8.1 - Enhanced Socratic Method with Lovable AI (Fixed duplicate declarations)
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
@@ -98,10 +99,15 @@ serve(async (req) => {
       topic,
       objective,
       orgId,
-      studentResponse
+      studentResponse,
+      // Widget context flag for governance tracking
+      isWidget = false
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
+    
+    // Determine tool ID for audit tracking
+    const effectiveToolId = isWidget ? 'widget-chat' : 'ai-free-chat';
 
     // PHASE 2: CREDIT SYSTEM - Check and deduct credits before processing
     // Determine if this is a Socratic session (costs 2 credits) or free chat (costs 1 credit)
@@ -284,6 +290,35 @@ serve(async (req) => {
           sessionId: socraticResponse.sessionId,
           state: socraticResponse.state,
           isComplete: socraticResponse.isComplete
+        });
+
+        // Track session and log audit for governance
+        const trackedSessionId = await trackSession({
+          userId,
+          orgId,
+          toolId: 'socratic-coach'
+        });
+        
+        const socraticActionType = intent === 'start' 
+          ? 'socratic_session_start' 
+          : intent === 'complete' 
+            ? 'socratic_session_complete' 
+            : 'socratic_session_respond';
+        
+        await logAuditEvent({
+          userId,
+          orgId,
+          toolId: 'socratic-coach',
+          actionType: socraticActionType,
+          status: 'success',
+          details: {
+            session_id: trackedSessionId,
+            socratic_session_id: socraticResponse.sessionId,
+            intent,
+            topic,
+            state: socraticResponse.state,
+            is_complete: socraticResponse.isComplete
+          }
         });
 
         return new Response(JSON.stringify(socraticResponse), {
@@ -496,10 +531,43 @@ ${contextPrompt}
         const lovableData = await lovableResponse.json();
         const aiResponse = lovableData.choices?.[0]?.message?.content || "I'm here to help with your learning!";
         
+        const responseLatency = performance.now() - startTime;
+        
         console.log('✅ Lovable AI response received:', {
           responseLength: aiResponse.length,
           source: 'lovable_ai',
-          promptMode
+          promptMode,
+          latencyMs: responseLatency
+        });
+
+        // Track session and log audit for governance
+        const trackedSessionId = await trackSession({
+          userId,
+          orgId,
+          toolId: effectiveToolId
+        });
+        
+        if (trackedSessionId) {
+          await updateSessionCompletion(trackedSessionId, responseLatency, 'google/gemini-2.5-flash', creditCost);
+        }
+        
+        await logAuditEvent({
+          userId,
+          orgId,
+          toolId: effectiveToolId,
+          actionType: 'ai_request',
+          status: 'success',
+          details: {
+            session_id: trackedSessionId,
+            model_used: 'google/gemini-2.5-flash',
+            message_length: message.length,
+            response_length: aiResponse.length,
+            latency_ms: responseLatency,
+            prompt_mode: promptMode,
+            chat_mode: chatMode,
+            data_source: dataSource,
+            is_widget: isWidget
+          }
         });
 
         return new Response(

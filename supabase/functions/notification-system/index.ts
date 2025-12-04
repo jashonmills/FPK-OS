@@ -169,6 +169,63 @@ serve(async (req) => {
         };
         break;
 
+      case 'ai_request_submitted':
+        notification = {
+          ...notification,
+          type: 'ai_request_submitted',
+          title: '🤖 New AI Request',
+          message: `${data.studentName} submitted an AI request: "${data.task}" (${data.priority} priority).`,
+          action_url: `/org/${data.orgId}/ai-governance`,
+          metadata: data
+        };
+        break;
+
+      case 'ai_request_approved':
+        notification = {
+          ...notification,
+          type: 'ai_request_approved',
+          title: '✅ AI Request Approved',
+          message: `Your AI request "${data.task}" has been approved${data.approverName ? ` by ${data.approverName}` : ''}.`,
+          // Send students to AI Coach with requests tab, not AI Governance
+          action_url: data.orgId ? `/org/${data.orgId}/ai-coach?tab=requests` : '/dashboard/learner/ai-command-center',
+          metadata: data
+        };
+        break;
+
+      case 'ai_request_rejected':
+        notification = {
+          ...notification,
+          type: 'ai_request_rejected',
+          title: '❌ AI Request Declined',
+          message: `Your AI request "${data.task}" was declined${data.approverName ? ` by ${data.approverName}` : ''}.`,
+          // Send students to AI Coach with requests tab, not AI Governance
+          action_url: data.orgId ? `/org/${data.orgId}/ai-coach?tab=requests` : '/dashboard/learner/ai-command-center',
+          metadata: data
+        };
+        break;
+
+      case 'new_message':
+        notification = {
+          ...notification,
+          type: 'new_message',
+          title: '💬 New Message',
+          message: `${data.senderName}: "${data.preview?.substring(0, 50)}${data.preview?.length > 50 ? '...' : ''}"`,
+          action_url: `/org/${data.orgId}/messages/${data.conversationId}`,
+          metadata: data
+        };
+        break;
+
+      case 'message_mention':
+        notification = {
+          ...notification,
+          type: 'message_mention',
+          title: '🔔 You were mentioned',
+          message: `${data.senderName} mentioned you${data.conversationName ? ` in ${data.conversationName}` : ''}`,
+          action_url: `/org/${data.orgId}/messages/${data.conversationId}`,
+          metadata: data
+        };
+        break;
+
       default:
         throw new Error('Unknown notification type');
     }

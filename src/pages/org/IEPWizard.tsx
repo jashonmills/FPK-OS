@@ -18,8 +18,9 @@ import { AssessmentParticipationStep } from '@/components/iep-wizard/AssessmentP
 import { ParentStudentInputStep } from '@/components/iep-wizard/ParentStudentInputStep';
 import { ProgressMonitoringStep } from '@/components/iep-wizard/ProgressMonitoringStep';
 import { ReviewFinalizeStep } from '@/components/iep-wizard/ReviewFinalizeStep';
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 
-export function IEPWizard() {
+function IEPWizardContent() {
   const { orgId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -176,4 +177,10 @@ export function IEPWizard() {
   );
 }
 
-export default IEPWizard;
+export default function IEPWizard() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
+      <IEPWizardContent />
+    </OrgRequireRole>
+  );
+}

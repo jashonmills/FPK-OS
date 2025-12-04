@@ -2,6 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useXPIntegration } from './useXPIntegration';
+import { trackDailyActivity } from '@/utils/analyticsTracking';
 
 export interface FileUpload {
   id: string;
@@ -20,6 +22,7 @@ export interface FileUpload {
 export const useFileUploads = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { awardFileUploadXP } = useXPIntegration();
 
   const { data: uploads = [], isLoading } = useQuery({
     queryKey: ['file-uploads', user?.id],
@@ -68,8 +71,23 @@ export const useFileUploads = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['file-uploads', user?.id] });
+      
+      // Award XP for file upload
+      try {
+        await awardFileUploadXP();
+        console.log('🎮 XP awarded for file upload');
+      } catch (error) {
+        console.warn('Failed to award XP for file upload:', error);
+      }
+      
+      // Track daily activity
+      if (user?.id) {
+        trackDailyActivity('study', 0, user.id).catch(err => 
+          console.warn('Failed to track file upload activity:', err)
+        );
+      }
     },
   });
 

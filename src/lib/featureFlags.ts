@@ -14,6 +14,9 @@ export const FeatureFlags = {
   ENABLE_LIVE_HUB: import.meta.env.VITE_FEATURE_ENABLE_LIVE_HUB !== 'false', // Default enabled
   LEGACY_AI_ASSISTANT_ENABLED: import.meta.env.VITE_FEATURE_LEGACY_AI_ASSISTANT_ENABLED !== 'false', // Default enabled
   ENABLE_TTS: import.meta.env.VITE_FEATURE_ENABLE_TTS !== 'false', // Default enabled (for future subscription gating)
+  ENABLE_NEW_TEACHER_DASHBOARD: import.meta.env.VITE_FEATURE_ENABLE_NEW_TEACHER_DASHBOARD !== 'false', // Default enabled
+  ENABLE_AI_LEARNING_COACH_V2: import.meta.env.VITE_FEATURE_ENABLE_AI_LEARNING_COACH_V2 !== 'false', // Default enabled
+  ENABLE_AI_GOVERNANCE: import.meta.env.VITE_FEATURE_ENABLE_AI_GOVERNANCE !== 'false', // Default enabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -76,4 +79,28 @@ export function shouldShowLegacyAIAssistant(): boolean {
  */
 export function shouldEnableTTS(): boolean {
   return isFeatureEnabled('ENABLE_TTS');
+}
+
+/**
+ * Check if new Horizons-based Teacher Dashboard should be used
+ * (Default: false - for development before rollout)
+ */
+export function shouldUseNewTeacherDashboard(): boolean {
+  return isFeatureEnabled('ENABLE_NEW_TEACHER_DASHBOARD');
+}
+
+/**
+ * Check if AI Learning Coach V2 should be available
+ * (Default: false - for development before student rollout)
+ */
+export function shouldUseAILearningCoachV2(): boolean {
+  return isFeatureEnabled('ENABLE_AI_LEARNING_COACH_V2');
+}
+
+/**
+ * Check if AI Governance system should be available
+ * (Default: true - enabled for organization rollout)
+ */
+export function shouldShowAIGovernance(): boolean {
+  return isFeatureEnabled('ENABLE_AI_GOVERNANCE');
 }

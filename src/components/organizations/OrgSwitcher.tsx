@@ -10,8 +10,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Building2, User, Check } from 'lucide-react';
-import { useOrgContext } from './OrgContext';
+import { ChevronDown, Building2, User, Check, Eye, Crown, Shield, GraduationCap, Users } from 'lucide-react';
+import { useOrgContext, MemberRole } from './OrgContext';
+
+const ROLE_CONFIG: Record<MemberRole, { label: string; icon: React.ElementType; color: string }> = {
+  owner: { label: 'Owner', icon: Crown, color: 'text-amber-500' },
+  admin: { label: 'Admin', icon: Shield, color: 'text-blue-500' },
+  instructor: { label: 'Instructor', icon: GraduationCap, color: 'text-green-500' },
+  instructor_aide: { label: 'Instructor Aide', icon: Users, color: 'text-teal-500' },
+  viewer: { label: 'Viewer', icon: Eye, color: 'text-gray-500' },
+  student: { label: 'Student', icon: User, color: 'text-purple-500' },
+};
 
 export function OrgSwitcher() {
   const { 
@@ -21,7 +30,12 @@ export function OrgSwitcher() {
     isPersonalMode, 
     switchOrganization, 
     switchToPersonal,
-    isLoading 
+    isLoading,
+    viewAsRole,
+    setViewAsRole,
+    getEffectiveRole,
+    isImpersonating,
+    canImpersonate,
   } = useOrgContext();
   const isMobile = useIsMobile();
 
@@ -35,14 +49,19 @@ export function OrgSwitcher() {
   }
 
   const currentContext = isPersonalMode ? 'Personal' : currentOrg?.organizations.name || 'No Organization';
-  const currentRole = currentOrg?.role;
+  const effectiveRole = getEffectiveRole();
+  const actualRole = currentOrg?.role;
+
+  const handleViewAsRole = (role: MemberRole | null) => {
+    setViewAsRole(role);
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="flex items-center gap-1 sm:gap-2 sm:min-w-[200px] justify-between h-9 px-2 sm:px-3 max-w-[180px] sm:max-w-none"
+          className={`flex items-center gap-1 sm:gap-2 sm:min-w-[200px] justify-between h-9 px-2 sm:px-3 max-w-[180px] sm:max-w-none ${isImpersonating ? 'border-amber-500/50 bg-amber-500/10' : ''}`}
         >
           <div className="flex items-center gap-1 sm:gap-2 min-w-0">
             {isPersonalMode ? (
@@ -54,10 +73,16 @@ export function OrgSwitcher() {
               <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[140px]">
                 {currentContext}
               </span>
-              {currentRole && !isMobile && (
-                <Badge variant="secondary" className="text-xs h-4 px-1">
-                  {currentRole}
-                </Badge>
+              {effectiveRole && !isMobile && (
+                <div className="flex items-center gap-1">
+                  <Badge 
+                    variant={isImpersonating ? "outline" : "secondary"} 
+                    className={`text-xs h-4 px-1 ${isImpersonating ? 'border-amber-500 text-amber-600' : ''}`}
+                  >
+                    {isImpersonating && <Eye className="h-2.5 w-2.5 mr-0.5" />}
+                    {ROLE_CONFIG[effectiveRole]?.label || effectiveRole}
+                  </Badge>
+                </div>
               )}
             </div>
           </div>
@@ -66,7 +91,7 @@ export function OrgSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="start" 
-        className="w-[250px] z-[100]"
+        className="w-[280px] z-[100]"
         sideOffset={8}
         collisionPadding={8}
       >
@@ -109,6 +134,54 @@ export function OrgSwitcher() {
                 </div>
               </DropdownMenuItem>
             ))}
+          </>
+        )}
+
+        {/* View As Role Section - Only for owners/admins */}
+        {!isPersonalMode && canImpersonate && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="flex items-center gap-2">
+              <Eye className="h-3.5 w-3.5" />
+              View As (Dev Mode)
+            </DropdownMenuLabel>
+            
+            {/* Clear impersonation option */}
+            <DropdownMenuItem 
+              onClick={() => handleViewAsRole(null)}
+              className={!viewAsRole ? 'bg-accent' : ''}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Crown className={`h-4 w-4 ${ROLE_CONFIG.owner.color}`} />
+                  <span>My Actual Role ({actualRole})</span>
+                </div>
+                {!viewAsRole && <Check className="h-4 w-4" />}
+              </div>
+            </DropdownMenuItem>
+
+            {/* Role options */}
+            {(['owner', 'admin', 'instructor', 'student'] as MemberRole[]).map((role) => {
+              const config = ROLE_CONFIG[role];
+              const Icon = config.icon;
+              const isSelected = viewAsRole === role;
+              
+              return (
+                <DropdownMenuItem
+                  key={role}
+                  onClick={() => handleViewAsRole(role)}
+                  className={isSelected ? 'bg-accent' : ''}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <Icon className={`h-4 w-4 ${config.color}`} />
+                      <span>{config.label}</span>
+                    </div>
+                    {isSelected && <Check className="h-4 w-4" />}
+                  </div>
+                </DropdownMenuItem>
+              );
+            })}
           </>
         )}
       </DropdownMenuContent>

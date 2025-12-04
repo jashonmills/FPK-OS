@@ -77,6 +77,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "activity_log_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       adaptive_learning_paths: {
@@ -109,6 +116,36 @@ export type Database = {
           path_recommendations?: Json
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      admin_copilot_knowledge: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          id: string
+          keywords: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          id?: string
+          keywords?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          keywords?: string[] | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -189,6 +226,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_coach_conversations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -275,6 +319,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_coach_study_materials_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -422,6 +473,219 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_approvals: {
+        Row: {
+          approved_by: string | null
+          category: string
+          details: string | null
+          id: string
+          org_id: string | null
+          priority: string
+          requested_at: string
+          resolved_at: string | null
+          status: string
+          task: string
+          user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          category: string
+          details?: string | null
+          id?: string
+          org_id?: string | null
+          priority?: string
+          requested_at?: string
+          resolved_at?: string | null
+          status?: string
+          task: string
+          user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          category?: string
+          details?: string | null
+          id?: string
+          org_id?: string | null
+          priority?: string
+          requested_at?: string
+          resolved_at?: string | null
+          status?: string
+          task?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_approvals_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_governance_approvals_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_model_configs: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          model_id: string
+          model_name: string
+          model_type: string
+          org_id: string | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model_id: string
+          model_name: string
+          model_type: string
+          org_id?: string | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model_id?: string
+          model_name?: string
+          model_type?: string
+          org_id?: string | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_model_configs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_governance_model_configs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_rules: {
+        Row: {
+          allowed: boolean
+          applicable_roles: string[]
+          capability: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          org_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed?: boolean
+          applicable_roles?: string[]
+          capability?: string | null
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          org_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed?: boolean
+          applicable_roles?: string[]
+          capability?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          org_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_governance_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_settings: {
+        Row: {
+          created_at: string
+          data_retention: Json
+          id: string
+          notifications: Json
+          org_id: string | null
+          security: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_retention?: Json
+          id?: string
+          notifications?: Json
+          org_id?: string | null
+          security?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_retention?: Json
+          id?: string
+          notifications?: Json
+          org_id?: string | null
+          security?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_governance_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -656,6 +920,180 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_tool_model_assignments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          model_config_id: string
+          org_id: string | null
+          tool_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          model_config_id: string
+          org_id?: string | null
+          tool_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          model_config_id?: string
+          org_id?: string | null
+          tool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tool_model_assignments_model_config_id_fkey"
+            columns: ["model_config_id"]
+            isOneToOne: false
+            referencedRelation: "ai_governance_model_configs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_model_assignments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_model_assignments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_model_assignments_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tool_sessions: {
+        Row: {
+          credits_used: number | null
+          ended_at: string | null
+          id: string
+          message_count: number | null
+          metadata: Json | null
+          org_id: string | null
+          session_id: string | null
+          started_at: string | null
+          tool_id: string
+          user_id: string
+        }
+        Insert: {
+          credits_used?: number | null
+          ended_at?: string | null
+          id?: string
+          message_count?: number | null
+          metadata?: Json | null
+          org_id?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          tool_id: string
+          user_id: string
+        }
+        Update: {
+          credits_used?: number | null
+          ended_at?: string | null
+          id?: string
+          message_count?: number | null
+          metadata?: Json | null
+          org_id?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          tool_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tool_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_sessions_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tools: {
+        Row: {
+          accent_color: string | null
+          created_at: string | null
+          credit_cost: number | null
+          description: string | null
+          display_name: string
+          icon_name: string | null
+          id: string
+          is_active: boolean | null
+          max_tokens: number | null
+          model: string | null
+          sort_order: number | null
+          system_prompt: string
+          temperature: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          description?: string | null
+          display_name: string
+          icon_name?: string | null
+          id: string
+          is_active?: boolean | null
+          max_tokens?: number | null
+          model?: string | null
+          sort_order?: number | null
+          system_prompt: string
+          temperature?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          description?: string | null
+          display_name?: string
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_tokens?: number | null
+          model?: string | null
+          sort_order?: number | null
+          system_prompt?: string
+          temperature?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       analytics_metrics: {
         Row: {
           cohort_id: string | null
@@ -879,6 +1317,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -1801,6 +2246,77 @@ export type Database = {
           },
         ]
       }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          joined_at: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          joined_at?: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string | null
+          org_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name?: string | null
+          org_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string | null
+          org_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupon_codes: {
         Row: {
           code: string
@@ -2076,6 +2592,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "course_drafts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "course_drafts_source_package_id_fkey"
             columns: ["source_package_id"]
             isOneToOne: false
@@ -2297,6 +2820,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "course_progress_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       courses: {
@@ -2412,6 +2942,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3197,6 +3734,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "folders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       form_analytics: {
@@ -3501,6 +4045,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3886,6 +4437,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "iep_forms_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       iep_goals: {
@@ -4027,6 +4585,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "iep_invites_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       iep_objectives: {
@@ -4119,6 +4684,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iep_plans_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -4313,6 +4885,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iep_students_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -4528,6 +5107,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "interactive_course_enrollments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       interactive_course_sessions: {
@@ -4579,6 +5165,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interactive_course_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -4719,6 +5312,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interactive_lesson_analytics_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -5425,6 +6025,115 @@ export type Database = {
         }
         Relationships: []
       }
+      message_attachments: {
+        Row: {
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          message_id: string
+          uploaded_at: string
+        }
+        Insert: {
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          message_id: string
+          uploaded_at?: string
+        }
+        Update: {
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          message_id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_mentions: {
+        Row: {
+          mentioned_user_id: string
+          message_id: string
+        }
+        Insert: {
+          mentioned_user_id: string
+          message_id: string
+        }
+        Update: {
+          mentioned_user_id?: string
+          message_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_mentions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          is_edited: boolean
+          replying_to_message_id: string | null
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean
+          replying_to_message_id?: string | null
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean
+          replying_to_message_id?: string | null
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_replying_to_message_id_fkey"
+            columns: ["replying_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       misconception_clusters: {
         Row: {
           cohort_id: string
@@ -5583,6 +6292,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "native_courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       native_enrollments: {
@@ -5735,6 +6451,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notifications: {
@@ -5775,6 +6498,60 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      org_api_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_name: string | null
+          encrypted_key: string
+          id: string
+          is_active: boolean
+          last_verified_at: string | null
+          org_id: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_name?: string | null
+          encrypted_key: string
+          id?: string
+          is_active?: boolean
+          last_verified_at?: string | null
+          org_id: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_name?: string | null
+          encrypted_key?: string
+          id?: string
+          is_active?: boolean
+          last_verified_at?: string | null
+          org_id?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       org_assignment_targets: {
         Row: {
@@ -5859,6 +6636,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "org_assignments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       org_branding: {
@@ -5915,6 +6699,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_org_branding_org_id"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       org_course_assignments: {
@@ -5957,6 +6748,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_course_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -6163,6 +6961,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "org_courses_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       org_educators: {
@@ -6223,6 +7028,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_educators_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -6323,6 +7135,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "org_goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "org_goals_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -6399,23 +7218,32 @@ export type Database = {
         Row: {
           created_at: string | null
           created_by: string | null
+          description: string | null
           id: string
+          messaging_enabled: boolean
           name: string
           org_id: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           created_by?: string | null
+          description?: string | null
           id?: string
+          messaging_enabled?: boolean
           name: string
           org_id: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           created_by?: string | null
+          description?: string | null
           id?: string
+          messaging_enabled?: boolean
           name?: string
           org_id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -6423,6 +7251,76 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_groups_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_knowledge_base: {
+        Row: {
+          content: string
+          content_chunks: Json | null
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_type: string
+          file_url: string | null
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          org_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          content_chunks?: Json | null
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_type: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          org_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          content_chunks?: Json | null
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_type?: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          org_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_knowledge_base_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_knowledge_base_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -6500,6 +7398,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "org_members_organization_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "org_members_user_id_profiles_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -6539,6 +7444,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_note_folders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -6664,6 +7576,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "org_notes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       org_portal_settings: {
@@ -6694,6 +7613,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: true
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_portal_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -6773,6 +7699,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "org_students_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       organization_course_assignments: {
@@ -6828,6 +7761,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "organization_course_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       organization_exports: {
@@ -6875,6 +7815,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "organization_exports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       organization_notifications: {
@@ -6920,6 +7867,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -7063,6 +8017,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "parent_iep_data_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "parent_iep_data_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
@@ -7117,7 +8078,56 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "parent_iep_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      parental_consent_requests: {
+        Row: {
+          consent_token: string
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: unknown
+          parent_email: string
+          requested_at: string
+          responded_at: string | null
+          status: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          parent_email: string
+          requested_at?: string
+          responded_at?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          parent_email?: string
+          requested_at?: string
+          responded_at?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       partner_resources: {
         Row: {
@@ -7810,6 +8820,51 @@ export type Database = {
           },
         ]
       }
+      platform_knowledge_base: {
+        Row: {
+          content: string
+          content_chunks: string[] | null
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_type: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          metadata: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          content_chunks?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          metadata?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          content_chunks?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       podcast_episodes: {
         Row: {
           audio_url: string | null
@@ -7931,6 +8986,7 @@ export type Database = {
           created_at: string | null
           current_streak: number | null
           date_format: string | null
+          date_of_birth: string | null
           department: string | null
           display_font_size: string
           display_high_contrast: boolean
@@ -7946,11 +9002,15 @@ export type Database = {
           gamification_leaderboard_enabled: boolean
           gamification_xp_notify: boolean
           id: string
+          is_minor: boolean | null
           job_title: string | null
           last_activity_date: string | null
           learning_styles: string[] | null
           line_spacing: number | null
           onboarding_completed: boolean | null
+          parent_email: string | null
+          parental_consent_date: string | null
+          parental_consent_status: string | null
           pending_role: string | null
           phoenix_settings: Json | null
           phone_extension: string | null
@@ -7985,6 +9045,7 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           date_format?: string | null
+          date_of_birth?: string | null
           department?: string | null
           display_font_size?: string
           display_high_contrast?: boolean
@@ -8000,11 +9061,15 @@ export type Database = {
           gamification_leaderboard_enabled?: boolean
           gamification_xp_notify?: boolean
           id: string
+          is_minor?: boolean | null
           job_title?: string | null
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
+          parent_email?: string | null
+          parental_consent_date?: string | null
+          parental_consent_status?: string | null
           pending_role?: string | null
           phoenix_settings?: Json | null
           phone_extension?: string | null
@@ -8039,6 +9104,7 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           date_format?: string | null
+          date_of_birth?: string | null
           department?: string | null
           display_font_size?: string
           display_high_contrast?: boolean
@@ -8054,11 +9120,15 @@ export type Database = {
           gamification_leaderboard_enabled?: boolean
           gamification_xp_notify?: boolean
           id?: string
+          is_minor?: boolean | null
           job_title?: string | null
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
+          parent_email?: string | null
+          parental_consent_date?: string | null
+          parental_consent_status?: string | null
           pending_role?: string | null
           phoenix_settings?: Json | null
           phone_extension?: string | null
@@ -9469,6 +10539,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "session_time_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       shop_items: {
@@ -10853,6 +11930,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_invites_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "public_organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_module_progress: {
@@ -11364,6 +12448,30 @@ export type Database = {
       }
     }
     Views: {
+      public_organizations: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          logo_url: string | null
+          name: string | null
+          slug: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          slug?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          logo_url?: string | null
+          name?: string | null
+          slug?: string | null
+        }
+        Relationships: []
+      }
       scorm_latest_attempt: {
         Row: {
           completion_status:
@@ -11461,6 +12569,10 @@ export type Database = {
           level: number
           next_level_xp: number
         }[]
+      }
+      can_students_message: {
+        Args: { p_org_id: string; p_student1_id: string; p_student2_id: string }
+        Returns: boolean
       }
       check_rate_limit: {
         Args: {
@@ -11571,6 +12683,26 @@ export type Database = {
         }[]
       }
       get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_copilot_activity: {
+        Args: { p_limit?: number; p_org_id: string }
+        Returns: Json
+      }
+      get_admin_copilot_ai_usage: {
+        Args: { p_days?: number; p_org_id: string }
+        Returns: Json
+      }
+      get_admin_copilot_courses: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_goals: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_governance_stats: {
+        Args: { p_org_id: string }
+        Returns: Json
+      }
+      get_admin_copilot_groups: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_staff: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_students: {
+        Args: { p_filters?: Json; p_org_id: string }
+        Returns: Json
+      }
       get_ai_coach_learning_streak: {
         Args: { p_user_id: string }
         Returns: number
@@ -11730,6 +12862,10 @@ export type Database = {
           student_name: string
           time_spent_today_minutes: number
         }[]
+      }
+      get_org_user_role: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: string
       }
       get_organization_analytics: { Args: { p_org_id: string }; Returns: Json }
       get_organization_leaderboard: {
@@ -11996,6 +13132,14 @@ export type Database = {
         Args: { check_user_id: string }
         Returns: boolean
       }
+      is_conversation_participant: {
+        Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_org_educator: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_org_member: {
         Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
@@ -12101,6 +13245,10 @@ export type Database = {
         }
         Returns: Json
       }
+      search_admin_copilot_knowledge: {
+        Args: { p_query: string }
+        Returns: Json
+      }
       search_kb_embeddings: {
         Args: {
           match_count?: number
@@ -12178,6 +13326,15 @@ export type Database = {
         Returns: Json
       }
       validate_org_invite: { Args: { code: string }; Returns: Json }
+      validate_student_activation_token: {
+        Args: { token_value: string }
+        Returns: {
+          activation_status: string
+          first_name: string
+          id: string
+          org_id: string
+        }[]
+      }
       validate_student_pin: {
         Args: { p_full_name: string; p_org_id: string; p_pin_hash: string }
         Returns: {

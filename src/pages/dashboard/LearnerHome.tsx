@@ -7,10 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
-import { AIStudyChatInterface } from '@/components/chat/AIStudyChatInterface';
-import { useStudySessions } from '@/hooks/useStudySessions';
-import { useFlashcards } from '@/hooks/useFlashcards';
-import { useStudyInsights } from '@/hooks/useStudyInsights';
 import LearningAnalyticsOverview from '@/components/dashboard/LearningAnalyticsOverview';
 import GamificationOverview from '@/components/dashboard/GamificationOverview';
 import GoalsOverview from '@/components/dashboard/GoalsOverview';
@@ -26,11 +22,6 @@ const LearnerHome = () => {
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const { t } = useTranslation('dashboard');
-  
-  // AI Chat Interface data
-  const { sessions: completedSessions } = useStudySessions();
-  const { flashcards } = useFlashcards();
-  const { insights } = useStudyInsights();
 
   // Video guide storage and modal state
   const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('home_intro_seen');
@@ -105,26 +96,6 @@ const LearnerHome = () => {
           <QuickAccessBar />
         </div>
       </section>
-
-      {/* AI Learning Assistant */}
-      <section className="mb-6 sm:mb-8">
-        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-1 border border-white/20 shadow-lg">
-          <h2 className="mobile-heading-md mb-3 sm:mb-4 text-white font-bold px-3 pt-2 drop-shadow-sm">AI Learning Assistant</h2>
-          <div className="h-[600px] rounded-xl overflow-hidden">
-            <AIStudyChatInterface
-              user={user}
-              completedSessions={completedSessions}
-              flashcards={flashcards}
-              insights={insights}
-              fixedHeight={true}
-              showHeader={true}
-              chatMode="general"
-              placeholder="Ask me anything about your studies..."
-            />
-          </div>
-        </div>
-      </section>
-
 
       {/* AI Insights Section */}
       <section className="mb-6 sm:mb-8">

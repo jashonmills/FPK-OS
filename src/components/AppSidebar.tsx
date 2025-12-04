@@ -50,7 +50,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 import { useOrgContext } from "@/components/organizations/OrgContext";
-import { shouldShowBetaFeatures, shouldShowLibrary, shouldShowLiveHub } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLibrary, shouldShowLiveHub, shouldUseAILearningCoachV2 } from '@/lib/featureFlags';
 
 // Safe hook that works with or without OrgProvider
 function useSafeOrgContext() {
@@ -181,6 +181,16 @@ export function AppSidebar() {
       icon: GraduationCap,
     },
     {
+      title: 'Teacher Dashboard V2',
+      url: "/dashboard/admin/teacher-dashboard-v2",
+      icon: Sparkles,
+    },
+    {
+      title: 'AI Learning Coach V2',
+      url: "/dashboard/admin/ai-learning-coach-v2",
+      icon: BookUser,
+    },
+    {
       title: 'Course Manager',
       url: "/dashboard/admin/courses",
       icon: Book,
@@ -224,6 +234,11 @@ export function AppSidebar() {
       title: 'Audit Logs',
       url: "/dashboard/admin/audit",
       icon: FileText,
+    },
+    {
+      title: 'AI Governance',
+      url: "/dashboard/admin/ai-governance",
+      icon: Shield,
     },
   ];
 
@@ -274,7 +289,7 @@ export function AppSidebar() {
       await signOut();
       navigate('/login');
     } catch (error) {
-      logger.auth('Error signing out', error);
+      logger.auth.error('Error signing out', { error });
     }
   };
 

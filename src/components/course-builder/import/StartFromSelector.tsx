@@ -1,9 +1,9 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileUp, Edit3, FileSpreadsheet } from 'lucide-react';
+import { FileUp, Edit3, FileSpreadsheet, Sparkles } from 'lucide-react';
 
-export type StartFromOption = 'manual' | 'scorm' | 'json';
+export type StartFromOption = 'manual' | 'scorm' | 'json' | 'ai-generate';
 
 interface StartFromSelectorProps {
   value: StartFromOption;
@@ -16,11 +16,18 @@ export const StartFromSelector: React.FC<StartFromSelectorProps> = ({
 }) => {
   const options = [
     {
+      id: 'ai-generate' as const,
+      title: 'AI Generate',
+      description: 'Generate full course content with AI from a topic',
+      icon: Sparkles,
+      recommended: true
+    },
+    {
       id: 'manual' as const,
       title: 'Build Manually',
       description: 'Create course from scratch with our interactive builder',
       icon: Edit3,
-      recommended: true
+      recommended: false
     },
     {
       id: 'scorm' as const,

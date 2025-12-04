@@ -13,7 +13,7 @@ export function OrgRequireRole({
   children, 
   fallback = null 
 }: OrgRequireRoleProps) {
-  const { currentOrg, isPersonalMode } = useOrgContext();
+  const { currentOrg, isPersonalMode, getEffectiveRole } = useOrgContext();
   
   // If in personal mode, redirect to dashboard
   if (isPersonalMode) {
@@ -25,8 +25,9 @@ export function OrgRequireRole({
     return <Navigate to="/dashboard" replace />;
   }
   
-  // Check if user has required role in current org
-  const hasRequiredRole = roles.includes(currentOrg.role);
+  // Check if user has required role in current org (using effective role for impersonation)
+  const effectiveRole = getEffectiveRole();
+  const hasRequiredRole = effectiveRole ? roles.includes(effectiveRole) : false;
   
   if (!hasRequiredRole) {
     // Return fallback or redirect to org home (not dashboard to avoid loops)

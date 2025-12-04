@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle, LayoutGrid, LayoutList, Grid3x3, FileSpreadsheet } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgCan } from '@/hooks/useOrgCan';
 import { useOrgBranding, useUpdateOrgBranding, useUploadBrandingFile } from '@/hooks/useOrgBranding';
 import { useEmailInvitation } from '@/hooks/useInvitationSystem';
 import { useToast } from '@/hooks/use-toast';
@@ -68,7 +69,8 @@ const roleDescriptions = {
 };
 
 export default function OrganizationSettingsTabs() {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
+  const { canAccessDangerZone } = useOrgCan();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -320,7 +322,7 @@ export default function OrganizationSettingsTabs() {
 
           <AILearningCoachSettings orgId={currentOrg.organization_id} />
 
-          {currentOrg.role === 'owner' && (
+          {canAccessDangerZone() && (
             <OrgCard className="bg-red-500/20 border-red-400/50">
               <OrgCardHeader>
                 <OrgCardTitle className="text-red-300">Danger Zone</OrgCardTitle>

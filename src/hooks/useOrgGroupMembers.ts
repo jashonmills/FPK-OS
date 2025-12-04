@@ -98,22 +98,21 @@ export function useOrgGroupMembers(groupId?: string) {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Fetch available students (not in this group)
+  // Fetch available students (not in this group) - SOURCE: org_students with linked accounts
   const { data: availableStudents = [], isLoading: loadingAvailable } = useQuery({
     queryKey: ['org-available-students', orgId, groupId],
     enabled: !!orgId && !!groupId,
     queryFn: async () => {
       if (!orgId || !groupId) return [];
 
-      // Get all students in the organization
-      const { data: orgMembers, error: membersError } = await supabase
-        .from('org_members')
-        .select('user_id, role, status')
+      // Get all students from org_students who have linked accounts (can be group members)
+      const { data: orgStudents, error: studentsError } = await supabase
+        .from('org_students')
+        .select('id, full_name, linked_user_id, avatar_url, status')
         .eq('org_id', orgId)
-        .eq('role', 'student')
-        .eq('status', 'active');
+        .not('linked_user_id', 'is', null); // Only students with accounts can join groups
 
-      if (membersError) throw membersError;
+      if (studentsError) throw studentsError;
 
       // Get students already in this group
       const { data: groupMembers, error: groupError } = await supabase
@@ -126,50 +125,39 @@ export function useOrgGroupMembers(groupId?: string) {
       const groupMemberIds = new Set(groupMembers?.map(m => m.user_id) || []);
 
       // Filter out students already in the group
-      const availableUserIds = orgMembers
-        ?.filter(member => !groupMemberIds.has(member.user_id))
-        .map(m => m.user_id) || [];
+      const availableOrgStudents = orgStudents?.filter(
+        student => student.linked_user_id && !groupMemberIds.has(student.linked_user_id)
+      ) || [];
 
-      if (availableUserIds.length === 0) return [];
+      if (availableOrgStudents.length === 0) return [];
 
-      // Fetch profiles for available students
+      // Get linked user IDs for profile lookup
+      const linkedUserIds = availableOrgStudents.map(s => s.linked_user_id!);
+
+      // Fetch profiles for available students (for email)
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, display_name, full_name, email, avatar_url')
-        .in('id', availableUserIds);
+        .in('id', linkedUserIds);
 
-      if (profilesError) throw profilesError;
+      if (profilesError) console.error('Error fetching profiles:', profilesError);
 
-      // Fetch org_students data (legacy system with student names)
-      const { data: orgStudents, error: orgStudentsError } = await supabase
-        .from('org_students')
-        .select('linked_user_id, full_name')
-        .eq('org_id', orgId)
-        .in('linked_user_id', availableUserIds);
-
-      if (orgStudentsError) console.error('Error fetching org_students:', orgStudentsError);
-
-      // Create maps for easy lookup
-      const orgMembersMap = new Map(orgMembers?.map(m => [m.user_id, m]) || []);
-      const orgStudentsMap = new Map(orgStudents?.map(s => [s.linked_user_id, s]) || []);
+      // Create profile map for email lookup
+      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
       
-      const available = profiles?.map(profile => {
-        const member = orgMembersMap.get(profile.id);
-        const orgStudent = orgStudentsMap.get(profile.id);
-        
-        // Prefer org_students name, fallback to profile
-        const name = orgStudent?.full_name || profile.full_name || profile.display_name;
+      const available = availableOrgStudents.map(student => {
+        const profile = profilesMap.get(student.linked_user_id!);
         
         return {
-          user_id: profile.id,
-          display_name: name,
-          full_name: name,
-          email: profile.email,
-          avatar_url: profile.avatar_url,
-          role: member?.role || 'student',
-          status: member?.status || 'active'
+          user_id: student.linked_user_id!,
+          display_name: student.full_name || profile?.full_name || profile?.display_name,
+          full_name: student.full_name || profile?.full_name,
+          email: profile?.email,
+          avatar_url: student.avatar_url || profile?.avatar_url,
+          role: 'student' as const,
+          status: student.status || 'active'
         };
-      }) || [];
+      });
 
       return available as AvailableStudent[];
     },

@@ -14,6 +14,9 @@ import { StartFromSelector, type StartFromOption } from '../import/StartFromSele
 import { FileDropzone } from '../import/FileDropzone';
 import { ImportProcessingScreen } from '../import/ImportProcessingScreen';
 import { ImportReviewScreen } from '../import/ImportReviewScreen';
+import { AIGenerationPanel } from '../AIGenerationPanel';
+import { ContentPreviewPanel } from '../ContentPreviewPanel';
+import { CourseContentManifest } from '@/types/lessonContent';
 
 interface CourseOverviewStepProps {
   draft: CourseDraft;
@@ -38,11 +41,14 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
   const [newPrerequisite, setNewPrerequisite] = useState('');
   
   // Import state
-  const [startFrom, setStartFrom] = useState<StartFromOption>('manual');
+  const [startFrom, setStartFrom] = useState<StartFromOption>('ai-generate');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importId, setImportId] = useState<string | null>(null);
   const [importData, setImportData] = useState<any>(null);
   const [isImporting, setIsImporting] = useState(false);
+  
+  // AI Generation state
+  const [aiGeneratedManifest, setAiGeneratedManifest] = useState<CourseContentManifest | null>(null);
   
   // Refs for debouncing and tracking user interaction
   const titleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -247,6 +253,54 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
     );
   }
 
+  // Show AI content preview after generation
+  if (aiGeneratedManifest) {
+    return (
+      <ContentPreviewPanel
+        manifest={aiGeneratedManifest}
+        onAccept={() => {
+          // Convert manifest to course draft format
+          const modules = aiGeneratedManifest.lessons.reduce((acc, lesson) => {
+            const unitName = lesson.unit || 'General';
+            let module = acc.find(m => m.title === unitName);
+            if (!module) {
+              module = {
+                id: `module-${acc.length + 1}`,
+                title: unitName,
+                lessons: []
+              };
+              acc.push(module);
+            }
+            module.lessons.push({
+              id: `lesson-${lesson.id}`,
+              title: lesson.title,
+              description: lesson.description || '',
+              slides: lesson.sections?.map((section, idx) => ({
+                id: `slide-${lesson.id}-${idx}`,
+                kind: 'content' as const,
+                title: 'content' in section ? undefined : '',
+                html: 'content' in section ? (section as any).content : ''
+              })) || []
+            });
+            return acc;
+          }, [] as any[]);
+
+          updateCourse({
+            title: aiGeneratedManifest.title,
+            description: aiGeneratedManifest.description,
+            modules,
+            durationEstimateMins: aiGeneratedManifest.lessons.reduce((acc, l) => acc + (l.estimatedMinutes || 5), 0)
+          });
+          
+          toast.success('AI-generated content applied to course!');
+          setAiGeneratedManifest(null);
+          setStartFrom('manual'); // Switch to manual to show the form
+        }}
+        onBack={() => setAiGeneratedManifest(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Start From Selector */}
@@ -254,6 +308,14 @@ export const CourseOverviewStep = React.memo<CourseOverviewStepProps>(({
         value={startFrom}
         onChange={setStartFrom}
       />
+
+      {/* AI Generation Section */}
+      {startFrom === 'ai-generate' && (
+        <AIGenerationPanel
+          onGenerated={setAiGeneratedManifest}
+          onCancel={() => setStartFrom('manual')}
+        />
+      )}
 
       {/* Import File Section */}
       {startFrom === 'scorm' && (

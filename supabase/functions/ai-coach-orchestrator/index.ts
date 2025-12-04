@@ -4209,7 +4209,34 @@ Keep it brief (2-3 sentences total). Make the transition feel natural.`;
           
           console.log('[CONDUCTOR] Stream closed successfully');
           
-          // PHASE 5: Extract and store memories after session completion
+          // PHASE 5A: Track Phoenix session and log audit for governance
+          if (user?.id) {
+            const { trackPhoenixSession, logPhoenixAuditEvent } = await import('./audit-logger.ts');
+            const phoenixSessionId = await trackPhoenixSession(user.id, null, conversationUuid);
+            const totalLatency = Date.now() - startTime;
+            
+            await logPhoenixAuditEvent({
+              userId: user.id,
+              orgId: null,
+              sessionId: phoenixSessionId,
+              conversationId: conversationUuid,
+              persona: selectedPersona,
+              messageLength: message?.length || 0,
+              responseLength: finalText.length,
+              latencyMs: totalLatency,
+              status: 'success',
+              additionalDetails: {
+                governor_checked: true,
+                governor_blocked: governorBlocked,
+                is_socratic_handoff: isSocraticHandoff,
+                is_welcome_back: isWelcomeBack,
+                chunk_count: chunkCount,
+                has_audio: audioUrl !== null
+              }
+            });
+          }
+          
+          // PHASE 5B: Extract and store memories after session completion
           if (featureFlags['memory_extraction']?.enabled && user?.id && conversationHistory.length >= 4) {
             const minMessages = featureFlags['memory_extraction']?.config?.min_messages || 4;
             console.log(`[MEMORY] 🧠 Memory extraction feature ENABLED (min ${minMessages} messages) - starting async extraction...`);

@@ -45,12 +45,12 @@ serve(async (req) => {
           id,
           title,
           description,
-          artwork_url,
-          duration_hours,
-          is_published,
+          thumbnail_url,
+          duration_minutes,
+          status,
           created_at
         `)
-        .eq('is_published', true)
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -75,13 +75,14 @@ serve(async (req) => {
           id,
           title,
           description,
-          artwork_url,
-          duration_hours,
-          learning_objectives,
-          is_published
+          thumbnail_url,
+          background_image,
+          duration_minutes,
+          difficulty_level,
+          status
         `)
         .eq('id', courseId)
-        .eq('is_published', true)
+        .eq('status', 'published')
         .single()
 
       if (courseError) {

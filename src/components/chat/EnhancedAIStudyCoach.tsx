@@ -32,7 +32,9 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   const [dataSource, setDataSource] = useState<DataSource>('general');
   const [orgSettings, setOrgSettings] = useState<any>(null);
   const [currentMessages, setCurrentMessages] = useState<any[]>([]);
-  const currentOrg = useOptionalOrgContext()?.currentOrg || null;
+  const orgContext = useOptionalOrgContext();
+  const currentOrg = orgContext?.currentOrg || null;
+  const getEffectiveRole = orgContext?.getEffectiveRole;
   
   // Personal mode uses the tri-modal system, org mode uses the legacy system
   const isPersonalMode = chatMode === 'personal' && !orgId;
@@ -349,7 +351,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   return (
     <div className="flex flex-col h-full max-h-full gap-4">{/* Removed overflow-hidden to allow scrolling */}
       {/* Onboarding for first-time users */}
-      <ModeOnboarding onComplete={() => {}} userRole={currentOrg?.role} />
+      <ModeOnboarding onComplete={() => {}} userRole={getEffectiveRole?.()} />
       
       {/* Mode Toggle and Data Source Selector */}
       <div className="flex justify-between items-center px-4 gap-2">

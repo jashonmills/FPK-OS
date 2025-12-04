@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { assertOrg } from '@/lib/org/context';
 import { trackOrgActivity } from '@/utils/analyticsTracking';
+import { notifyInstructorsOfGoalCompletion } from '@/utils/notificationTriggers';
 
 export interface OrgGoal {
   id: string;
@@ -176,8 +177,30 @@ export function useOrgGoals(organizationId?: string) {
       
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['org-goals'] });
+      
+      // Check if this was a goal completion
+      if (variables.status === 'completed' && orgId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+          
+          await notifyInstructorsOfGoalCompletion(
+            orgId,
+            user.id,
+            profile?.full_name || user.email || 'Student',
+            data.id,
+            data.title
+          );
+        }
+      }
+      
       toast({
         title: "Success",
         description: "Goal updated successfully.",
@@ -193,6 +216,45 @@ export function useOrgGoals(organizationId?: string) {
     },
   });
 
+  const deleteGoalMutation = useMutation({
+    mutationFn: async (goalId: string) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to delete goals');
+      }
+
+      const { error } = await supabase
+        .from('org_goals')
+        .delete()
+        .eq('id', goalId)
+        .eq('organization_id', orgId);
+
+      if (error) throw error;
+      
+      // Track activity
+      const currentUser = (await supabase.auth.getUser()).data.user;
+      if (currentUser?.id && orgId) {
+        trackOrgActivity('goal_deleted', currentUser.id, orgId, {
+          goal_id: goalId
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['org-goals'] });
+      toast({
+        title: "Success",
+        description: "Goal deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete goal.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     goals,
     isLoading,
@@ -200,8 +262,10 @@ export function useOrgGoals(organizationId?: string) {
     refetch,
     createGoal: createGoalMutation.mutate,
     updateGoal: updateGoalMutation.mutate,
+    deleteGoal: deleteGoalMutation.mutate,
     isCreating: createGoalMutation.isPending,
     isUpdating: updateGoalMutation.isPending,
+    isDeleting: deleteGoalMutation.isPending,
   };
 }
 

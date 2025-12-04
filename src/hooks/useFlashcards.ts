@@ -2,6 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useXPIntegration } from './useXPIntegration';
+import { trackDailyActivity } from '@/utils/analyticsTracking';
 
 export interface Flashcard {
   id: string;
@@ -20,6 +22,7 @@ export interface Flashcard {
 export const useFlashcards = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { awardFlashcardCreationXP } = useXPIntegration();
 
   const { data: flashcards = [], isLoading } = useQuery({
     queryKey: ['flashcards', user?.id],
@@ -73,10 +76,25 @@ export const useFlashcards = () => {
       console.log('✅ Flashcard created successfully:', data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log('🔄 Invalidating flashcard queries after successful creation');
       queryClient.invalidateQueries({ queryKey: ['flashcards', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['flashcard-sets', user?.id] });
+      
+      // Award XP for flashcard creation
+      try {
+        await awardFlashcardCreationXP();
+        console.log('🎮 XP awarded for flashcard creation');
+      } catch (error) {
+        console.warn('Failed to award XP for flashcard creation:', error);
+      }
+      
+      // Track daily activity (use 'study' as the activity type)
+      if (user?.id) {
+        trackDailyActivity('study', 0, user.id).catch(err => 
+          console.warn('Failed to track flashcard activity:', err)
+        );
+      }
     },
   });
 

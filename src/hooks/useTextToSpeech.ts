@@ -58,13 +58,10 @@ export const useTextToSpeech = () => {
       return undefined;
     }
 
-    // If no persona specified, use default English voice
+    // If no persona specified, default to Betty's voice
     if (!persona) {
-      const defaultVoice = voices.find(v => v.lang.startsWith('en-') && v.localService) || 
-                          voices.find(v => v.lang.startsWith('en-'));
-      console.log('[TTS DIAGNOSTIC] ℹ️ No persona specified, using default voice:', defaultVoice?.name);
-      console.log(`[TTS DIAGNOSTIC] ========================================`);
-      return defaultVoice;
+      console.log('[TTS DIAGNOSTIC] ℹ️ No persona specified, defaulting to BETTY voice');
+      persona = 'BETTY';
     }
 
     // --- PREMIUM VOICE MAP ---
@@ -236,8 +233,9 @@ export const useTextToSpeech = () => {
       hasInteracted = personaOrOptions.hasInteracted ?? true;
       selectedVoice = undefined; // Will use default voice
     } else {
-      // No parameter: use default voice
-      selectedVoice = getVoiceForPersona();
+      // No parameter: default to Betty's voice
+      persona = 'BETTY';
+      selectedVoice = getVoiceForPersona('BETTY');
     }
 
     // Stop any current speech if interrupt is requested

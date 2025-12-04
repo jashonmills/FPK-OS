@@ -81,8 +81,8 @@ export function AddStudentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Student Manually</DialogTitle>
           <DialogDescription>
             Add a student to your organization. They can join later with an invitation code.
@@ -90,7 +90,7 @@ export function AddStudentDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 overflow-y-auto flex-1 px-1">
             <FormField
               control={form.control}
               name="full_name"
@@ -212,7 +212,7 @@ export function AddStudentDialog({
               )}
             />
 
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="flex justify-end space-x-2 pt-4 flex-shrink-0 border-t border-border mt-4 sticky bottom-0 bg-background">
               <Button
                 type="button"
                 variant="outline"

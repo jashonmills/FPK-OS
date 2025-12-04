@@ -22,6 +22,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { logger } from '@/utils/logger';
 
 interface UserDetailsDialogProps {
   open: boolean;
@@ -78,7 +79,7 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
       if (error) throw error;
       setOrganizations(data || []);
     } catch (error) {
-      console.error('Error loading organizations:', error);
+      logger.error('Error loading user organizations', { userId: user.id, error });
     }
   };
 
@@ -136,7 +137,7 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
       onUserUpdated?.();
       onOpenChange(false);
     } catch (error: any) {
-      console.error('Delete user error:', error);
+      logger.error('Delete user error', { userId: user.id, error });
       toast({
         title: "Error",
         description: error.message || "Failed to delete user",
@@ -170,12 +171,21 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
   };
 
   const handleImpersonateUser = async () => {
+    // SECURITY: Impersonation requires proper audit logging before implementation
+    // When implemented, this MUST:
+    // 1. Create audit_log entry with action_type='admin_impersonation'
+    // 2. Record admin user ID, target user ID, timestamp, and justification
+    // 3. Set impersonation timeout (max 1 hour)
+    // 4. Notify target user of impersonation session
+    logger.auth.warn('Admin impersonation attempted - feature disabled', { 
+      targetUserId: user.id, 
+      targetUserEmail: user.email 
+    });
+    
     toast({
       title: "Feature Coming Soon",
       description: "User impersonation requires additional security implementation",
     });
-    
-    // TODO: Implement secure impersonation with proper audit logging
   };
 
   const formatTimeSpent = (seconds: number) => {
