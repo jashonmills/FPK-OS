@@ -85,7 +85,7 @@ export const UniversityLandingPage = () => {
             </CardHeader>
             <CardContent>
               <FeatureList features={individualFeatures} />
-              <Link to="/pricing/individual" className="w-full block">
+              <Link to="/university/pricing" className="w-full block">
                 <Button size="lg" className="w-full mt-8 bg-blue-600 hover:bg-blue-700">
                   Choose Your Plan
                 </Button>
