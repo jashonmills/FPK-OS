@@ -33,6 +33,7 @@ import AIGovernancePage from "./pages/AIGovernancePage";
 import OrganizationHubPage from "./pages/OrganizationHubPage";
 import FpkNexusPage from "./pages/FpkNexusPage";
 import FPKxRoutes from "./routes/FPKxRoutes";
+import UniversityLandingPage from "./pages/landing/UniversityLandingPage";
 
 const MainLayout = () => (
   <div className="flex min-h-screen flex-col bg-white text-slate-900">
@@ -136,6 +137,7 @@ function App() {
           path="/solutions/libraries/configure"
           element={<LibrariesConfigurePage />}
         />
+        <Route path="/university" element={<UniversityLandingPage />} />
       </Route>
       <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/dashboard/*" element={<DashboardRoutes />} />
