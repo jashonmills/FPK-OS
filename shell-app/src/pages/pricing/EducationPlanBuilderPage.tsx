@@ -159,7 +159,7 @@ export const EducationPlanBuilderPage = () => {
                   type="range"
                   min={50}
                   max={10000}
-                  step={100}
+                  step={50}
                   value={userCount}
                   onChange={(e) => setUserCount(Number(e.target.value))}
                 />
@@ -207,7 +207,7 @@ export const EducationPlanBuilderPage = () => {
                   </ul>
                 </div>
                 <Button size="lg" className="w-full mt-6">
-                  Request a Quote & Build Plan
+                  Proceed to Checkout
                 </Button>
               </CardContent>
             </Card>
