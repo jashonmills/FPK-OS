@@ -1,4 +1,5 @@
 import { Building, CheckCircle, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 
@@ -84,9 +85,11 @@ export const UniversityLandingPage = () => {
             </CardHeader>
             <CardContent>
               <FeatureList features={individualFeatures} />
-              <Button size="lg" className="w-full mt-8 bg-blue-600 hover:bg-blue-700">
-                Choose Your Plan
-              </Button>
+              <Link to="/pricing/individual" className="w-full block">
+                <Button size="lg" className="w-full mt-8 bg-blue-600 hover:bg-blue-700">
+                  Choose Your Plan
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -102,9 +105,11 @@ export const UniversityLandingPage = () => {
             </CardHeader>
             <CardContent>
               <FeatureList features={institutionFeatures} />
-              <Button size="lg" variant="outline" className="w-full mt-8">
-                Build Your Custom Plan
-              </Button>
+              <Link to="/solutions/education/build-plan" className="w-full block">
+                <Button size="lg" variant="outline" className="w-full mt-8">
+                  Build Your Custom Plan
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
