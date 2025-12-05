@@ -258,7 +258,7 @@ const LibrariesConfigurePage = () => {
     params.append("plan", "library_custom");
     params.append("patrons", patrons.toString());
     selectedProducts.forEach((id) => params.append("products", id));
-    navigate(`/access?${params.toString()}`);
+    navigate(`/onboarding?${params.toString()}`);
   };
 
   const renderPrice = (product: Product) => {

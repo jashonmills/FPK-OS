@@ -63,7 +63,7 @@ const IndividualsPricingPage = () => {
   const navigate = useNavigate();
 
   const handleCtaClick = (planId: string) => {
-    navigate(`/access?plan=${planId}`);
+    navigate(`/onboarding?plan=${planId}`);
   };
 
   return (

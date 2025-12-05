@@ -19,13 +19,13 @@ const Header = () => {
         <div className="flex items-center gap-3">
           <button
             className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white"
-            onClick={() => navigate("/access?tab=signin")}
+            onClick={() => navigate("/onboarding")}
           >
             Login
           </button>
           <button
             className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-slate-800"
-            onClick={() => navigate("/access")}
+            onClick={() => navigate("/onboarding")}
           >
             Sign Up
           </button>

@@ -215,7 +215,7 @@ const TherapyConfigurePage = () => {
     params.append("plan", "therapy_custom");
     params.append("seats", seats.toString());
     selectedProducts.forEach((id) => params.append("products", id));
-    navigate(`/access?${params.toString()}`);
+    navigate(`/onboarding?${params.toString()}`);
   };
 
   const renderPrice = (product: Product) =>

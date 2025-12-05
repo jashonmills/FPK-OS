@@ -10,6 +10,7 @@ import {
   ListChecks,
   Network,
   Shield,
+  Sparkles,
   Users,
   Workflow,
 } from "lucide-react";
@@ -237,6 +238,7 @@ const ConfigurePage = () => {
   const [expandedProducts, setExpandedProducts] = useState<string[]>([]);
   const [seats, setSeats] = useState<number>(1000);
   const [activePackage, setActivePackage] = useState<string | null>(null);
+  const [includeTrial, setIncludeTrial] = useState<boolean>(true);
 
   const handleProductToggle = (product: Product) => {
     setActivePackage(null);
@@ -301,7 +303,8 @@ const ConfigurePage = () => {
     params.append("plan", "education_custom");
     params.append("seats", seats.toString());
     selectedProducts.forEach((id) => params.append("products", id));
-    navigate(`/access?${params.toString()}`);
+    params.append("trial", includeTrial.toString());
+    navigate(`/onboarding?${params.toString()}`);
   };
 
   const renderPrice = (product: Product) =>
@@ -480,6 +483,36 @@ const ConfigurePage = () => {
                     }}
                     className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-inner focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                   />
+                </div>
+
+                <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="h-6 w-6 text-indigo-600" />
+                    <div>
+                      <h4 className="text-sm font-semibold text-indigo-900">
+                        30-Day All-Access Trial Included
+                      </h4>
+                      <p className="text-sm text-indigo-700">
+                        Experience the full FPK OS for 30 days with premium modules enabled. You can toggle this off if
+                        you prefer to start with only your selected products.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-indigo-100 pt-3">
+                    <label
+                      htmlFor="trial-toggle"
+                      className="text-sm font-semibold text-indigo-900"
+                    >
+                      Enable full-feature trial
+                    </label>
+                    <input
+                      id="trial-toggle"
+                      type="checkbox"
+                      checked={includeTrial}
+                      onChange={(e) => setIncludeTrial(e.target.checked)}
+                      className="h-4 w-4 rounded border-indigo-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
                 </div>
 
                 <div>
