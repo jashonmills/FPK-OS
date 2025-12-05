@@ -34,6 +34,8 @@ import OrganizationHubPage from "./pages/OrganizationHubPage";
 import FpkNexusPage from "./pages/FpkNexusPage";
 import FPKxRoutes from "./routes/FPKxRoutes";
 import UniversityLandingPage from "./pages/landing/UniversityLandingPage";
+import UniversityForIndividualsPage from "./pages/landing/UniversityForIndividualsPage";
+import UniversityForInstitutionsPage from "./pages/landing/UniversityForInstitutionsPage";
 import EducationPlanBuilderPage from "./pages/pricing/EducationPlanBuilderPage";
 import IndividualPlanBuilderPage from "./pages/pricing/IndividualPlanBuilderPage";
 
@@ -141,6 +143,8 @@ function App() {
         />
         <Route path="/solutions/education/build-plan" element={<EducationPlanBuilderPage />} />
         <Route path="/university" element={<UniversityLandingPage />} />
+        <Route path="/university/for-individuals" element={<UniversityForIndividualsPage />} />
+        <Route path="/university/for-institutions" element={<UniversityForInstitutionsPage />} />
         <Route path="/university/pricing" element={<IndividualPlanBuilderPage />} />
       </Route>
       <Route path="/onboarding" element={<OnboardingPage />} />
