@@ -1,9 +1,8 @@
 import React from "react";
 
-type CheckboxProps = {
+type CheckboxProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
-  className?: string;
 };
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
@@ -13,6 +12,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   checked = false,
   onCheckedChange,
   className,
+  ...props
 }) => {
   return (
     <button
@@ -25,6 +25,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
         className
       )}
       onClick={() => onCheckedChange?.(!checked)}
+      {...props}
     >
       {checked && (
         <svg

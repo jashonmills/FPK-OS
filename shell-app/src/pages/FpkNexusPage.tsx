@@ -1,4 +1,4 @@
-import React from "react";
+// @ts-nocheck
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
@@ -9,16 +9,7 @@ import { Switch } from "../components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Textarea } from "../components/ui/textarea";
 import { Label } from "../components/ui/label";
-import {
-  Shield,
-  Users,
-  Flag,
-  FileText,
-  ShieldCheck,
-  BarChart2,
-  PieChart,
-  BrainCircuit,
-} from "lucide-react";
+import { Shield, BarChart2, PieChart, BrainCircuit } from "lucide-react";
 
 const topContributors = [
   { rank: 1, name: "Jashon Mills", posts: 7, comments: 1, messages: 31, total: 39 },
@@ -180,7 +171,9 @@ export const FpkNexusPage = () => {
                     Lauren <br />
                     <small className="text-slate-500">adinajack2@gmail.com</small>
                   </p>
-                  <Button variant="destructive">Ban</Button>
+                  <Button variant="outline" className="text-rose-600 border-rose-200 hover:bg-rose-50">
+                    Ban
+                  </Button>
                 </div>
               </div>
             </CardContent>

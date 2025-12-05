@@ -59,7 +59,6 @@ import {
   Phone,
   Mail,
   MessageSquare,
-  History,
   FilePlus,
   Send,
 } from "lucide-react";

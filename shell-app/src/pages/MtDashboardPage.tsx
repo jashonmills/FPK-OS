@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { AlertTriangle, Building, FileText, ShieldCheck, UserCheck, UserPlus, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -11,11 +12,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Textarea } from "../components/ui/textarea";
 
 type BadgeVariant = "secondary" | "default" | "outline" | "success" | "destructive" | "warning";
-
 type Kpi = {
   title: string;
   value: string;
-  icon: typeof Activity;
+  icon: LucideIcon;
   description: string;
   isBadge?: boolean;
   badgeVariant?: BadgeVariant;
@@ -131,9 +131,11 @@ const OnboardingModal = ({ open, onOpenChange }: OnboardingModalProps) => {
           <DialogDescription>{currentStep.description}</DialogDescription>
         </DialogHeader>
         <div className="py-4">{currentStep.content}</div>
-        <DialogFooter className="flex justify-between">
-          <div className="text-sm text-slate-500">Step {step} of {steps.length}</div>
-          <div className="flex gap-2">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-slate-500">
+            Step {step} of {steps.length}
+          </div>
+          <DialogFooter>
             {step > 1 && (
               <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
                 Back
@@ -144,8 +146,8 @@ const OnboardingModal = ({ open, onOpenChange }: OnboardingModalProps) => {
             ) : (
               <Button onClick={() => onOpenChange(false)}>Finish Setup</Button>
             )}
-          </div>
-        </DialogFooter>
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -137,7 +137,7 @@ export const SystemSettingsPage = () => {
             </div>
             <div className="flex items-center justify-between">
               <p className="font-medium">Audit Log</p>
-              <Button variant="link">View Full Audit Log</Button>
+              <Button variant="ghost" className="text-primary-700 hover:text-primary-800">View Full Audit Log</Button>
             </div>
           </CardContent>
         </Card>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -82,7 +82,7 @@ const HistoryModal = ({ open, onOpenChange }: { open: boolean; onOpenChange: (op
               <TableCell>{ann.status}</TableCell>
               <TableCell>{ann.engagement}</TableCell>
               <TableCell>
-                <Button variant="link" size="sm">
+                <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-800">
                   View Details
                 </Button>
               </TableCell>

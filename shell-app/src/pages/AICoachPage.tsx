@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -162,7 +162,7 @@ const StemStudentsModal = ({ open, onOpenChange }: { open: boolean; onOpenChange
             <TableCell>Fionn Boyle</TableCell>
             <TableCell>9</TableCell>
             <TableCell>
-              <Button variant="link" size="sm">
+              <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-800">
                 View Profile <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </TableCell>
@@ -171,7 +171,7 @@ const StemStudentsModal = ({ open, onOpenChange }: { open: boolean; onOpenChange
             <TableCell>Amelia Grant</TableCell>
             <TableCell>9</TableCell>
             <TableCell>
-              <Button variant="link" size="sm">
+              <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-800">
                 View Profile <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </TableCell>
@@ -180,7 +180,7 @@ const StemStudentsModal = ({ open, onOpenChange }: { open: boolean; onOpenChange
             <TableCell>Keelan Murphy</TableCell>
             <TableCell>9</TableCell>
             <TableCell>
-              <Button variant="link" size="sm">
+              <Button variant="ghost" size="sm" className="text-primary-700 hover:text-primary-800">
                 View Profile <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </TableCell>
