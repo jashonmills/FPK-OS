@@ -34,6 +34,7 @@ import OrganizationHubPage from "./pages/OrganizationHubPage";
 import FpkNexusPage from "./pages/FpkNexusPage";
 import FPKxRoutes from "./routes/FPKxRoutes";
 import UniversityLandingPage from "./pages/landing/UniversityLandingPage";
+import EducationPlanBuilderPage from "./pages/pricing/EducationPlanBuilderPage";
 
 const MainLayout = () => (
   <div className="flex min-h-screen flex-col bg-white text-slate-900">
@@ -137,6 +138,7 @@ function App() {
           path="/solutions/libraries/configure"
           element={<LibrariesConfigurePage />}
         />
+        <Route path="/solutions/education/build-plan" element={<EducationPlanBuilderPage />} />
         <Route path="/university" element={<UniversityLandingPage />} />
       </Route>
       <Route path="/onboarding" element={<OnboardingPage />} />
