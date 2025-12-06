@@ -112,7 +112,7 @@ export const FeesAndPaymentsPage = () => {
               <div className="flex justify-between items-center">
                 <CardTitle>Invoice Management</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline">Bulk Invoice Grade</Button>
+                  <Button>Bulk Invoice Grade</Button>
                   <Button>
                     <FilePlus className="h-4 w-4 mr-2" />
                     Create New Invoice

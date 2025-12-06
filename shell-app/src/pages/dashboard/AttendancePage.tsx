@@ -118,13 +118,13 @@ const ContactGuardiansModal = ({
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-600">{student.guardian}</p>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon">
+                <Button size="icon">
                   <Phone className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button size="icon">
                   <Mail className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button size="icon">
                   <MessageSquare className="h-4 w-4" />
                 </Button>
               </div>
@@ -273,7 +273,7 @@ const ViewCaseFileModal = ({
               <h4 className="mb-2 font-semibold text-slate-800">Action Panel</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Button
-                  variant="outline"
+                 
                   className="h-auto justify-start p-4"
                 >
                   <FilePlus className="mr-3 h-5 w-5" />
@@ -451,7 +451,7 @@ export const AttendancePage = () => {
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline">
+                      <Button>
                         <Filter className="mr-2 h-4 w-4" />
                         Filter
                       </Button>
@@ -462,7 +462,7 @@ export const AttendancePage = () => {
                       <DropdownMenuItem>Late</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button variant="outline">Bulk Actions</Button>
+                  <Button>Bulk Actions</Button>
                 </div>
               </div>
             </CardHeader>
@@ -566,7 +566,7 @@ export const AttendancePage = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
-                          variant="outline"
+                         
                           size="sm"
                           onClick={() => setActiveCaseFile(c)}
                         >

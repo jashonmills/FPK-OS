@@ -103,7 +103,7 @@ export const StaffManagementPage = () => {
                 <CardHeader>
                   <div className="flex justify-between items-center">
                     <CardTitle>Roles</CardTitle>
-                    <Button variant="outline" size="sm">
+                    <Button size="sm">
                       <PlusCircle className="h-4 w-4" />
                     </Button>
                   </div>

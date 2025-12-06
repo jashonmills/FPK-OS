@@ -137,7 +137,7 @@ const OnboardingModal = ({ open, onOpenChange }: OnboardingModalProps) => {
           </div>
           <DialogFooter>
             {step > 1 && (
-              <Button variant="outline" onClick={() => setStep((s) => s - 1)}>
+              <Button onClick={() => setStep((s) => s - 1)}>
                 Back
               </Button>
             )}
@@ -176,7 +176,7 @@ export const MtDashboardPage = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="border-indigo-200 text-indigo-800 hover:bg-indigo-50">
+            <Button size="sm" className="border-indigo-200 text-indigo-800 hover:bg-indigo-50">
               Export
             </Button>
             <Button size="sm" className="bg-indigo-700 text-white hover:bg-indigo-800">

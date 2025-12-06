@@ -92,7 +92,7 @@ export const CourseBuilder: React.FC<{ onClose: () => void }> = ({
       <header className="flex h-16 flex-shrink-0 items-center justify-between bg-slate-900 px-6 text-white shadow-md">
         <h2 className="text-lg font-semibold">Course Authoring Studio</h2>
         <div className="flex items-center space-x-4">
-          <Button variant="outline" className="text-slate-900">
+          <Button className="text-slate-900">
             Save Draft
           </Button>
           <Button className="bg-primary-600 hover:bg-primary-700">
@@ -148,7 +148,7 @@ export const CourseBuilder: React.FC<{ onClose: () => void }> = ({
             </Droppable>
           </DragDropContext>
           <div className="border-t p-2">
-            <Button variant="outline" className="w-full">
+            <Button className="w-full">
               <Plus className="mr-2 h-4 w-4" /> Add Lesson
             </Button>
           </div>

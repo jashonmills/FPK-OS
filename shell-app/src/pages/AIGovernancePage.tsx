@@ -44,7 +44,7 @@ export const AIGovernancePage = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button>
             <FileCheck2 className="mr-2 h-4 w-4" />
             Export Evidence
           </Button>
@@ -147,7 +147,7 @@ export const AIGovernancePage = () => {
               <CardTitle>Model Registry</CardTitle>
               <CardDescription>Approval status, owners, and last audit date.</CardDescription>
             </div>
-            <Button size="sm" variant="outline">
+            <Button size="sm">
               <SlidersHorizontal className="mr-2 h-4 w-4" />
               Manage SLAs
             </Button>

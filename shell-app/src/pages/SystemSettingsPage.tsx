@@ -32,7 +32,7 @@ export const SystemSettingsPage = () => {
               <p className="text-sm font-semibold text-slate-800">School Logo</p>
               <div className="flex gap-2">
                 <Input type="file" />
-                <Button variant="secondary">
+                <Button>
                   <Upload className="h-4 w-4 mr-2" />
                   Upload
                 </Button>
@@ -100,14 +100,14 @@ export const SystemSettingsPage = () => {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="font-medium">API Keys</p>
-              <Button variant="outline">
+              <Button>
                 <KeyRound className="h-4 w-4 mr-2" />
                 Manage API Keys
               </Button>
             </div>
             <div className="flex items-center justify-between">
               <p className="font-medium">Webhook Endpoints</p>
-              <Button variant="outline">
+              <Button>
                 <Plug className="h-4 w-4 mr-2" />
                 Configure Webhooks
               </Button>
@@ -130,7 +130,7 @@ export const SystemSettingsPage = () => {
                 <p className="font-medium">System Backup</p>
                 <p className="text-sm text-slate-500">Last backup: Today at 02:00 AM</p>
               </div>
-              <Button variant="outline">
+              <Button>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Backup Now
               </Button>

@@ -206,7 +206,7 @@ export const StudentDirectory = () => {
               <SelectItem value="all-status">All Statuses</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="hidden sm:flex">
+          <Button className="hidden sm:flex">
             <Filter className="mr-2 h-4 w-4" /> More Filters
           </Button>
           <div className="flex items-center rounded-md bg-slate-100 p-1">

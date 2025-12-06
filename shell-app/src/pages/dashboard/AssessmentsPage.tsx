@@ -209,7 +209,7 @@ export const AssessmentsPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button className="w-full">Load Grade 10 Roster</Button>
-                  <Button variant="outline" className="w-full">
+                  <Button className="w-full">
                     Select Template: Standard HS
                   </Button>
                 </CardContent>
@@ -268,7 +268,7 @@ export const AssessmentsPage = () => {
             <CardContent>
               <div className="mb-6 flex items-center gap-4 rounded-lg border bg-slate-50 p-4">
                 <label className="font-medium">Select Cohort:</label>
-                <Button variant="secondary">
+                <Button>
                   Class of 2028{" "}
                   <SlidersHorizontal className="ml-2 h-4 w-4" />
                 </Button>

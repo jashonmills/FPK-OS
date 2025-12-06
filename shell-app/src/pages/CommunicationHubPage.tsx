@@ -176,14 +176,14 @@ export const CommunicationHubPage = () => {
                 <Input placeholder="Announcement Title" />
                 <Textarea placeholder="Type your message here..." rows={8} />
                 <div className="flex items-center justify-between">
-                  <Button variant="outline">
+                  <Button>
                     <Paperclip className="h-4 w-4 mr-2" /> Attach
                   </Button>
                   <div className="flex items-center gap-4">
                     <Button>
                       <Send className="h-4 w-4 mr-2" /> Send Now
                     </Button>
-                    <Button variant="secondary" onClick={() => setActiveModal("schedule")}>
+                    <Button onClick={() => setActiveModal("schedule")}>
                       <Clock className="h-4 w-4 mr-2" /> Schedule
                     </Button>
                   </div>
@@ -231,7 +231,7 @@ export const CommunicationHubPage = () => {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Announcement Engagement</CardTitle>
-              <Button variant="outline" onClick={() => setActiveModal("history")}>
+              <Button onClick={() => setActiveModal("history")}>
                 <History className="h-4 w-4 mr-2" /> View History
               </Button>
             </CardHeader>

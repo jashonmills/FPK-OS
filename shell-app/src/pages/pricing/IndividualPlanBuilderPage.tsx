@@ -159,7 +159,7 @@ export const IndividualPlanBuilderPage = () => {
                       <span className="text-sm font-normal text-slate-500">/mo</span>
                     </p>
                   </div>
-                  <Button variant="outline">Add</Button>
+                  <Button>Add</Button>
                 </div>
               </Card>
             ))}

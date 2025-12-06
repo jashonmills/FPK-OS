@@ -234,7 +234,7 @@ export const UniversityForInstitutionsPage = () => {
                     <p className="text-sm text-slate-600">{card.description}</p>
                   </CardContent>
                   <div className="p-6 pt-0">
-                    <Button variant="outline" onClick={() => setActiveModal(card.id)}>
+                    <Button onClick={() => setActiveModal(card.id)}>
                       <Eye className="h-4 w-4 mr-2" />
                       More Info
                     </Button>

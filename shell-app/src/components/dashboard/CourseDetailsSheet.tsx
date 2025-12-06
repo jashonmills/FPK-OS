@@ -196,7 +196,7 @@ export const CourseDetailsSheet: React.FC<CourseDetailsSheetProps> = ({
         <SheetFooter className="bg-white/80 px-6 pb-4 pt-4 backdrop-blur-sm">
           <div className="flex w-full items-center justify-between">
             <div className="space-x-2">
-              <Button variant="outline">Preview as Student</Button>
+              <Button>Preview as Student</Button>
             </div>
             <Button
               size="lg"

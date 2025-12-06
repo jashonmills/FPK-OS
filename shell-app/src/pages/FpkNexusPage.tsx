@@ -171,7 +171,7 @@ export const FpkNexusPage = () => {
                     Lauren <br />
                     <small className="text-slate-500">adinajack2@gmail.com</small>
                   </p>
-                  <Button variant="outline" className="text-rose-600 border-rose-200 hover:bg-rose-50">
+                  <Button className="text-rose-600 border-rose-200 hover:bg-rose-50">
                     Ban
                   </Button>
                 </div>
@@ -311,7 +311,7 @@ export const FpkNexusPage = () => {
             </div>
             <Textarea placeholder="Your AI-generated content will appear here..." rows={10} />
             <div className="text-right">
-              <Button variant="secondary">Publish to Nexus</Button>
+              <Button>Publish to Nexus</Button>
             </div>
           </CardContent>
         </Card>

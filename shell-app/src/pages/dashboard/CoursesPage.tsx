@@ -534,7 +534,7 @@ const CustomCoursesTab: React.FC<{ onLaunchBuilder: () => void }> = ({
       <p className="mt-2 text-slate-600">
         You can import your existing course packages directly into the FPK OS.
       </p>
-      <Button variant="outline" className="mt-4">
+      <Button className="mt-4">
         Upload a Package
       </Button>
     </div>

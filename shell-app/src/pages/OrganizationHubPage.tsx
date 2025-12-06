@@ -78,7 +78,7 @@ export const OrganizationHubPage = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setActiveModal("settings")}>
+          <Button onClick={() => setActiveModal("settings")}>
             <Settings className="h-4 w-4 mr-2" />
             Trust Settings
           </Button>
